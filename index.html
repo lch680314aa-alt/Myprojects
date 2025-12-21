@@ -1,42 +1,30 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-   <meta property="og:title" content="🎆 다온(Daon)을 위한 특별한 불꽃놀이 🎆">
-<meta property="og:description" content="다온의 봄 앨범을 진심으로 축하해! 이곳을 눌러 불꽃놀이를 감상해봐.">
-<meta property="og:image" content="https://images.unsplash.com/photo-1498931299472-f7a63a5a1cfa?q=80&w=1000&auto=format&fit=crop"> 
-<meta property="og:type" content="website">
- <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>다온(Daon)을 위한 불꽃놀이 🎆</title>
+    <title>🎆 다온(Daon)을 위한 특별한 선물 🎆</title>
     <style>
-        body { margin: 0; padding: 0; background-color: #000; overflow: hidden; }
-        #fireworksCanvas { display: block; }
-        .message {
-            position: absolute;
-            top: 40%;
-            width: 100%;
-            text-align: center;
-            color: #fff;
-            font-family: 'Arial', sans-serif;
-            font-size: 2rem;
-            font-weight: bold;
-            text-shadow: 0 0 10px #ff6b6b, 0 0 20px #ff6b6b;
-            pointer-events: none;
-            z-index: 10;
-        }
+        body { margin: 0; padding: 0; background-color: #000; overflow: hidden; font-family: 'Arial', sans-serif; }
+        canvas { display: block; }
+        #ui-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 100; text-align: center; width: 90%; }
+        #user-input { padding: 12px 20px; border-radius: 25px; border: 2px solid #ff6b6b; background: rgba(255,255,255,0.9); width: 60%; outline: none; font-size: 16px; }
+        #send-btn { padding: 12px 25px; border-radius: 25px; background: #ff6b6b; color: white; border: none; cursor: pointer; font-weight: bold; margin-left: 10px; }
+        #music-btn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 8px; border-radius: 50%; cursor: pointer; z-index: 100; }
     </style>
 </head>
 <body>
-    <div id="message-box">
-    <input type="text" id="user-input" placeholder="다온에게 한마디 남겨주세요!">
-    <button onclick="sendMessage()">보내기</button>
-</div>
-
-<div id="reply-container">
-    <button onclick="location.href='https://open.kakao.com/o/sYOUR_LINK'">💌 이철희님께 답장 보내기</button>
-</div>
-    <div class="message">🎆 다온(Daon)의 봄 앨범을 축하해! 🎆</div>
     <canvas id="fireworksCanvas"></canvas>
-    <script type="module" src="/src/main.js"></script>
+    <button id="music-btn">🎵</button>
+    <audio id="bgm" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="ui-container">
+        <input type="text" id="user-input" placeholder="메시지를 입력하고 엔터를 치세요!">
+        <button id="send-btn" onclick="shootFromInput()">보내기</button>
+    </div>
+
+    <script type="module" src="src/main.js"></script>
 </body>
 </html>

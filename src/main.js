@@ -1,67 +1,91 @@
 const canvas = document.getElementById('fireworksCanvas');
 const ctx = canvas.getContext('2d');
+const bgm = document.getElementById('bgm');
+const musicBtn = document.getElementById('music-btn');
+
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+// 음악 제어
+musicBtn.onclick = () => {
+    if (bgm.paused) { bgm.play(); musicBtn.innerText = '⏸️'; }
+    else { bgm.pause(); musicBtn.innerText = '🎵'; }
+};
+
 class Particle {
-    constructor(x, y, color, velocityX, velocityY) {
-        this.x = x; this.y = y; this.color = color;
-        this.velocityX = velocityX; this.velocityY = velocityY;
-        this.alpha = 1; this.friction = 0.95; this.gravity = 0.2;
+    constructor(x, y, color, velocity, message = null) {
+        this.x = x; this.y = y; this.color = color; this.velocity = velocity;
+        this.alpha = 1; this.friction = 0.95; this.gravity = 0.15; this.message = message;
     }
     draw() {
-        ctx.save(); ctx.globalAlpha = this.alpha; ctx.beginPath();
-        ctx.arc(this.x, this.y, 2, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill(); ctx.restore();
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        if (this.message) {
+            ctx.font = 'bold 30px Arial';
+            ctx.fillStyle = this.color;
+            ctx.textAlign = 'center';
+            ctx.fillText(this.message, this.x, this.y);
+        } else {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+            ctx.fillStyle = this.color;
+            ctx.fill();
+        }
+        ctx.restore();
     }
     update() {
-        this.velocityX *= this.friction; this.velocityY *= this.friction;
-        this.velocityY += this.gravity; this.x += this.velocityX; this.y += this.velocityY;
+        this.velocity.x *= this.friction;
+        this.velocity.y *= this.friction;
+        this.velocity.y += this.gravity;
+        this.x += this.velocity.x;
+        this.y += this.velocity.y;
         this.alpha -= 0.01;
     }
 }
 
 let particles = [];
-function createFirework(x, y) {
-    const color = `hsl(${Math.random() * 360}, 100%, 50%)`;
-    for (let i = 0; i < 100; i++) {
-        const velocity = Math.random() * 8 + 2; const angle = Math.random() * Math.PI * 2;
-        particles.push(new Particle(x, y, color, Math.cos(angle) * velocity, Math.sin(angle) * velocity));
+
+function createFirework(x, y, message) {
+    const color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+    // 글자 폭죽 생성
+    particles.push(new Particle(x, y, color, {x: 0, y: 0}, message));
+    // 주변 불꽃 생성
+    for (let i = 0; i < 40; i++) {
+        particles.push(new Particle(x, y, color, {
+            x: Math.cos(i) * Math.random() * 8,
+            y: Math.sin(i) * Math.random() * 8
+        }));
     }
 }
 
 function animate() {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-    particles.forEach((p, i) => { if (p.alpha > 0) { p.update(); p.draw(); } else { particles.splice(i, 1); }});
-    if (Math.random() < 0.05) createFirework(Math.random() * canvas.width, Math.random() * canvas.height * 0.5);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    particles = particles.filter(p => p.alpha > 0);
+    particles.forEach(p => { p.update(); p.draw(); });
     requestAnimationFrame(animate);
 }
-animate();
-// 메시지를 밤하늘로 날려보내는 함수
-window.sendMessage = function() {
+
+// 입력창에서 쏘기
+window.shootFromInput = function() {
     const input = document.getElementById('user-input');
-    const text = input.value;
+    if (!input.value) return;
     
-    if (text.trim() !== "") {
-        const msg = document.createElement('div');
-        msg.innerText = text;
-        msg.style.position = 'absolute';
-        msg.style.left = Math.random() * 80 + 10 + '%'; // 랜덤한 가로 위치
-        msg.style.bottom = '0';
-        msg.style.color = '#fff';
-        msg.style.fontSize = '1.5rem';
-        msg.style.textShadow = '0 0 10px #ff6b6b';
-        msg.style.transition = 'all 4s ease-out';
-        msg.style.zIndex = '100';
-        
-        document.body.appendChild(msg);
-        
-        // 메시지가 위로 날아가는 애니메이션
-        setTimeout(() => {
-            msg.style.bottom = '110%';
-            msg.style.opacity = '0';
-        }, 100);
-        
-        input.value = ""; // 입력창 비우기
-        alert("다온에게 메시지가 전달되었습니다! 밤하늘을 봐보세요.");
+    // 중앙 하단에서 위로 솟구치는 효과 (단순화 위해 즉시 터짐 구현)
+    createFirework(canvas.width / 2, canvas.height / 3, input.value);
+    
+    // 공유용 주소 생성 (카톡 전송용)
+    const shareUrl = `${window.location.origin}${window.location.pathname}?msg=${encodeURIComponent(input.value)}`;
+    console.log("이 주소를 복사해서 보내세요:", shareUrl);
+    input.value = '';
+};
+
+// 페이지 로드 시 URL에 메시지가 있으면 자동으로 터뜨림
+window.onload = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const msg = urlParams.get('msg');
+    if (msg) {
+        setTimeout(() => createFirework(canvas.width / 2, canvas.height / 3, msg), 1500);
     }
-}
+    animate();
+};
