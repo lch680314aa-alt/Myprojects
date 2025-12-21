@@ -98,7 +98,6 @@ function animate() {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // 배경 폭죽 자동 발사 (확률 조정 가능)
     if (Math.random() < 0.03) { rockets.push(new Rocket()); }
 
     rockets = rockets.filter(r => r.update());
@@ -110,62 +109,56 @@ function animate() {
 
 // --- 사용자 소통 로직 ---
 
-// 1. 발사하기 버튼 클릭 (번호 입력창 띄우기)
 window.showPhoneModal = function() {
     const msg = document.getElementById('user-input').value;
     if (!msg.trim()) { alert("메시지를 먼저 입력해주세요!"); return; }
     document.getElementById('phone-modal').style.display = 'block';
 };
 
-// 2. 최종 보내기 클릭 (내 화면 발사 + 스마트폰 공유창 호출)
 window.executeFinalSend = function() {
     const msgInput = document.getElementById('user-input');
     const phoneInput = document.getElementById('phone-input');
     const message = msgInput.value;
     const phone = phoneInput.value;
 
-    if (!phone.trim()) { alert("상대방 성함이나 번호를 입력해주세요!"); return; }
+    if (!phone.trim()) { alert("상대방 정보를 입력해주세요!"); return; }
 
-    // 내 화면에서 폭죽 즉시 발사
     rockets.push(new Rocket(message));
-    
-    // 모달 닫기 및 입력값 초기화 준비
     document.getElementById('phone-modal').style.display = 'none';
 
-    // 전용 공유 링크 생성
     const shareUrl = `${window.location.origin}${window.location.pathname}?msg=${encodeURIComponent(message)}`;
 
-    // 공유창 호출 (모바일 카톡 연결)
+    // 보강된 공유창 호출 로직
     if (navigator.share) {
         navigator.share({
-            title: '🎆 불꽃 메시지가 도착했습니다',
+            title: '🎆 다온님을 위한 불꽃 메시지',
             text: `[보낸이: ${phone}]\n내용: ${message}`,
             url: shareUrl,
-        }).then(() => {
+        })
+        .then(() => {
             msgInput.value = ""; phoneInput.value = "";
-        }).catch((err) => console.log('공유 실패:', err));
-    } else {
-        // PC 브라우저 등 지원 안 하는 경우 링크 복사
-        navigator.clipboard.writeText(shareUrl).then(() => {
-            alert("공유 링크가 복사되었습니다! 카톡창에 붙여넣어 주세요.\n링크: " + shareUrl);
-            msgInput.value = ""; phoneInput.value = "";
+        })
+        .catch((err) => {
+            console.log('공유 취소 또는 오류:', err);
+            copyToClipboard(shareUrl, msgInput, phoneInput);
         });
+    } else {
+        copyToClipboard(shareUrl, msgInput, phoneInput);
     }
 };
 
-// 3. 페이지 로드 시 (상대방이 링크를 열었을 때)
+function copyToClipboard(url, msgInput, phoneInput) {
+    navigator.clipboard.writeText(url).then(() => {
+        alert("링크가 복사되었습니다! 카톡창에 붙여넣어 주세요.");
+        msgInput.value = ""; phoneInput.value = "";
+    });
+}
+
 window.onload = () => {
     const params = new URLSearchParams(window.location.search);
     const msg = params.get('msg');
     if (msg) {
-        // 상대방 화면에서 1.5초 뒤 폭죽 터뜨리기
         setTimeout(() => { rockets.push(new Rocket(msg)); }, 1500);
-        // 답장 유도
-        setTimeout(() => {
-            const input = document.getElementById('user-input');
-            input.placeholder = "답장을 적어보세요!";
-            input.focus();
-        }, 4000);
     }
     animate();
 };
