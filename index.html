@@ -11,7 +11,16 @@
         #user-input { padding: 12px 20px; border-radius: 25px; border: 2px solid #ff6b6b; background: rgba(255,255,255,0.9); width: 60%; outline: none; font-size: 16px; }
         #send-btn { padding: 12px 25px; border-radius: 25px; background: #ff6b6b; color: white; border: none; cursor: pointer; font-weight: bold; margin-left: 10px; }
         #music-btn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 8px; border-radius: 50%; cursor: pointer; z-index: 100; }
-    </style>
+    </style>#share-btn {
+    padding: 12px 25px;
+    border-radius: 25px;
+    background: #381e1f; /* 카카오톡 느낌의 진한 갈색 */
+    color: #fee500;    /* 카카오톡 노란색 */
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 5px;
+}
 </head>
 <body>
     <canvas id="fireworksCanvas"></canvas>
@@ -22,7 +31,7 @@
 
     <div id="ui-container">
         <input type="text" id="user-input" placeholder="메시지를 입력하고 엔터를 치세요!">
-        <button id="send-btn" onclick="shootFirework()">보내기</button>
+        <button id="send-btn" onclick="shootFirework()">보내기</button><button id="share-btn" onclick="shareMessage()">공유하기</button>
     </div>
 
     <script type="module" src="src/main.js"></script>

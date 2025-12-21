@@ -201,4 +201,58 @@ window.onload = () => {
         setTimeout(() => rockets.push(new Rocket(msg)), 1500);
     }
     animate();
+};// 실시간 공유 기능 함수
+window.shareMessage = function() {
+    const input = document.getElementById('user-input');
+    const text = input.value;
+
+    if (!text.trim()) {
+        alert("다온에게 보낼 메시지를 먼저 입력해주세요!");
+        return;
+    }
+
+    // 메시지가 포함된 전용 주소 생성
+    const shareUrl = `${window.location.origin}${window.location.pathname}?msg=${encodeURIComponent(text)}`;
+
+    // 1. 모바일 시스템 공유 기능 사용 (카카오톡, 문자, DM 등)
+    if (navigator.share) {
+        navigator.share({
+            title: '🎆 다온을 위한 특별한 불꽃놀이',
+            text: `[메시지 확인하기]: ${text}`,
+            url: shareUrl,
+        }).then(() => console.log('공유 성공!'))
+          .catch((error) => console.log('공유 실패:', error));
+    } else {
+        // 2. PC 등 공유 기능이 없는 경우 링크 복사로 대체
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            alert("공유 링크가 복사되었습니다! 카카오톡이나 문자에 붙여넣어 전송하세요.\n\n링크: " + shareUrl);
+        });
+    }
+};// 실시간 공유 기능 함수
+window.shareMessage = function() {
+    const input = document.getElementById('user-input');
+    const text = input.value;
+
+    if (!text.trim()) {
+        alert("다온에게 보낼 메시지를 먼저 입력해주세요!");
+        return;
+    }
+
+    // 메시지가 포함된 전용 주소 생성
+    const shareUrl = `${window.location.origin}${window.location.pathname}?msg=${encodeURIComponent(text)}`;
+
+    // 1. 모바일 시스템 공유 기능 사용 (카카오톡, 문자, DM 등)
+    if (navigator.share) {
+        navigator.share({
+            title: '🎆 다온을 위한 특별한 불꽃놀이',
+            text: `[메시지 확인하기]: ${text}`,
+            url: shareUrl,
+        }).then(() => console.log('공유 성공!'))
+          .catch((error) => console.log('공유 실패:', error));
+    } else {
+        // 2. PC 등 공유 기능이 없는 경우 링크 복사로 대체
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            alert("공유 링크가 복사되었습니다! 카카오톡이나 문자에 붙여넣어 전송하세요.\n\n링크: " + shareUrl);
+        });
+    }
 };
