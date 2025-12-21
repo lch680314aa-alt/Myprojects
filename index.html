@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
+   <meta property="og:title" content="🎆 다온(Daon)을 위한 특별한 불꽃놀이 🎆">
+<meta property="og:description" content="다온의 봄 앨범을 진심으로 축하해! 이곳을 눌러 불꽃놀이를 감상해봐.">
+<meta property="og:image" content="https://images.unsplash.com/photo-1498931299472-f7a63a5a1cfa?q=80&w=1000&auto=format&fit=crop"> 
+<meta property="og:type" content="website">
+ <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>다온(Daon)을 위한 불꽃놀이 🎆</title>
     <style>
@@ -23,6 +27,14 @@
     </style>
 </head>
 <body>
+    <div id="message-box">
+    <input type="text" id="user-input" placeholder="다온에게 한마디 남겨주세요!">
+    <button onclick="sendMessage()">보내기</button>
+</div>
+
+<div id="reply-container">
+    <button onclick="location.href='https://open.kakao.com/o/sYOUR_LINK'">💌 이철희님께 답장 보내기</button>
+</div>
     <div class="message">🎆 다온(Daon)의 봄 앨범을 축하해! 🎆</div>
     <canvas id="fireworksCanvas"></canvas>
     <script type="module" src="/src/main.js"></script>

@@ -36,3 +36,32 @@ function animate() {
     requestAnimationFrame(animate);
 }
 animate();
+// 메시지를 밤하늘로 날려보내는 함수
+window.sendMessage = function() {
+    const input = document.getElementById('user-input');
+    const text = input.value;
+    
+    if (text.trim() !== "") {
+        const msg = document.createElement('div');
+        msg.innerText = text;
+        msg.style.position = 'absolute';
+        msg.style.left = Math.random() * 80 + 10 + '%'; // 랜덤한 가로 위치
+        msg.style.bottom = '0';
+        msg.style.color = '#fff';
+        msg.style.fontSize = '1.5rem';
+        msg.style.textShadow = '0 0 10px #ff6b6b';
+        msg.style.transition = 'all 4s ease-out';
+        msg.style.zIndex = '100';
+        
+        document.body.appendChild(msg);
+        
+        // 메시지가 위로 날아가는 애니메이션
+        setTimeout(() => {
+            msg.style.bottom = '110%';
+            msg.style.opacity = '0';
+        }, 100);
+        
+        input.value = ""; // 입력창 비우기
+        alert("다온에게 메시지가 전달되었습니다! 밤하늘을 봐보세요.");
+    }
+}
