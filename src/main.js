@@ -4,20 +4,19 @@ const bgm = document.getElementById('bgm');
 const musicBtn = document.getElementById('music-btn');
 const explosionSound = document.getElementById('explosion-sound');
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-window.addEventListener('resize', () => {
+function resize() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-});
+}
+window.addEventListener('resize', resize);
+resize();
 
 musicBtn.onclick = () => {
     if (bgm.paused) { bgm.play(); musicBtn.innerText = '⏸️'; }
     else { bgm.pause(); musicBtn.innerText = '🎵'; }
 };
 
-// --- 불꽃 클래스 ---
+// --- 불꽃 클래스 (Particle & Rocket) ---
 class Particle {
     constructor(x, y, color, velocity, isText = false, text = "") {
         this.x = x; this.y = y; this.color = color; this.velocity = velocity;
@@ -51,9 +50,9 @@ class Rocket {
         this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
         this.y = canvas.height;
         if (this.message) { 
-            this.x = canvas.width / 2; this.targetY = canvas.height * 0.15; this.velocity = { x: 0, y: -16 };
+            this.x = canvas.width / 2; this.targetY = canvas.height * 0.2; this.velocity = { x: 0, y: -16 };
         } else { 
-            this.x = Math.random() * canvas.width; this.targetY = Math.random() * (canvas.height / 2);
+            this.x = Math.random() * canvas.width; this.targetY = Math.random() * (canvas.height * 0.5);
             this.velocity = { x: (Math.random() - 0.5) * 4, y: -Math.random() * 10 - 5 };
         }
     }
@@ -83,41 +82,37 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
-// --- [핵심] 발사 및 즉시 공유창 호출 ---
+// --- [요청 1] 안정적인 발사 및 공유 흐름 ---
 window.shootAndShare = function() {
     const input = document.getElementById('user-input');
     const message = input.value;
     if (!message.trim()) { alert("메시지를 입력해주세요!"); return; }
 
-    // 1. 내 화면 폭죽 즉시 발사
+    // 1단계: 내 화면에서 즉시 폭죽 발사
     rockets.push(new Rocket(message));
 
-    // 2. 공유 링크 생성
+    // 2단계: 공유 링크 생성 및 사전 복사
     const shareUrl = `${window.location.origin}${window.location.pathname}?msg=${encodeURIComponent(message)}`;
+    navigator.clipboard.writeText(shareUrl);
 
-    // 3. 모바일 공유창 즉시 호출
-    if (navigator.share) {
-        navigator.share({
-            title: '🎆 불꽃 메시지가 도착했습니다',
-            text: `밤하늘에 수놓아진 메시지: ${message}`,
-            url: shareUrl,
-        })
+    // 3단계: 기기에 맞는 공유창 호출
+    const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
+    if (isMobile && navigator.share) {
+        // 스마트폰 공유 메뉴 즉시 호출
+        navigator.share({ title: '🎆 불꽃 메시지', text: message, url: shareUrl })
         .then(() => { input.value = ""; })
-        .catch((err) => { 
-            // 공유 실패(취소 등) 시 클립보드 복사로 대체
-            copyFallback(shareUrl, input); 
-        });
+        .catch(() => { alert("링크가 복사되었습니다! 카톡에 붙여넣어 주세요."); input.value = ""; });
     } else {
-        copyFallback(shareUrl, input);
+        // PC: 우측 패널 표시
+        document.getElementById('right-share-panel').style.display = 'flex';
+        input.value = "";
     }
 };
 
-function copyFallback(url, input) {
-    navigator.clipboard.writeText(url).then(() => {
-        alert("링크가 복사되었습니다! 카톡창에 붙여넣어 전송하세요.");
-        input.value = "";
-    });
-}
+window.confirmShare = function(type) {
+    alert(`${type}로 보낼 링크 복사가 완료되었습니다!\n채팅창에 붙여넣기(Ctrl+V) 하세요.`);
+    document.getElementById('right-share-panel').style.display = 'none';
+};
 
 window.onload = () => {
     const params = new URLSearchParams(window.location.search);
