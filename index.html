@@ -3,40 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎆 다온(Daon)을 위한 특별한 선물 🎆</title>
+    <title>🎆 우리만의 특별한 불꽃 메시지 🎆</title>
     <style>
-        body { margin: 0; padding: 0; background-color: #000; overflow: hidden; font-family: 'Arial', sans-serif; }
+        body { margin: 0; padding: 0; background: #000; overflow: hidden; font-family: 'Arial', sans-serif; }
         canvas { display: block; }
-        #ui-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 100; text-align: center; width: 90%; }
-        #user-input { padding: 12px 20px; border-radius: 25px; border: 2px solid #ff6b6b; background: rgba(255,255,255,0.9); width: 60%; outline: none; font-size: 16px; }
-        #send-btn { padding: 12px 25px; border-radius: 25px; background: #ff6b6b; color: white; border: none; cursor: pointer; font-weight: bold; margin-left: 10px; }
-        #music-btn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 8px; border-radius: 50%; cursor: pointer; z-index: 100; }
-    </style>#share-btn {
-    padding: 12px 25px;
-    border-radius: 25px;
-    background: #381e1f; /* 카카오톡 느낌의 진한 갈색 */
-    color: #fee500;    /* 카카오톡 노란색 */
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    margin-left: 5px;
-}
+
+        /* 하단 메시지 입력창 레이아웃 (가로 배치) */
+        #ui-container { 
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); 
+            z-index: 100; width: 90%; max-width: 500px; display: flex; gap: 10px;
+        }
+        #user-input { 
+            flex: 1; padding: 12px 20px; border-radius: 25px; border: 2px solid #ff6b6b; 
+            background: rgba(255,255,255,0.9); font-size: 16px; outline: none;
+        }
+        #send-btn { 
+            padding: 12px 25px; border-radius: 25px; background: #ff6b6b; color: white; 
+            border: none; cursor: pointer; font-weight: bold; white-space: nowrap;
+        }
+
+        /* 전화번호 입력 팝업창 디자인 */
+        #phone-modal {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 20px;
+            box-shadow: 0 0 30px rgba(255,107,107,0.5); z-index: 200; text-align: center;
+        }
+        #phone-modal h3 { margin-top: 0; color: #333; }
+        #phone-input { padding: 10px; width: 80%; border-radius: 10px; border: 1px solid #ccc; margin-bottom: 20px; font-size: 18px; text-align: center; }
+        #final-send-btn { padding: 10px 30px; border-radius: 15px; background: #28a745; color: white; border: none; cursor: pointer; font-weight: bold; }
+
+        #music-btn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 10px; border-radius: 50%; cursor: pointer; z-index: 100; font-size: 20px; }
+    </style>
 </head>
 <body>
     <canvas id="fireworksCanvas"></canvas>
     <button id="music-btn">🎵</button>
-    <audio id="bgm" loop>
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-    </audio>
+    <audio id="bgm" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg"></audio>
+    <audio id="explosion-sound"><source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg"></audio>
 
-    
-    </div>
     <div id="ui-container">
-    <input type="text" id="user-input" placeholder="밤하늘에 띄울 메시지를 적어보세요!">
-    <button id="send-btn" onclick="shootFirework()">발사하기</button>
-    <button id="share-btn" onclick="shareMessage()">카톡으로 답장/전송</button>
-</div>
+        <input type="text" id="user-input" placeholder="메시지를 입력하세요!">
+        <button id="send-btn" onclick="showPhoneModal()">발사하기</button>
+    </div>
 
-    <script type="module" src="src/main.js"></script>
+    <div id="phone-modal">
+        <h3>상대방 전화번호 입력</h3>
+        <input type="tel" id="phone-input" placeholder="010-0000-0000">
+        <br>
+        <button id="final-send-btn" onclick="executeFinalSend()">보내기</button>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
 </body>
 </html>
