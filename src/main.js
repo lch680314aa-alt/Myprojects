@@ -4,10 +4,10 @@ const bgm = document.getElementById('bgm');
 const musicBtn = document.getElementById('music-btn');
 const explosionSound = document.getElementById('explosion-sound');
 
-// 프레임 크기에 맞춰 캔버스 해상도 조절
+// 전체 화면 크기 설정
 function resize() {
-    canvas.width = canvas.parentElement.clientWidth;
-    canvas.height = canvas.parentElement.clientHeight;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 }
 window.addEventListener('resize', resize);
 resize();
@@ -17,7 +17,7 @@ musicBtn.onclick = () => {
     else { bgm.pause(); musicBtn.innerText = '🎵'; }
 };
 
-// --- 불꽃 클래스 (Particle & Rocket) ---
+// --- 불꽃 클래스 ---
 class Particle {
     constructor(x, y, color, velocity, isText = false, text = "") {
         this.x = x; this.y = y; this.color = color; this.velocity = velocity;
@@ -28,10 +28,10 @@ class Particle {
     draw() {
         ctx.save(); ctx.globalAlpha = this.alpha;
         if (this.isText) {
-            ctx.font = 'bold 35px Arial'; ctx.textAlign = 'center'; ctx.fillStyle = this.color;
-            ctx.shadowBlur = 10; ctx.shadowColor = 'white'; ctx.fillText(this.text, this.x, this.y);
+            ctx.font = 'bold 50px Arial'; ctx.textAlign = 'center'; ctx.fillStyle = this.color;
+            ctx.shadowBlur = 15; ctx.shadowColor = 'white'; ctx.fillText(this.text, this.x, this.y);
         } else {
-            ctx.beginPath(); ctx.arc(this.x, this.y, 1.5, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill();
+            ctx.beginPath(); ctx.arc(this.x, this.y, 2, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill();
         }
         ctx.restore();
     }
@@ -51,8 +51,7 @@ class Rocket {
         this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
         this.y = canvas.height;
         if (this.message) { 
-            // [동기화] 프레임 가로 중앙에서 발사
-            this.x = canvas.width / 2; this.targetY = canvas.height * 0.2; this.velocity = { x: 0, y: -14 };
+            this.x = canvas.width / 2; this.targetY = canvas.height * 0.2; this.velocity = { x: 0, y: -16 };
         } else { 
             this.x = Math.random() * canvas.width; this.targetY = Math.random() * (canvas.height * 0.5);
             this.velocity = { x: (Math.random() - 0.5) * 4, y: -Math.random() * 10 - 5 };
@@ -64,58 +63,53 @@ class Rocket {
         return true;
     }
     draw() {
-        ctx.beginPath(); ctx.arc(this.x, this.y, 2.5, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill();
+        ctx.beginPath(); ctx.arc(this.x, this.y, 3, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill();
     }
     explode() {
         if (explosionSound) { explosionSound.currentTime = 0; explosionSound.play().catch(() => {}); }
         if (this.message) { particles.push(new Particle(this.x, this.y, '#fff', {x:0, y:0}, true, this.message)); }
-        for (let i = 0; i < 35; i++) {
-            const angle = Math.random() * Math.PI * 2; const speed = Math.random() * 7;
+        for (let i = 0; i < 40; i++) {
+            const angle = Math.random() * Math.PI * 2; const speed = Math.random() * 8;
             particles.push(new Particle(this.x, this.y, this.color, { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed }));
         }
     }
 }
 
 function animate() {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
     if (Math.random() < 0.03) { rockets.push(new Rocket()); }
     rockets = rockets.filter(r => r.update()); rockets.forEach(r => r.draw());
     particles = particles.filter(p => p.alpha > 0); particles.forEach(p => { p.update(); p.draw(); });
     requestAnimationFrame(animate);
 }
 
-// --- [핵심] 발사 및 공유 동시 실행 ---
-window.shootAndOpenShare = function() {
+// --- [핵심] 발사 및 우측 공유창 동시 제어 ---
+let currentShareUrl = "";
+
+window.shootAndShare = function() {
     const input = document.getElementById('user-input');
     const message = input.value;
     if (!message.trim()) { alert("메시지를 입력해주세요!"); return; }
 
-    // 1. 프레임 중앙에서 즉시 발사
+    // 1. 내 화면 폭죽 발사
     rockets.push(new Rocket(message));
 
-    // 2. 공유 링크 생성
-    const shareUrl = `${window.location.origin}${window.location.pathname}?msg=${encodeURIComponent(message)}`;
+    // 2. 공유 링크 생성 및 클립보드 복사
+    currentShareUrl = `${window.location.origin}${window.location.pathname}?msg=${encodeURIComponent(message)}`;
+    navigator.clipboard.writeText(currentShareUrl);
 
-    // 3. 공유창 띄우기 (PC 윈도우 공유창/모바일 공유창 동일 호출)
-    if (navigator.share) {
-        navigator.share({
-            title: '🎆 다온님을 위한 불꽃 메시지',
-            text: `밤하늘에 수놓아진 메시지: ${message}`,
-            url: shareUrl,
-        }).then(() => { input.value = ""; })
-          .catch((err) => { 
-              // 공유 취소 시 링크 복사로 대체
-              navigator.clipboard.writeText(shareUrl).then(() => {
-                  alert("링크가 복사되었습니다! 카톡창에 붙여넣어 주세요.");
-                  input.value = "";
-              });
-          });
+    // 3. 우측 공유 패널 표시 (PC용) / 모바일은 시스템 공유 시도
+    if (navigator.share && /Mobi|Android|iPhone/i.test(navigator.userAgent)) {
+        navigator.share({ title: '🎆 불꽃 메시지', text: message, url: currentShareUrl });
     } else {
-        navigator.clipboard.writeText(shareUrl).then(() => {
-            alert("링크가 복사되었습니다! 카톡창에 붙여넣어 주세요.");
-            input.value = "";
-        });
+        document.getElementById('right-share-panel').style.display = 'flex';
     }
+    
+    input.value = "";
+};
+
+window.copyAndClose = function() {
+    document.getElementById('right-share-panel').style.display = 'none';
 };
 
 window.onload = () => {
