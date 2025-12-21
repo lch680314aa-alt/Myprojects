@@ -194,13 +194,25 @@ document.getElementById('user-input').addEventListener('keypress', function(e) {
 
 // 주소에 메시지가 있으면 자동 발사 (상대방 폰용)
 window.onload = () => {
+    window.onload = () => {
     const params = new URLSearchParams(window.location.search);
     const msg = params.get('msg');
+    
     if (msg) {
-        // 음악 버튼 클릭 유도를 위해 약간 늦게 터뜨림
-        setTimeout(() => rockets.push(new Rocket(msg)), 1500);
+        // 1. 받은 메시지 폭죽을 1.5초 뒤에 자동으로 터뜨림
+        setTimeout(() => {
+            rockets.push(new Rocket(msg));
+        }, 1500);
+
+        // 2. 폭죽이 터진 후, 상대방이 바로 답장을 쓸 수 있게 입력창으로 안내
+        setTimeout(() => {
+            const input = document.getElementById('user-input');
+            input.placeholder = "답장을 적어서 다시 보내보세요!";
+            input.focus(); // 입력창에 커서를 자동으로 깜빡이게 함
+        }, 4000);
     }
     animate();
+};
 };// 실시간 공유 기능 함수
 window.shareMessage = function() {
     const input = document.getElementById('user-input');
