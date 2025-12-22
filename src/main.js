@@ -115,35 +115,37 @@ window.shootAndShare = function() {
     const message = input.value;
     if (!message.trim()) return;
 
+    // 1. 링크 생성 및 자동 복사
     const shareUrl = `${window.location.origin}${window.location.pathname}?msg=${encodeURIComponent(message)}`;
     navigator.clipboard.writeText(shareUrl);
 
-    // 1. 기기가 모바일인지 확인하는 'if' 문입니다.
+    // 2. [핵심 수정] 기기 체크를 더 엄격하게 합니다.
     const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
 
+    // 3. 순서를 바꿉니다: 모바일이고 공유기능이 있을 때만 시스템 창 호출
     if (isMobile && navigator.share) {
-        // --- 여기가 모바일(폰)일 때 실행되는 부분입니다 ---
         navigator.share({
             title: '🎆 다온님을 위한 불꽃 메시지',
             text: message,
             url: shareUrl,
         }).then(() => { input.value = ""; }).catch(() => {});
-
-    } else { 
-        // --- [질문하신 else] 바로 여기가 PC 환경일 때 실행되는 부분입니다 ---
-        // 폰이 아닐 때(PC일 때) 로그인 창 대신 QR 코드를 띄우는 로직이 들어갑니다.
+    } 
+    // 모바일이 아니거나(PC), 공유 기능이 없는 경우 무조건 여기로 옵니다.
+    else {
         const qrModal = document.getElementById('qr-modal');
         const qrImgContainer = document.getElementById('qr-code-img');
         
         if (qrModal && qrImgContainer) {
-            qrImgContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(shareUrl)}" alt="QR Code" style="border:5px solid white;">`;
-            qrModal.style.display = 'block'; 
+            // QR 코드 생성 API 호출
+            qrImgContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(shareUrl)}" alt="QR" style="border:5px solid white; display:block; margin:0 auto;">`;
+            qrModal.style.display = 'block'; // 팝업창 열기
         } else {
+            // 만약 HTML에 qr-modal이 없으면 알림으로 대체
             alert("링크가 복사되었습니다! 카톡창에 붙여넣어 주세요.");
         }
     }
 
-    // [유지] 내 화면 폭죽 발사 로직
+    // [유지] 내 화면 폭죽 발사
     rockets.push(new Rocket(message));
     input.value = "";
 };
