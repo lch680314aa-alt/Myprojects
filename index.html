@@ -10,24 +10,32 @@
     <meta property="og:image" content="https://images.unsplash.com/photo-1498931299472-f7a63a5a1cfa?q=80&w=1000">
 
     <style>
+        /* [유지] 전체 화면 디자인 */
         body { margin: 0; padding: 0; background: #000; overflow: hidden; font-family: 'Arial', sans-serif; }
         canvas { display: block; width: 100vw; height: 100vh; }
 
-        /* 하단 입력바 (중앙 배치) */
+        /* [수정] 하단 입력바 사이즈 축소 */
         #ui-container { 
             position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); 
-            z-index: 100; width: 95%; max-width: 600px; display: flex; gap: 10px;
+            z-index: 100; width: 90%; max-width: 500px; /* 너비 줄임 */
+            display: flex; gap: 8px; /* 간격 약간 줄임 */
         }
         #user-input { 
-            flex: 1; padding: 15px 25px; border-radius: 30px; border: 2px solid #ff6b6b; 
-            background: rgba(255,255,255,0.9); font-size: 16px; outline: none;
+            flex: 1; 
+            padding: 10px 20px; /* 패딩 줄임 */
+            border-radius: 30px; border: 2px solid #ff6b6b; 
+            background: rgba(255,255,255,0.9); 
+            font-size: 14px; /* 글자 크기 줄임 */
+            outline: none;
         }
         #send-btn { 
-            padding: 15px 30px; border-radius: 30px; background: #ff6b6b; color: white; 
+            padding: 10px 25px; /* 패딩 줄임 */
+            border-radius: 30px; background: #ff6b6b; color: white; 
             border: none; cursor: pointer; font-weight: bold; white-space: nowrap;
+            font-size: 14px; /* 글자 크기 줄임 */
         }
 
-        /* 우측 공유 패널 (PC 전용) */
+        /* [유지] 우측 공유 패널 (PC 전용) */
         #right-share-panel {
             display: none; position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
             width: 100px; background: rgba(255, 255, 255, 0.95); padding: 25px 5px;
@@ -37,6 +45,7 @@
         .share-item { cursor: pointer; text-align: center; font-size: 11px; color: #333; width: 100%; }
         .share-icon { font-size: 35px; margin-bottom: 5px; display: block; }
 
+        /* [유지] 음악 버튼 스타일 */
         #music-btn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.1); color: white; border: 1px solid white; padding: 10px; border-radius: 50%; cursor: pointer; z-index: 100; font-size: 20px; }
     </style>
 </head>
@@ -48,8 +57,8 @@
     <audio id="explosion-sound"><source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg"></audio>
 
     <div id="ui-container">
-        <input type="text" id="user-input" placeholder="메시지를 입력하고 발사하세요!">
-        <button id="send-btn" onclick="shootAndShare()">발사 & 전송</button>
+        <input type="text" id="user-input" placeholder="메시지를 입력하세요!">
+        <button id="send-btn" onclick="shootAndShare()">SEND</button>
     </div>
 
     <div id="right-share-panel">
