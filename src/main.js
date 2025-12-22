@@ -1,3 +1,14 @@
+// [추가] 카카오톡 인앱 브라우저 탈출 로직 (안드로이드 크롬 강제 실행)
+(function() {
+    const ua = navigator.userAgent.toLowerCase();
+    if (ua.indexOf('kakaotalk') > -1 && ua.indexOf('android') > -1) {
+        location.href = 'intent://' + location.host + location.pathname + location.search + '#Intent;scheme=https;package=com.android.chrome;end';
+    }
+})();
+
+// 여기서부터 기존 코드가 시작됩니다...
+const canvas = document.getElementById('fireworksCanvas');
+// ... 이하 생략
 const canvas = document.getElementById('fireworksCanvas');
 const ctx = canvas.getContext('2d');
 const bgm = document.getElementById('bgm');
