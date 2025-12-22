@@ -113,6 +113,7 @@ window.shootAndShare = function() {
 };
 // [최종 수정] 발사 + 공유창 호출 통합 함수
 // [수정] 버튼의 shootAndShare()와 이름을 일치시키고 공유 기능을 넣었습니다.
+// [최종 수정] 알림창(alert)을 없애고 자연스럽게 공유창과 연결합니다.
 window.shootAndShare = function() {
     const input = document.getElementById('user-input');
     const message = input.value;
@@ -125,20 +126,26 @@ window.shootAndShare = function() {
     const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
 
     if (isMobile && navigator.share) {
-        // [핵심] 스마트폰 시스템 공유창(카톡 친구 선택) 호출
+        // 모바일: 스마트폰 시스템 공유창(카톡 친구 선택) 즉시 호출
         navigator.share({
             title: '🎆 다온님을 위한 불꽃 메시지',
             text: `밤하늘의 메시지: ${message}`,
             url: shareUrl,
         })
         .then(() => { input.value = ""; })
-        .catch(() => { /* 사용자가 공유를 취소했을 때 */ });
+        .catch(() => { 
+            // 공유 취소 시 알림 없이 클립보드에만 조용히 복사
+            navigator.clipboard.writeText(shareUrl);
+        });
     } else {
-        // PC 환경이거나 공유 미지원 시: 우측 패널 표시 및 링크 복사
+        // PC 환경: 알림창 없이 우측 패널만 띄우고 링크는 배경에서 복사
         const panel = document.getElementById('right-share-panel');
-        if (panel) panel.style.display = 'flex';
+        if (panel) {
+            panel.style.display = 'flex';
+            // 패널 안의 "복사 완료" 문구를 강조하거나 잠시 깜빡이게 할 수 있습니다.
+        }
         navigator.clipboard.writeText(shareUrl);
-        alert("링크가 복사되었습니다! 카톡창에 붙여넣어 주세요.");
+        // [수정] 기존의 alert("링크가 복사되었습니다...") 코드를 삭제했습니다.
     }
 
     // 3. 내 화면에서 즉시 폭죽 발사
