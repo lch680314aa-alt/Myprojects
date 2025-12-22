@@ -60,6 +60,12 @@
         <input type="text" id="user-input" placeholder="메시지를 입력하세요!">
         <button id="send-btn" onclick="shootAndShare()">SEND</button>
     </div>
+    <div id="qr-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:25px; border-radius:20px; z-index:1000; text-align:center; box-shadow: 0 0 30px rgba(0,0,0,0.6); font-family: sans-serif;">
+    <h3 style="margin-top:0; color:#333; font-size:18px;">📱 폰으로 메시지 보내기</h3>
+    <div id="qr-code-img" style="margin: 15px 0;"></div>
+    <p style="font-size:13px; color:#666; line-height:1.5;">폰 카메라로 QR코드를 스캔하면<br>즉시 카톡으로 보낼 수 있어요!</p>
+    <button onclick="document.getElementById('qr-modal').style.display='none'" style="margin-top:15px; padding:8px 20px; border-radius:15px; border:none; background:#ff6b6b; color:white; font-weight:bold; cursor:pointer;">닫기</button>
+</div>
 
     <div id="right-share-panel">
         <div class="share-item" onclick="confirmShare('카카오톡')">
