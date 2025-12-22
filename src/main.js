@@ -1,4 +1,4 @@
-// [추가] 카카오톡 인앱 브라우저 탈출 로직 (안드로이드 크롬 강제 실행)
+// 1. [유지] 카카오톡 인앱 브라우저 탈출 로직
 (function() {
     const ua = navigator.userAgent.toLowerCase();
     if (ua.indexOf('kakaotalk') > -1 && ua.indexOf('android') > -1) {
@@ -6,9 +6,6 @@
     }
 })();
 
-// 여기서부터 기존 코드가 시작됩니다...
-const canvas = document.getElementById('fireworksCanvas');
-// ... 이하 생략
 const canvas = document.getElementById('fireworksCanvas');
 const ctx = canvas.getContext('2d');
 const bgm = document.getElementById('bgm');
@@ -27,7 +24,7 @@ musicBtn.onclick = () => {
     else { bgm.pause(); musicBtn.innerText = '🎵'; }
 };
 
-// --- 불꽃 입자 및 로켓 클래스 ---
+// --- 불꽃 물리 엔진 (기존 유지) ---
 class Particle {
     constructor(x, y, color, velocity, isText = false, text = "") {
         this.x = x; this.y = y; this.color = color; this.velocity = velocity;
@@ -38,7 +35,7 @@ class Particle {
     draw() {
         ctx.save(); ctx.globalAlpha = this.alpha;
         if (this.isText) {
-            ctx.font = 'bold 50px Arial'; ctx.textAlign = 'center'; ctx.fillStyle = this.color;
+            ctx.font = 'bold 45px Arial'; ctx.textAlign = 'center'; ctx.fillStyle = this.color;
             ctx.shadowBlur = 15; ctx.shadowColor = 'white'; ctx.fillText(this.text, this.x, this.y);
         } else {
             ctx.beginPath(); ctx.arc(this.x, this.y, 2, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill();
@@ -93,111 +90,47 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
-// --- 발사 및 공유 제어 ---
-window.shootAndShare = function() {
-    const input = document.getElementById('user-input');
-    const message = input.value;
-    if (!message.trim()) { alert("메시지를 입력해주세요!"); return; }
-
-    // 1. 내 화면 즉시 폭죽 발사
-    rockets.push(new Rocket(message));
-
-    // 2. 링크 생성 및 클립보드 자동 복사
-    const shareUrl = `${window.location.origin}${window.location.pathname}?msg=${encodeURIComponent(message)}`;
-    navigator.clipboard.writeText(shareUrl);
-
-    // 3. 기기 감지 및 시스템 공유창 호출
-    const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
-    if (isMobile && navigator.share) {
-        navigator.share({
-            title: '🎆 불꽃 메시지 도착',
-            text: `다온님께 전하는 메시지: ${message}`,
-            url: shareUrl,
-        })
-        .then(() => { input.value = ""; })
-        .catch(() => { handleFallback(input); });
-    } else {
-        // PC: 우측 패널 표시
-        document.getElementById('right-share-panel').style.display = 'flex';
-        input.value = "";
-    }
-};
-// [최종 수정] 발사 + 공유창 호출 통합 함수
-// [수정] 버튼의 shootAndShare()와 이름을 일치시키고 공유 기능을 넣었습니다.
-// [최종 수정] 알림창(alert)을 없애고 자연스럽게 공유창과 연결합니다.
+// --- [수정] SEND 클릭 시 즉시 카톡/문자 공유창 호출 ---
 window.shootAndShare = function() {
     const input = document.getElementById('user-input');
     const message = input.value;
     if (!message.trim()) return;
 
-    // 1. 공유 링크 생성
+    // 1. 링크 생성 및 자동 복사 (안전장치)
     const shareUrl = `${window.location.origin}${window.location.pathname}?msg=${encodeURIComponent(message)}`;
-    
-    // 2. 모바일 기기 체크
-    const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
+    navigator.clipboard.writeText(shareUrl);
 
-    if (isMobile && navigator.share) {
-        // 모바일: 스마트폰 시스템 공유창(카톡 친구 선택) 즉시 호출
+    // 2. [요청 반영] 불필요한 알림창 및 우측 패널 표시 로직 제거
+    // 3. 시스템 공유창 호출
+    if (navigator.share) {
         navigator.share({
             title: '🎆 다온님을 위한 불꽃 메시지',
-            text: `밤하늘의 메시지: ${message}`,
+            text: message,
             url: shareUrl,
         })
         .then(() => { input.value = ""; })
-        .catch(() => { 
-            // 공유 취소 시 알림 없이 클립보드에만 조용히 복사
-            navigator.clipboard.writeText(shareUrl);
-        });
+        .catch(() => { /* 취소 시 조용히 종료 */ });
     } else {
-        // PC 환경: 알림창 없이 우측 패널만 띄우고 링크는 배경에서 복사
-        const panel = document.getElementById('right-share-panel');
-        if (panel) {
-            panel.style.display = 'flex';
-            // 패널 안의 "복사 완료" 문구를 강조하거나 잠시 깜빡이게 할 수 있습니다.
-        }
-        navigator.clipboard.writeText(shareUrl);
-        // [수정] 기존의 alert("링크가 복사되었습니다...") 코드를 삭제했습니다.
+        // PC 브라우저 등 미지원 환경에서만 알림 표시
+        alert("링크가 복사되었습니다! 카톡창에 붙여넣어 주세요.");
     }
 
-    // 3. 내 화면에서 즉시 폭죽 발사
+    // 4. 내 화면 폭죽 발사
     rockets.push(new Rocket(message));
     input.value = "";
 };
-// 엔터키 입력 지원
-document.getElementById('user-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') shootAndShare();
-});
 
-// [유지] 상대방이 열었을 때의 자동 발사 및 답장 유도 로직
+// [유지] 상대방이 링크를 열었을 때 로직
 window.onload = () => {
     const params = new URLSearchParams(window.location.search);
     const msg = params.get('msg');
     if (msg) {
-        // 1.5초 뒤 자동 발사
-        setTimeout(() => { rockets.push(new Rocket(msg)); }, 1500);
-        
-        // 4초 뒤 답장 유도 안내
+        setTimeout(() => { rockets.push(new Rocket(msg)); }, 1500); // 1.5초 뒤 자동 발사
         setTimeout(() => {
             const input = document.getElementById('user-input');
             input.placeholder = "답장을 적어서 다시 보내보세요!";
             input.focus();
-        }, 4000);
+        }, 4000); // 4초 뒤 답장 유도
     }
-    animate();
-};
-function handleFallback(input) {
-    alert("링크가 복사되었습니다! 카톡창에 붙여넣어 주세요.");
-    input.value = "";
-}
-
-window.confirmShare = function(type) {
-    alert(`${type}로 전달할 수 있게 링크 복사가 완료되었습니다!\n채팅방에 붙여넣기(Ctrl+V) 하세요.`);
-    document.getElementById('right-share-panel').style.display = 'none';
-};
-
-window.onload = () => {
-    const params = new URLSearchParams(window.location.search);
-    const msg = params.get('msg');
-    if (msg) { setTimeout(() => { rockets.push(new Rocket(msg)); }, 1500); }
     animate();
 };
