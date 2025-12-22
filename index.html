@@ -10,14 +10,14 @@
     <meta property="og:image" content="https://images.unsplash.com/photo-1498931299472-f7a63a5a1cfa?q=80&w=1000">
 
     <style>
-        /* PC/모바일 공통: 전체 화면 */
+        /* [유지] 전체 화면 디자인 */
         body { margin: 0; padding: 0; background: #000; overflow: hidden; font-family: 'Arial', sans-serif; }
         canvas { display: block; width: 100vw; height: 100vh; }
 
-        /* 하단 입력바 (중앙 배치) */
+        /* [유지] 하단 입력바 (중앙 배치) */
         #ui-container { 
             position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); 
-            z-index: 100; width: 90%; max-width: 600px; display: flex; gap: 10px;
+            z-index: 100; width: 95%; max-width: 600px; display: flex; gap: 10px;
         }
         #user-input { 
             flex: 1; padding: 15px 25px; border-radius: 30px; border: 2px solid #ff6b6b; 
@@ -28,7 +28,7 @@
             border: none; cursor: pointer; font-weight: bold; white-space: nowrap;
         }
 
-        /* [요청] PC용 우측 끝 공유 패널 */
+        /* [요청 반영] PC용 우측 끝 공유 패널 */
         #right-share-panel {
             display: none; position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
             width: 100px; background: rgba(255, 255, 255, 0.95); padding: 25px 5px;
@@ -38,11 +38,13 @@
         .share-item { cursor: pointer; text-align: center; font-size: 11px; color: #333; width: 100%; }
         .share-icon { font-size: 35px; margin-bottom: 5px; display: block; }
 
-        #music-btn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.1); color: white; border: 1px solid white; padding: 10px; border-radius: 50%; cursor: pointer; z-index: 100; }
+        /* [유지] 음악 버튼 스타일 */
+        #music-btn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.1); color: white; border: 1px solid white; padding: 10px; border-radius: 50%; cursor: pointer; z-index: 100; font-size: 20px; }
     </style>
 </head>
 <body>
     <canvas id="fireworksCanvas"></canvas>
+    
     <button id="music-btn">🎵</button>
     <audio id="bgm" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg"></audio>
     <audio id="explosion-sound"><source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg"></audio>
@@ -59,7 +61,7 @@
         <div class="share-item" onclick="confirmShare('문자')">
             <span class="share-icon">✉️</span>문자공유
         </div>
-        <div style="font-size: 9px; color: #ff6b6b; font-weight: bold;">복사됨</div>
+        <div style="font-size: 10px; color: #ff6b6b; font-weight: bold;">복사 완료</div>
     </div>
 
     <script type="module" src="/src/main.js"></script>

@@ -11,12 +11,13 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
+// [유지] 음악 로직
 musicBtn.onclick = () => {
     if (bgm.paused) { bgm.play(); musicBtn.innerText = '⏸️'; }
     else { bgm.pause(); musicBtn.innerText = '🎵'; }
 };
 
-// --- 불꽃 클래스 (Particle & Rocket) ---
+// --- 불꽃 물리 조각 ---
 class Particle {
     constructor(x, y, color, velocity, isText = false, text = "") {
         this.x = x; this.y = y; this.color = color; this.velocity = velocity;
@@ -82,35 +83,44 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
-// --- [요청 1] 안정적인 발사 및 공유 흐름 ---
+// --- [핵심] 발사 및 시스템 공유 기능 통합 ---
 window.shootAndShare = function() {
     const input = document.getElementById('user-input');
     const message = input.value;
     if (!message.trim()) { alert("메시지를 입력해주세요!"); return; }
 
-    // 1단계: 내 화면에서 즉시 폭죽 발사
+    // 1. 즉시 폭죽 발사
     rockets.push(new Rocket(message));
 
-    // 2단계: 공유 링크 생성 및 사전 복사
+    // 2. 링크 생성 및 클립보드 복사
     const shareUrl = `${window.location.origin}${window.location.pathname}?msg=${encodeURIComponent(message)}`;
     navigator.clipboard.writeText(shareUrl);
 
-    // 3단계: 기기에 맞는 공유창 호출
+    // 3. 기기 감지 및 시스템 공유창 호출
     const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
     if (isMobile && navigator.share) {
-        // 스마트폰 공유 메뉴 즉시 호출
-        navigator.share({ title: '🎆 불꽃 메시지', text: message, url: shareUrl })
+        // [스크린샷 5번 화면] 모바일 시스템 공유 실행
+        navigator.share({
+            title: '🎆 불꽃 메시지 도착',
+            text: `다온님께 전하는 메시지: ${message}`,
+            url: shareUrl,
+        })
         .then(() => { input.value = ""; })
-        .catch(() => { alert("링크가 복사되었습니다! 카톡에 붙여넣어 주세요."); input.value = ""; });
+        .catch(() => { handleFallback(input); });
     } else {
-        // PC: 우측 패널 표시
+        // PC: 우측 패널 표시 (디자인 유지)
         document.getElementById('right-share-panel').style.display = 'flex';
         input.value = "";
     }
 };
 
+function handleFallback(input) {
+    alert("링크가 복사되었습니다! 카톡창에 붙여넣어 주세요.");
+    input.value = "";
+}
+
 window.confirmShare = function(type) {
-    alert(`${type}로 보낼 링크 복사가 완료되었습니다!\n채팅창에 붙여넣기(Ctrl+V) 하세요.`);
+    alert(`${type}로 전달할 수 있게 링크 복사가 완료되었습니다!\n채팅방에 붙여넣기(Ctrl+V) 하세요.`);
     document.getElementById('right-share-panel').style.display = 'none';
 };
 
