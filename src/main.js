@@ -90,26 +90,7 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
-// --- [수정] SEND 클릭 시 즉시 카톡/문자 공유창 호출 ---
-window.shootAndShare = function() {
-    const input = document.getElementById('user-input');
-    const message = input.value;
-    if (!message.trim()) return;
-
-    // 1. 링크 생성 및 자동 복사 (안전장치)
-    const shareUrl = `${window.location.origin}${window.location.pathname}?msg=${encodeURIComponent(message)}`;
-    navigator.clipboard.writeText(shareUrl);
-
-    // 2. [요청 반영] 불필요한 알림창 및 우측 패널 표시 로직 제거
-    // 3. 시스템 공유창 호출
-    if (navigator.share) {
-        navigator.share({
-            title: '🎆 다온님을 위한 불꽃 메시지',
-            text: message,
-            url: shareUrl,
-        })
-        .then(() => { input.value = ""; })
-        .catch(() => { /* 취소 시 조용히 종료 */ });
+// --- [수정] SEND 클릭 시 공유 제어 (중복 오류 해결) ---
 window.shootAndShare = function() {
     const input = document.getElementById('user-input');
     const message = input.value;
@@ -119,19 +100,18 @@ window.shootAndShare = function() {
     const shareUrl = `${window.location.origin}${window.location.pathname}?msg=${encodeURIComponent(message)}`;
     navigator.clipboard.writeText(shareUrl);
 
-    // 2. 기기 체크 (모바일인지 아닌지 먼저 판단)
+    // 2. 기기 체크 (모바일 여부 판단)
     const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
 
-    // 3. [핵심] 순서 변경: PC라면 navigator.share가 있더라도 무시하고 QR로 보냄
+    // 3. [핵심] PC 가로채기 방지: 모바일일 때만 시스템 창 호출, 그 외(PC)는 무조건 QR 코드
     if (isMobile && navigator.share) {
-        // 모바일일 때만 카톡/문자 시스템 공유창 호출
         navigator.share({
             title: '🎆 다온님을 위한 불꽃 메시지',
             text: message,
             url: shareUrl,
         }).then(() => { input.value = ""; }).catch(() => {});
     } else {
-        // PC 환경이거나 모바일인데 공유 기능이 없는 경우 무조건 QR 표시
+        // PC 환경: 마이크로소프트 로그인 창 대신 QR 코드 팝업 표시
         const qrModal = document.getElementById('qr-modal');
         const qrImgContainer = document.getElementById('qr-code-img');
         
@@ -148,6 +128,7 @@ window.shootAndShare = function() {
     rockets.push(new Rocket(message));
     input.value = "";
 };
+
 // [유지] 상대방이 링크를 열었을 때 로직
 window.onload = () => {
     const params = new URLSearchParams(window.location.search);
