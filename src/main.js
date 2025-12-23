@@ -29,17 +29,27 @@ window.executeLaunch = (withSound) => {
     const nick = document.getElementById('user-nickname').value || "다온프렌즈";
     const btn = document.getElementById('action-btn');
 
+    // [핵심 추가] 모바일 브라우저의 소리 차단 강제 해제
+    if (withSound && player) {
+        player.unMute();     // 음소거 해제
+        player.setVolume(100); // 볼륨을 100으로 설정
+        player.playVideo();   // 영상 재생 시작
+    }
+
     // 버튼 SEND로 변경
     btn.innerText = "SEND";
     btn.style.background = "#ff4757";
     btn.style.animation = "pulse 1.2s infinite";
     btn.onclick = window.shootAndShare;
 
-    // 3회 연속 발사
+    // 3회 연속 발사 로직
     let count = 0;
     const loop = () => {
         if(count < 3) {
-            if(withSound) { explosionSound.currentTime=0; explosionSound.play(); }
+            if(withSound && explosionSound) { 
+                explosionSound.currentTime = 0; 
+                explosionSound.play().catch(e => console.log("소리 재생 실패:", e)); 
+            }
             rockets.push(new Rocket(msg));
             count++;
             setTimeout(loop, 2500);
@@ -47,6 +57,8 @@ window.executeLaunch = (withSound) => {
     };
     loop();
 
+    if(isPremium) showSeal(nick);
+};
     // 인장 미리보기 (미션 완료 유저만)
     if(isPremium) showSeal(nick);
 };
