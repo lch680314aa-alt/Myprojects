@@ -1,145 +1,146 @@
-// 1. [유지] 카카오톡 인앱 브라우저 탈출 로직
-(function() {
-    const ua = navigator.userAgent.toLowerCase();
-    if (ua.indexOf('kakaotalk') > -1 && ua.indexOf('android') > -1) {
-        location.href = 'intent://' + location.host + location.pathname + location.search + '#Intent;scheme=https;package=com.android.chrome;end';
-    }
-})();
+// --- [1] 초기화 및 데이터 로드 ---
+let usageCount = localStorage.getItem('daon_usage') || 0;
+let isPremium = localStorage.getItem('daon_premium') === 'true';
+let currentVid = "XzE-Xw5Z8Fk"; // 기본: 이번 겨울 (힐링송)
+let player;
 
 const canvas = document.getElementById('fireworksCanvas');
 const ctx = canvas.getContext('2d');
-const bgm = document.getElementById('bgm');
-const musicBtn = document.getElementById('music-btn');
 const explosionSound = document.getElementById('explosion-sound');
 
-function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resize);
-resize();
-
-musicBtn.onclick = () => {
-    if (bgm.paused) { bgm.play(); musicBtn.innerText = '⏸️'; }
-    else { bgm.pause(); musicBtn.innerText = '🎵'; }
+// 유튜브 API
+window.onYouTubeIframeAPIReady = () => {
+    player = new YT.Player('player', {
+        height: '100%', width: '100%', videoId: currentVid,
+        playerVars: { 'autoplay': 1, 'controls': 0, 'mute': 0, 'loop': 1, 'playlist': currentVid },
+        events: { 'onReady': (e) => e.target.playVideo() }
+    });
 };
 
-// --- 불꽃 물리 엔진 (기존 유지) ---
+// --- [2] 3단계 발사 및 버튼 전환 로직 ---
+window.openChoiceModal = () => {
+    if(!document.getElementById('user-input').value.trim()) return;
+    document.getElementById('choice-modal').style.display = 'block';
+};
+
+window.executeLaunch = (withSound) => {
+    document.getElementById('choice-modal').style.display = 'none';
+    const msg = document.getElementById('user-input').value;
+    const nick = document.getElementById('user-nickname').value || "다온프렌즈";
+    const btn = document.getElementById('action-btn');
+
+    // 버튼 SEND로 변경
+    btn.innerText = "SEND";
+    btn.style.background = "#ff4757";
+    btn.style.animation = "pulse 1.2s infinite";
+    btn.onclick = window.shootAndShare;
+
+    // 3회 연속 발사
+    let count = 0;
+    const loop = () => {
+        if(count < 3) {
+            if(withSound) { explosionSound.currentTime=0; explosionSound.play(); }
+            rockets.push(new Rocket(msg));
+            count++;
+            setTimeout(loop, 2500);
+        }
+    };
+    loop();
+
+    // 인장 미리보기 (미션 완료 유저만)
+    if(isPremium) showSeal(nick);
+};
+
+// --- [3] 전송 및 미션/보관함 로직 ---
+window.shootAndShare = () => {
+    usageCount++;
+    localStorage.setItem('daon_usage', usageCount);
+
+    if(usageCount >= 3 && !isPremium) {
+        document.getElementById('mission-modal').style.display = 'block';
+        return;
+    }
+
+    const msg = document.getElementById('user-input').value;
+    const nick = document.getElementById('user-nickname').value || "다온프렌즈";
+    const url = `${window.location.origin}${window.location.pathname}?msg=${encodeURIComponent(msg)}&nick=${encodeURIComponent(nick)}&vid=${currentVid}&t=${Math.floor(player.getCurrentTime())}`;
+
+    // 보관함 저장
+    let vault = JSON.parse(localStorage.getItem('daon_vault') || '[]');
+    vault.unshift({ msg, nick, vidId: currentVid });
+    localStorage.setItem('daon_vault', JSON.stringify(vault.slice(0,10)));
+
+    if(navigator.share && /Mobi|Android|iPhone/i.test(navigator.userAgent)) {
+        navigator.share({ title: `🎆 ${nick}님의 불꽃`, text: msg, url: url });
+    } else {
+        const qrDiv = document.getElementById('qr-code-img');
+        qrDiv.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}" style="border:5px solid white;">`;
+        document.getElementById('qr-modal').style.display = 'block';
+    }
+};
+
+window.goYouTubeMission = () => {
+    window.open("https://youtube.com/@da-onofficial?sub_confirmation=1");
+    isPremium = true;
+    localStorage.setItem('daon_premium', 'true');
+    document.getElementById('mission-modal').style.display = 'none';
+    alert("미션 완료! 황금 인장이 활성화되었습니다! ✨");
+};
+
+// 인장 표시
+function showSeal(name) {
+    const seal = document.getElementById('golden-seal');
+    document.getElementById('seal-text').innerText = `Created by ${name} with DA-ON OFFICIAL`;
+    seal.style.display = 'block';
+}
+
+// 보관함 기능
+window.openVault = () => {
+    const vault = JSON.parse(localStorage.getItem('daon_vault') || '[]');
+    const list = document.getElementById('vault-list');
+    list.innerHTML = vault.map(v => `<div style="padding:8px; border-bottom:1px solid #eee;"><strong>${v.msg}</strong> (by ${v.nick})</div>`).join('');
+    document.getElementById('vault-modal').style.display = 'block';
+};
+window.closeVault = () => document.getElementById('vault-modal').style.display = 'none';
+
+// --- [4] 불꽃 엔진 및 로드 로직 (기본 유지) ---
 class Particle {
-    constructor(x, y, color, velocity, isText = false, text = "") {
-        this.x = x; this.y = y; this.color = color; this.velocity = velocity;
-        this.isText = isText; this.text = text;
-        this.alpha = 1; this.friction = isText ? 0.98 : 0.95;
-        this.gravity = isText ? 0.05 : 0.2; this.fade = isText ? 0.005 : 0.02;
+    constructor(x, y, color, velocity, isText=false, text="") {
+        this.x=x; this.y=y; this.color=color; this.velocity=velocity; this.isText=isText; this.text=text;
+        this.alpha=1; this.friction=isText?0.98:0.95; this.gravity=isText?0.05:0.2; this.fade=isText?0.005:0.02;
     }
     draw() {
-        ctx.save(); ctx.globalAlpha = this.alpha;
-        if (this.isText) {
-            ctx.font = 'bold 45px Arial'; ctx.textAlign = 'center'; ctx.fillStyle = this.color;
-            ctx.shadowBlur = 15; ctx.shadowColor = 'white'; ctx.fillText(this.text, this.x, this.y);
-        } else {
-            ctx.beginPath(); ctx.arc(this.x, this.y, 2, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill();
-        }
+        ctx.save(); ctx.globalAlpha=this.alpha;
+        if(this.isText){ ctx.font='bold 40px Arial'; ctx.textAlign='center'; ctx.fillStyle=this.color; ctx.fillText(this.text, this.x, this.y); }
+        else { ctx.beginPath(); ctx.arc(this.x, this.y, 2, 0, Math.PI*2); ctx.fillStyle=this.color; ctx.fill(); }
         ctx.restore();
     }
-    update() {
-        this.velocity.x *= this.friction; this.velocity.y *= this.friction;
-        this.velocity.y += this.gravity; this.x += this.velocity.x; this.y += this.velocity.y;
-        this.alpha -= this.fade;
-    }
+    update() { this.velocity.x*=this.friction; this.velocity.y*=this.friction; this.velocity.y+=this.gravity; this.x+=this.velocity.x; this.y+=this.velocity.y; this.alpha-=this.fade; }
 }
-
-let particles = [];
-let rockets = [];
-
+let particles = []; let rockets = [];
 class Rocket {
-    constructor(message = null) {
-        this.message = message;
-        this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
-        this.y = canvas.height;
-        if (this.message) { 
-            this.x = canvas.width / 2; this.targetY = canvas.height * 0.2; this.velocity = { x: 0, y: -16 };
-        } else { 
-            this.x = Math.random() * canvas.width; this.targetY = Math.random() * (canvas.height * 0.5);
-            this.velocity = { x: (Math.random() - 0.5) * 4, y: -Math.random() * 10 - 5 };
-        }
+    constructor(msg=null) {
+        this.msg=msg; this.color=`hsl(${Math.random()*360},100%,60%)`; this.x=msg?canvas.width/2:Math.random()*canvas.width;
+        this.y=canvas.height; this.targetY=msg?canvas.height*0.25:Math.random()*canvas.height*0.5; this.velocity={x:msg?0:(Math.random()-0.5)*4, y:msg?-15:-Math.random()*10-5};
     }
-    update() {
-        this.x += this.velocity.x; this.y += this.velocity.y;
-        if (this.y <= this.targetY) { this.explode(); return false; }
-        return true;
-    }
-    draw() {
-        ctx.beginPath(); ctx.arc(this.x, this.y, 3, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill();
-    }
+    update() { this.x+=this.velocity.x; this.y+=this.velocity.y; if(this.y<=this.targetY){ this.explode(); return false; } return true; }
+    draw() { ctx.beginPath(); ctx.arc(this.x, this.y, 3, 0, Math.PI*2); ctx.fillStyle=this.color; ctx.fill(); }
     explode() {
-        if (explosionSound) { explosionSound.currentTime = 0; explosionSound.play().catch(() => {}); }
-        if (this.message) { particles.push(new Particle(this.x, this.y, '#fff', {x:0, y:0}, true, this.message)); }
-        for (let i = 0; i < 40; i++) {
-            const angle = Math.random() * Math.PI * 2; const speed = Math.random() * 8;
-            particles.push(new Particle(this.x, this.y, this.color, { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed }));
-        }
+        if(this.msg) particles.push(new Particle(this.x, this.y, '#fff', {x:0,y:0}, true, this.msg));
+        for(let i=0; i<40; i++) { const a=Math.random()*Math.PI*2; const s=Math.random()*8; particles.push(new Particle(this.x, this.y, this.color, {x:Math.cos(a)*s, y:Math.sin(a)*s})); }
     }
 }
-
 function animate() {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-    if (Math.random() < 0.03) { rockets.push(new Rocket()); }
-    rockets = rockets.filter(r => r.update()); rockets.forEach(r => r.draw());
-    particles = particles.filter(p => p.alpha > 0); particles.forEach(p => { p.update(); p.draw(); });
+    ctx.fillStyle='rgba(0,0,0,0.15)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(Math.random()<0.03) rockets.push(new Rocket());
+    rockets=rockets.filter(r=>r.update()); rockets.forEach(r=>r.draw());
+    particles=particles.filter(p=>p.alpha>0); particles.forEach(p=>{p.update(); p.draw();});
     requestAnimationFrame(animate);
 }
-
-// --- [수정] SEND 클릭 시 공유 제어 (중복 오류 해결) ---
-window.shootAndShare = function() {
-    const input = document.getElementById('user-input');
-    const message = input.value;
-    if (!message.trim()) return;
-
-    // 1. 링크 생성 및 자동 복사
-    const shareUrl = `${window.location.origin}${window.location.pathname}?msg=${encodeURIComponent(message)}`;
-    navigator.clipboard.writeText(shareUrl);
-
-    // 2. 기기 체크 (모바일 여부 판단)
-    const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
-
-    // 3. [핵심] PC 가로채기 방지: 모바일일 때만 시스템 창 호출, 그 외(PC)는 무조건 QR 코드
-    if (isMobile && navigator.share) {
-        navigator.share({
-            title: '🎆 다온님을 위한 불꽃 메시지',
-            text: message,
-            url: shareUrl,
-        }).then(() => { input.value = ""; }).catch(() => {});
-    } else {
-        // PC 환경: 마이크로소프트 로그인 창 대신 QR 코드 팝업 표시
-        const qrModal = document.getElementById('qr-modal');
-        const qrImgContainer = document.getElementById('qr-code-img');
-        
-        if (qrModal && qrImgContainer) {
-            // QR 코드 생성 API 호출
-            qrImgContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(shareUrl)}" alt="QR" style="border:5px solid white; display:block; margin:0 auto;">`;
-            qrModal.style.display = 'block'; 
-        } else {
-            alert("링크가 복사되었습니다! 카톡창에 붙여넣어 주세요.");
-        }
-    }
-
-    // 4. 내 화면 폭죽 발사
-    rockets.push(new Rocket(message));
-    input.value = "";
-};
-
-// [유지] 상대방이 링크를 열었을 때 로직
 window.onload = () => {
-    const params = new URLSearchParams(window.location.search);
-    const msg = params.get('msg');
-    if (msg) {
-        setTimeout(() => { rockets.push(new Rocket(msg)); }, 1500); // 1.5초 뒤 자동 발사
-        setTimeout(() => {
-            const input = document.getElementById('user-input');
-            input.placeholder = "답장을 적어서 다시 보내보세요!";
-            input.focus();
-        }, 4000); // 4초 뒤 답장 유도
-    }
+    const p = new URLSearchParams(window.location.search);
+    const m = p.get('msg'); const n = p.get('nick');
+    if(m) { setTimeout(() => { rockets.push(new Rocket(m)); if(n) showSeal(n); }, 1500); }
+    canvas.width=window.innerWidth; canvas.height=window.innerHeight;
     animate();
 };

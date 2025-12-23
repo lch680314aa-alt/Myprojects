@@ -3,80 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎆 다온(Daon) 불꽃 전령 🎆</title>
-    
-    <meta property="og:title" content="🎆 다온님을 위한 불꽃놀이가 도착했어요!">
-    <meta property="og:description" content="밤하늘에 수놓아진 특별한 메시지를 확인해보세요.">
-    <meta property="og:image" content="https://images.unsplash.com/photo-1498931299472-f7a63a5a1cfa?q=80&w=1000">
-
+    <title>🎆 DA-ON OFFICIAL Fireworks 🎆</title>
     <style>
-        /* [유지] 전체 화면 디자인 */
         body { margin: 0; padding: 0; background: #000; overflow: hidden; font-family: 'Arial', sans-serif; }
-        canvas { display: block; width: 100vw; height: 100vh; }
+        canvas { display: block; width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 10; }
+        
+        /* 상단 광고 배너 */
+        #top-banner { position: fixed; top: 0; width: 100%; height: 40px; background: rgba(255,107,107,0.9); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; z-index: 2000; }
+        #top-banner a { color: #fff; font-weight: bold; margin-left: 10px; }
 
-        /* [수정] 하단 입력바 사이즈 축소 */
-        #ui-container { 
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); 
-            z-index: 100; width: 90%; max-width: 500px; /* 너비 줄임 */
-            display: flex; gap: 8px; /* 간격 약간 줄임 */
-        }
-        #user-input { 
-            flex: 1; 
-            padding: 10px 20px; /* 패딩 줄임 */
-            border-radius: 30px; border: 2px solid #ff6b6b; 
-            background: rgba(255,255,255,0.9); 
-            font-size: 14px; /* 글자 크기 줄임 */
-            outline: none;
-        }
-        #send-btn { 
-            padding: 10px 25px; /* 패딩 줄임 */
-            border-radius: 30px; background: #ff6b6b; color: white; 
-            border: none; cursor: pointer; font-weight: bold; white-space: nowrap;
-            font-size: 14px; /* 글자 크기 줄임 */
-        }
+        /* 배경 유튜브 플레이어 */
+        #video-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0.35; pointer-events: none; }
 
-        /* [유지] 우측 공유 패널 (PC 전용) */
-        #right-share-panel {
-            display: none; position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
-            width: 100px; background: rgba(255, 255, 255, 0.95); padding: 25px 5px;
-            border-radius: 20px; box-shadow: 0 0 20px rgba(255,107,107,0.4); z-index: 200;
-            flex-direction: column; gap: 25px; align-items: center;
-        }
-        .share-item { cursor: pointer; text-align: center; font-size: 11px; color: #333; width: 100%; }
-        .share-icon { font-size: 35px; margin-bottom: 5px; display: block; }
+        /* 황금색 팬 전용 인장 */
+        #golden-seal { display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); z-index:500; text-align:center; pointer-events:none; }
+        .seal-box { color:#FFD700; font-weight:bold; font-size:16px; text-shadow: 0 0 10px rgba(255,215,0,0.8); border:2px solid #FFD700; padding:8px 18px; border-radius:50px; background:rgba(0,0,0,0.5); }
 
-        /* [유지] 음악 버튼 스타일 */
-        #music-btn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.1); color: white; border: 1px solid white; padding: 10px; border-radius: 50%; cursor: pointer; z-index: 100; font-size: 20px; }
+        /* UI 하단 입력창 */
+        #ui-container { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 100; width: 90%; max-width: 500px; display: flex; gap: 8px; }
+        #user-nickname { width: 70px; padding: 12px; border-radius: 30px; border: 2px solid #FFD700; outline: none; font-size: 12px; text-align: center; }
+        #user-input { flex: 1; padding: 12px 20px; border-radius: 30px; border: 2px solid #ff6b6b; font-size: 14px; outline: none; }
+        #action-btn { padding: 12px 25px; border-radius: 30px; background: #ff6b6b; color: white; border: none; cursor: pointer; font-weight: bold; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        /* 모달 공통 스타일 */
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 20px; z-index: 2500; text-align: center; box-shadow: 0 0 40px rgba(0,0,0,0.6); width: 80%; max-width: 320px; }
+        .modal-btn { margin: 5px; padding: 10px 20px; border-radius: 15px; border: none; cursor: pointer; font-weight: bold; }
+
+        /* 우측 플로팅 메뉴 */
+        #official-center { position: fixed; right: 20px; top: 100px; display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
+        .side-btn { width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+
+        footer { position: fixed; bottom: 8px; width: 100%; text-align: center; color: rgba(255,255,255,0.4); font-size: 10px; z-index: 50; }
     </style>
 </head>
 <body>
+    <div id="top-banner">
+        📢 DA-ON OFFICIAL 힐링송 출시! <a href="https://youtube.com/@da-onofficial" target="_blank">구독하기</a>
+    </div>
+
+    <div id="golden-seal"><div class="seal-box">👑 <span id="seal-text"></span></div></div>
+    <div id="video-bg"><div id="player"></div></div>
     <canvas id="fireworksCanvas"></canvas>
-    
-    <button id="music-btn">🎵</button>
-    <audio id="bgm" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg"></audio>
-    <audio id="explosion-sound"><source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg"></audio>
 
     <div id="ui-container">
-        <input type="text" id="user-input" placeholder="메시지를 입력하세요!">
-        <button id="send-btn" onclick="shootAndShare()">SEND</button>
-    </div>
-    <div id="qr-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:25px; border-radius:20px; z-index:1000; text-align:center; box-shadow: 0 0 30px rgba(0,0,0,0.6); font-family: sans-serif;">
-    <h3 style="margin-top:0; color:#333; font-size:18px;">📱 폰으로 메시지 보내기</h3>
-    <div id="qr-code-img" style="margin: 15px 0;"></div>
-    <p style="font-size:13px; color:#666; line-height:1.5;">폰 카메라로 QR코드를 스캔하면<br>즉시 카톡으로 보낼 수 있어요!</p>
-    <button onclick="document.getElementById('qr-modal').style.display='none'" style="margin-top:15px; padding:8px 20px; border-radius:15px; border:none; background:#ff6b6b; color:white; font-weight:bold; cursor:pointer;">닫기</button>
-</div>
-
-    <div id="right-share-panel">
-        <div class="share-item" onclick="confirmShare('카카오톡')">
-            <span class="share-icon">💬</span>카카오톡
-        </div>
-        <div class="share-item" onclick="confirmShare('문자')">
-            <span class="share-icon">✉️</span>문자공유
-        </div>
-        <div style="font-size: 10px; color: #ff6b6b; font-weight: bold;">복사 완료</div>
+        <input type="text" id="user-nickname" placeholder="닉네임">
+        <input type="text" id="user-input" placeholder="메시지를 적어보세요!">
+        <button id="action-btn" onclick="openChoiceModal()">발사</button>
     </div>
 
+    <div id="choice-modal" class="modal">
+        <h3>어떻게 감상할까요?</h3>
+        <button class="modal-btn" style="background:#ff6b6b; color:white;" onclick="executeLaunch(true)">🎬 영상+소리</button>
+        <button class="modal-btn" style="background:#eee;" onclick="executeLaunch(false)">📄 문자만</button>
+    </div>
+
+    <div id="mission-modal" class="modal" style="background:#fff0f0; border:2px solid #ff6b6b;">
+        <h2 style="color:#ff6b6b;">✨ 특별 미션!</h2>
+        <p>3번이나 마음을 전하셨네요!<br><b>구독</b> 시 <b>황금 인장</b>을 드립니다!</p>
+        <button onclick="goYouTubeMission()" style="padding:12px; background:#FF0000; color:white; border:none; border-radius:10px; cursor:pointer; font-weight:bold;">🔴 구독하고 인장 받기</button>
+    </div>
+
+    <div id="vault-modal" class="modal">
+        <h3>📦 내 메모리 박스</h3>
+        <div id="vault-list" style="max-height:200px; overflow-y:auto; text-align:left; margin:15px 0;"></div>
+        <button onclick="closeVault()" class="modal-btn" style="background:#ccc;">닫기</button>
+    </div>
+
+    <div id="qr-modal" class="modal">
+        <h3>📱 폰으로 전송</h3>
+        <div id="qr-code-img"></div>
+        <button onclick="document.getElementById('qr-modal').style.display='none'" class="modal-btn" style="background:#ff6b6b; color:white;">닫기</button>
+    </div>
+
+    <div id="official-center">
+        <button class="side-btn" style="background:#fff;" onclick="showOfficialMenu()">✨</button>
+        <button class="side-btn" style="background:#FFD700;" onclick="openVault()">📦</button>
+        <button class="side-btn" style="background:#ff6b6b; color:white;" onclick="openGiftMenu()">🎁</button>
+    </div>
+
+    <audio id="explosion-sound"><source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg"></audio>
+    <footer>© 2025 Daon Project. <span onclick="alert('후원: 토스 1234...')" style="cursor:pointer; text-decoration:underline;">후원하기</span></footer>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script type="module" src="/src/main.js"></script>
 </body>
 </html>
