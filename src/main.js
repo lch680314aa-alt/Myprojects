@@ -1,39 +1,47 @@
-// --- [1] 초기화 및 데이터 로드 ---
-let usageCount = localStorage.getItem('daon_usage') || 0;
+// --- [수정] 데이터 로드 및 초기화 ---
+let usageCount = parseInt(localStorage.getItem('daon_usage') || '0'); // 숫자로 확실히 변환
 let isPremium = localStorage.getItem('daon_premium') === 'true';
-let currentVid = "XzE-Xw5Z8Fk"; // 기본: 이번 겨울 (힐링송)
+let currentVid = "XzE-Xw5Z8Fk"; 
 let player;
 
-const canvas = document.getElementById('fireworksCanvas');
-const ctx = canvas.getContext('2d');
-const explosionSound = document.getElementById('explosion-sound');
-
-// 유튜브 API
+// 유튜브 API 초기 설정 (처음엔 무음으로 시작할 수 있음)
 window.onYouTubeIframeAPIReady = () => {
     player = new YT.Player('player', {
         height: '100%', width: '100%', videoId: currentVid,
-        playerVars: { 'autoplay': 1, 'controls': 0, 'mute': 0, 'loop': 1, 'playlist': currentVid },
-        events: { 'onReady': (e) => e.target.playVideo() }
+        playerVars: { 
+            'autoplay': 1, 
+            'controls': 0, 
+            'mute': 1, // 브라우저 정책상 처음엔 뮤트(1)로 시작하는 것이 안전합니다.
+            'loop': 1, 
+            'playlist': currentVid,
+            'playsinline': 1 // 모바일에서 전체화면 방지
+        },
+        events: { 
+            'onReady': (e) => {
+                e.target.playVideo();
+                // PC의 경우 준비되자마자 음소거 해제 시도
+                if(!/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
+                    e.target.unMute();
+                    e.target.setVolume(100);
+                }
+            }
+        }
     });
 };
 
-// --- [2] 3단계 발사 및 버튼 전환 로직 ---
-window.openChoiceModal = () => {
-    if(!document.getElementById('user-input').value.trim()) return;
-    document.getElementById('choice-modal').style.display = 'block';
-};
-
+// --- [수정] 3단계 발사 및 사운드 잠금 해제 ---
 window.executeLaunch = (withSound) => {
     document.getElementById('choice-modal').style.display = 'none';
     const msg = document.getElementById('user-input').value;
     const nick = document.getElementById('user-nickname').value || "다온프렌즈";
     const btn = document.getElementById('action-btn');
+    const expSound = document.getElementById('explosion-sound'); // 함수 안에서 다시 잡기
 
-    // [핵심 추가] 모바일 브라우저의 소리 차단 강제 해제
-    if (withSound && player) {
-        player.unMute();     // 음소거 해제
-        player.setVolume(100); // 볼륨을 100으로 설정
-        player.playVideo();   // 영상 재생 시작
+    // [핵심] 사용자가 버튼을 누른 이 순간, 모든 소리 잠금을 해제합니다.
+    if (withSound && player && typeof player.unMute === 'function') {
+        player.unMute();     // 음소거 강제 해제
+        player.setVolume(100); // 볼륨 최대
+        player.playVideo();   // 혹시 멈춰있다면 재생
     }
 
     // 버튼 SEND로 변경
@@ -42,13 +50,15 @@ window.executeLaunch = (withSound) => {
     btn.style.animation = "pulse 1.2s infinite";
     btn.onclick = window.shootAndShare;
 
-    // 3회 연속 발사 로직
+    // 3회 연속 발사
     let count = 0;
     const loop = () => {
         if(count < 3) {
-            if(withSound && explosionSound) { 
-                explosionSound.currentTime = 0; 
-                explosionSound.play().catch(e => console.log("소리 재생 실패:", e)); 
+            // 폭죽 소리 재생 (에러 방지 처리)
+            if(withSound && expSound) { 
+                expSound.muted = false; // 혹시 뮤트되어 있다면 해제
+                expSound.currentTime = 0; 
+                expSound.play().catch(e => console.log("소리 재생 권한 대기 중...")); 
             }
             rockets.push(new Rocket(msg));
             count++;
@@ -59,10 +69,6 @@ window.executeLaunch = (withSound) => {
 
     if(isPremium) showSeal(nick);
 };
-    // 인장 미리보기 (미션 완료 유저만)
-    if(isPremium) showSeal(nick);
-};
-
 // --- [3] 전송 및 미션/보관함 로직 ---
 window.shootAndShare = () => {
     usageCount++;
