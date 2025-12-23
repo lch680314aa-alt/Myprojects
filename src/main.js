@@ -1,25 +1,25 @@
-let usageCount = parseInt(localStorage.getItem('daon_usage') || '0');
+// --- [1] 초기화 및 데이터 로드 ---
+let usageCount = localStorage.getItem('daon_usage') || 0;
 let isPremium = localStorage.getItem('daon_premium') === 'true';
-let currentVid = "XzE-Xw5Z8Fk"; 
+let currentVid = "XzE-Xw5Z8Fk"; // 기본: 이번 겨울 (힐링송)
 let player;
 
 const canvas = document.getElementById('fireworksCanvas');
 const ctx = canvas.getContext('2d');
 const explosionSound = document.getElementById('explosion-sound');
 
-// [유튜브 설정]
+// 유튜브 API
 window.onYouTubeIframeAPIReady = () => {
     player = new YT.Player('player', {
         height: '100%', width: '100%', videoId: currentVid,
-        playerVars: { 'autoplay': 1, 'controls': 0, 'mute': 1, 'loop': 1, 'playlist': currentVid, 'playsinline': 1 },
+        playerVars: { 'autoplay': 1, 'controls': 0, 'mute': 0, 'loop': 1, 'playlist': currentVid },
         events: { 'onReady': (e) => e.target.playVideo() }
     });
 };
 
-// [발사 로직] - 버튼이 안눌리는 문제 해결용
+// --- [2] 3단계 발사 및 버튼 전환 로직 ---
 window.openChoiceModal = () => {
-    const input = document.getElementById('user-input');
-    if(!input || !input.value.trim()) return;
+    if(!document.getElementById('user-input').value.trim()) return;
     document.getElementById('choice-modal').style.display = 'block';
 };
 
@@ -29,52 +29,49 @@ window.executeLaunch = (withSound) => {
     const nick = document.getElementById('user-nickname').value || "다온프렌즈";
     const btn = document.getElementById('action-btn');
 
-    // 소리 잠금 해제 (중요!)
-    if (withSound && player && typeof player.unMute === 'function') {
-        player.unMute();
-        player.setVolume(100);
-        player.playVideo();
-    }
-
+    // 버튼 SEND로 변경
     btn.innerText = "SEND";
     btn.style.background = "#ff4757";
     btn.style.animation = "pulse 1.2s infinite";
-    btn.onclick = window.shootAndShare; 
+    btn.onclick = window.shootAndShare;
 
+    // 3회 연속 발사
     let count = 0;
     const loop = () => {
         if(count < 3) {
-            if(withSound && explosionSound) { 
-                explosionSound.muted = false;
-                explosionSound.currentTime = 0; 
-                explosionSound.play().catch(() => {}); 
-            }
+            if(withSound) { explosionSound.currentTime=0; explosionSound.play(); }
             rockets.push(new Rocket(msg));
             count++;
             setTimeout(loop, 2500);
         }
     };
     loop();
+
+    // 인장 미리보기 (미션 완료 유저만)
     if(isPremium) showSeal(nick);
 };
 
+// --- [3] 전송 및 미션/보관함 로직 ---
 window.shootAndShare = () => {
     usageCount++;
     localStorage.setItem('daon_usage', usageCount);
+
     if(usageCount >= 3 && !isPremium) {
         document.getElementById('mission-modal').style.display = 'block';
         return;
     }
+
     const msg = document.getElementById('user-input').value;
     const nick = document.getElementById('user-nickname').value || "다온프렌즈";
-    const url = `${window.location.origin}${window.location.pathname}?msg=${encodeURIComponent(msg)}&nick=${encodeURIComponent(nick)}&vid=${currentVid}&t=${Math.floor(player ? player.getCurrentTime() : 0)}`;
+    const url = `${window.location.origin}${window.location.pathname}?msg=${encodeURIComponent(msg)}&nick=${encodeURIComponent(nick)}&vid=${currentVid}&t=${Math.floor(player.getCurrentTime())}`;
 
+    // 보관함 저장
     let vault = JSON.parse(localStorage.getItem('daon_vault') || '[]');
     vault.unshift({ msg, nick, vidId: currentVid });
     localStorage.setItem('daon_vault', JSON.stringify(vault.slice(0,10)));
 
     if(navigator.share && /Mobi|Android|iPhone/i.test(navigator.userAgent)) {
-        navigator.share({ title: `🎆 ${nick}님의 선물`, text: msg, url: url });
+        navigator.share({ title: `🎆 ${nick}님의 불꽃`, text: msg, url: url });
     } else {
         const qrDiv = document.getElementById('qr-code-img');
         qrDiv.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}" style="border:5px solid white;">`;
@@ -90,22 +87,23 @@ window.goYouTubeMission = () => {
     alert("미션 완료! 황금 인장이 활성화되었습니다! ✨");
 };
 
+// 인장 표시
 function showSeal(name) {
     const seal = document.getElementById('golden-seal');
     document.getElementById('seal-text').innerText = `Created by ${name} with DA-ON OFFICIAL`;
     seal.style.display = 'block';
 }
 
+// 보관함 기능
 window.openVault = () => {
     const vault = JSON.parse(localStorage.getItem('daon_vault') || '[]');
     const list = document.getElementById('vault-list');
-    list.innerHTML = vault.map(v => `<div style="padding:10px; border-bottom:1px solid #eee;"><strong>${v.msg}</strong> (by ${v.nick})</div>`).join('');
+    list.innerHTML = vault.map(v => `<div style="padding:8px; border-bottom:1px solid #eee;"><strong>${v.msg}</strong> (by ${v.nick})</div>`).join('');
     document.getElementById('vault-modal').style.display = 'block';
 };
 window.closeVault = () => document.getElementById('vault-modal').style.display = 'none';
-window.showOfficialMenu = () => window.open("https://youtube.com/@da-onofficial");
 
-// [불꽃 엔진]
+// --- [4] 불꽃 엔진 및 로드 로직 (기본 유지) ---
 class Particle {
     constructor(x, y, color, velocity, isText=false, text="") {
         this.x=x; this.y=y; this.color=color; this.velocity=velocity; this.isText=isText; this.text=text;
@@ -146,4 +144,3 @@ window.onload = () => {
     canvas.width=window.innerWidth; canvas.height=window.innerHeight;
     animate();
 };
-window.onresize = () => { canvas.width=window.innerWidth; canvas.height=window.innerHeight; };
