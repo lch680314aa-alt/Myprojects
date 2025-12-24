@@ -1,62 +1,101 @@
-// [1] 카톡 탈출 로직
-(function() {
-    const ua = navigator.userAgent.toLowerCase();
-    if (ua.indexOf('kakaotalk') > -1 && ua.indexOf('android') > -1) {
-        location.href = 'intent://' + location.host + location.pathname + location.search + '#Intent;scheme=https;package=com.android.chrome;end';
+const KAKAO_KEY = 'fa462b2b643a16d837c1890cc3dc4149';
+if (!Kakao.isInitialized()) Kakao.init(KAKAO_KEY);
+
+const THRESHOLDS = { FIRE: 15, BLACK: 50, ULTIMATE: 100 };
+let shareCount = parseInt(localStorage.getItem('daon_share_count') || '0');
+
+function initIdentity() {
+    let sn = localStorage.getItem('daon_sn');
+    if (!sn) {
+        sn = `DAON-2025-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+        localStorage.setItem('daon_sn', sn);
     }
-})();
+    document.getElementById('serial-number').innerText = sn;
+}
 
-// [2] 카카오 초기화 (사용자님의 자바스크립트 키를 꼭 넣어주세요)
-const KAKAO_KEY = 'YOUR_JAVASCRIPT_KEY'; 
-if (!window.Kakao.isInitialized()) { window.Kakao.init(KAKAO_KEY); }
-
-let player;
-window.onYouTubeIframeAPIReady = () => {
-    player = new YT.Player('player', {
-        videoId: 'WPfyXfdrCqs',
-        playerVars: { 'autoplay': 1, 'mute': 1, 'controls': 0, 'loop': 1, 'playlist': 'WPfyXfdrCqs' },
-        events: { 'onReady': (e) => e.target.playVideo() }
-    });
-};
-
-// [3] 버튼 로직
-window.openChoiceModal = () => {
-    const btn = document.getElementById('action-btn');
+window.handleMainAction = () => {
+    const btn = document.getElementById('main-action-btn');
     if (btn.classList.contains('send-mode')) {
-        shareToKakao(false);
-        return;
+        shareToKakao();
+    } else {
+        document.getElementById('choice-modal').classList.remove('hidden');
     }
-    document.getElementById('choice-modal').style.display = 'block';
 };
 
 window.executeLaunch = (withSound) => {
-    document.getElementById('choice-modal').style.display = 'none';
-    if (withSound && player) { player.unMute(); player.setVolume(80); }
-
-    const btn = document.getElementById('action-btn');
-    btn.innerText = "SEND";
+    document.getElementById('choice-modal').classList.add('hidden');
+    const btn = document.getElementById('main-action-btn');
+    btn.innerText = "SEND TO KAKAO";
     btn.classList.add('send-mode');
-
-    // 폭죽 3회 연사 (애니메이션 로직이 이미 있다면 여기에 연동)
-    alert("🎆 3회 연속 폭죽 발사!"); 
+    alert("불꽃이 준비되었습니다! 카카오톡으로 공유하여 등급을 올리세요.");
 };
 
-window.shareToKakao = (isGift) => {
-    const nick = document.getElementById('user-nickname').value || "다온";
-    const msg = isGift ? "특별한 테마를 선물합니다!" : document.getElementById('user-input').value;
+window.shareToKakao = () => {
+    const last = localStorage.getItem('daon_last_action') || 0;
+    const now = Date.now();
+    if (now - last < 60000) {
+        alert(`🚨 쿨타임: ${Math.ceil((60000-(now-last))/1000)}초 후 가능합니다.`);
+        return;
+    }
 
-    window.Kakao.Share.sendDefault({
+    Kakao.Share.sendDefault({
         objectType: 'feed',
         content: {
-            title: `[다온 2025] ${nick}님의 메시지`,
-            description: msg,
+            title: `🎆 DAON Guardian 메시지`,
+            description: document.getElementById('message').value || "다온과 함께하는 불꽃놀이",
             imageUrl: 'https://daon-fireworks-2025.vercel.app/og-image.png',
             link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
-        },
-        buttons: [{ title: '확인하기', link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }]
+        }
     });
+
+    shareCount++;
+    localStorage.setItem('daon_share_count', shareCount);
+    localStorage.setItem('daon_last_action', now);
+    updateSystem();
 };
 
-window.toggleMusicDrawer = () => {
-    document.getElementById('music-drawer').classList.toggle('hidden');
+function updateSystem() {
+    const seal = document.getElementById('opal-seal');
+    const rankTxt = document.getElementById('rank-text');
+    const fill = document.getElementById('progress-fill');
+    const info = document.getElementById('next-rank-info');
+    const label = document.getElementById('rank-label');
+    
+    seal.className = '';
+    let target = 0, base = 0, currentLabel = "WHITE";
+
+    if (shareCount >= THRESHOLDS.ULTIMATE) {
+        seal.classList.add('rank-ultimate');
+        rankTxt.innerText = "RANK: ULTIMATE GUARDIAN";
+        fill.style.width = "100%";
+        info.innerText = "MAX LOYALTY";
+        currentLabel = "ULTIMATE";
+    } else if (shareCount >= THRESHOLDS.BLACK) {
+        seal.classList.add('rank-black');
+        rankTxt.innerText = "RANK: BLACK OPAL";
+        target = THRESHOLDS.ULTIMATE; base = THRESHOLDS.BLACK; currentLabel = "BLACK";
+    } else if (shareCount >= THRESHOLDS.FIRE) {
+        seal.classList.add('rank-fire');
+        rankTxt.innerText = "RANK: FIRE OPAL";
+        target = THRESHOLDS.BLACK; base = THRESHOLDS.FIRE; currentLabel = "FIRE";
+    } else {
+        seal.classList.add('rank-white');
+        target = THRESHOLDS.FIRE; base = 0; currentLabel = "WHITE";
+    }
+
+    if (target > 0) {
+        const percent = ((shareCount - base) / (target - base)) * 100;
+        fill.style.width = percent + "%";
+        info.innerText = `NEXT: ${target} (${target - shareCount} left)`;
+    }
+    label.innerText = currentLabel;
+}
+
+window.toggleDrawer = (id) => {
+    const d = document.getElementById(id);
+    const isH = d.classList.contains('hidden');
+    document.querySelectorAll('.drawer').forEach(el => el.classList.add('hidden'));
+    if (isH) d.classList.remove('hidden');
 };
+
+window.onload = () => { initIdentity(); updateSystem(); };

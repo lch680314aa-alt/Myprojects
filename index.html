@@ -3,44 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎆 DA-ON OFFICIAL Fireworks 🎆</title>
-    
+    <title>🎆 DAON 2025: IRON-CLAD 🎆</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="/manifest.json">
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js" crossorigin="anonymous"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
-
     <link rel="stylesheet" href="src/style.css">
 </head>
 <body>
-    <div id="top-banner">
-        📢 DA-ON OFFICIAL 힐링송 출시! <a href="https://youtube.com/@da-onofficial" target="_blank">구독하기</a>
+    <div id="loyalty-header">
+        <div class="progress-info">
+            <span id="rank-label">WHITE</span>
+            <span id="next-rank-info">NEXT: FIRE (15)</span>
+        </div>
+        <div class="progress-track"><div id="progress-fill"></div></div>
+    </div>
+
+    <div id="identity-layer">
+        <div id="opal-seal" class="rank-white"></div>
+        <div id="rank-text">RANK: WHITE OPAL</div>
+        <div id="serial-number"></div>
     </div>
 
     <div id="video-bg"><div id="player"></div></div>
     <canvas id="fireworksCanvas"></canvas>
 
+    <div id="official-nav">
+        <button class="nav-btn" onclick="toggleDrawer('music-drawer')">🎵</button>
+        <button class="nav-btn" onclick="toggleDrawer('meal-drawer')">🥗</button>
+        <button class="nav-btn" id="store-btn" onclick="toggleDrawer('store-drawer')">🔒</button>
+    </div>
+
+    <div id="music-drawer" class="drawer hidden">
+        <h3>🎵 PREMIUM THEMES</h3>
+        <ul id="theme-list">
+            <li onclick="changeTheme('WPfyXfdrCqs', 'video')">BASIC: 새로운 시작</li>
+        </ul>
+    </div>
+
+    <div id="meal-drawer" class="drawer hidden">
+        <h3>🥗 MUSICAL DIET</h3>
+        <div id="meal-card">
+            <p id="meal-menu">테마를 선택하세요.</p>
+            <hr><small id="meal-reason"></small>
+        </div>
+    </div>
+
+    <div id="store-drawer" class="drawer hidden">
+        <h3>💎 GUARDIAN STORE</h3>
+        <div id="store-lock-msg">BLACK OPAL 등급 이상만 접근 가능합니다.</div>
+    </div>
+
+    <div id="ui-panel">
+        <div class="input-stack">
+            <input type="text" id="nickname" placeholder="NICKNAME">
+            <input type="text" id="message" placeholder="MESSAGE">
+        </div>
+        <button id="main-action-btn" onclick="handleMainAction()">LAUNCH</button>
+    </div>
+
     <div id="choice-modal" class="modal hidden">
         <div class="modal-content">
-            <h3>🎆 불꽃놀이 감상 모드</h3>
-            <p>어떻게 즐길까요?</p>
-            <button onclick="executeLaunch(false)">📄 문자만 보기</button>
-            <button onclick="executeLaunch(true)" style="background:#ff6b6b; color:white;">🎬 영상 + 소리</button>
+            <p>다온의 불꽃을 발사하시겠습니까?</p>
+            <div class="modal-actions">
+                <button onclick="executeLaunch(true)">🎬 영상+소리</button>
+                <button onclick="executeLaunch(false)">📄 메시지만</button>
+            </div>
         </div>
-    </div>
-
-    <div id="official-center">
-        <button class="side-btn" onclick="toggleMusicDrawer()">🎵</button>
-        <div id="music-drawer" class="hidden">
-            <a href="https://www.youtube.com/@Da-OnOfficial" target="_blank">다온 오피셜 채널</a>
-            <hr>
-            <button onclick="changeTheme('WPfyXfdrCqs')">배경영상 선물</button>
-            <button onclick="shareToKakao(true)">🎁 선물하기</button>
-        </div>
-    </div>
-
-    <div id="ui-container">
-        <input type="text" id="user-nickname" placeholder="닉네임">
-        <input type="text" id="user-input" placeholder="메시지 입력">
-        <button id="action-btn" onclick="openChoiceModal()">발사</button>
     </div>
 
     <script type="module" src="src/main.js"></script>
