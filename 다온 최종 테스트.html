@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎆 DAON 2025: GUARDIAN & SAVIOR 🎆</title>
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <style>
+        :root {
+            --glass: rgba(255, 255, 255, 0.08);
+            --border: rgba(255, 255, 255, 0.15);
+            --gold: #FFD700;
+            --sos-red: #ff3b30;
+            --accent: #00ffff;
+            --neon-pink: #ff00d4;
+        }
+
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Pretendard', sans-serif; overflow: hidden; }
+
+        /* [1] 배경 레이어 */
+        #video-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        #fireworksCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.4) 80%); z-index: 2; pointer-events: none; }
+
+        /* [2] 상단 레이아웃 (25% 축소) */
+        #top-bar { position: fixed; top: 0; width: 100%; display: flex; justify-content: space-between; padding: 8px 15px; z-index: 100; box-sizing: border-box; background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent); }
+        #loyalty-zone { transform: scale(0.75); transform-origin: top left; }
+        .slogan { font-size: 14px; font-weight: 800; letter-spacing: 1px; color: var(--accent); text-shadow: 0 0 10px var(--accent); }
+        .count-badge { background: var(--accent); color: #000; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-top: 5px; display: inline-block; }
+        #ad-banner { width: 45%; height: 35px; background: var(--glass); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; border-radius: 5px; backdrop-filter: blur(5px); }
+
+        /* [3] 우측 네비게이션 */
+        #right-nav { position: fixed; right: 15px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
+        .nav-circle { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--border); background: var(--glass); backdrop-filter: blur(15px); color: #fff; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .nav-circle:hover { transform: scale(1.1); background: var(--accent); color: #000; box-shadow: 0 0 20px var(--accent); }
+        .sos-btn { background: var(--sos-red); border: none; font-weight: bold; animation: pulse-red 2s infinite; }
+
+        /* [4] 하단 컨트롤 판넬 */
+        #ui-panel { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 380px; z-index: 1000; transition: 0.5s; }
+        .input-group { display: flex; gap: 8px; margin-bottom: 12px; }
+        input { flex: 1; background: rgba(0,0,0,0.6); border: 1px solid var(--border); padding: 14px; border-radius: 15px; color: #fff; outline: none; backdrop-filter: blur(10px); }
+        #action-btn { width: 100%; padding: 16px; border-radius: 15px; border: none; background: var(--accent); color: #000; font-weight: 900; cursor: pointer; letter-spacing: 1px; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,255,255,0.3); }
+
+        /* [5] 서랍 및 모달 */
+        .drawer { position: fixed; right: -100%; top: 0; width: 85%; max-width: 320px; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(25px); z-index: 2000; transition: 0.4s ease-in-out; padding: 25px; border-left: 1px solid var(--border); }
+        .drawer.active { right: 0; }
+        .drawer-close { cursor: pointer; float: right; font-size: 20px; }
+        .vault-item { background: var(--glass); padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
+
+        /* [6] 효과 및 애니메이션 */
+        #golden-seal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: none; text-align: center; pointer-events: none; }
+        #watermark { position: fixed; bottom: 8px; right: 12px; font-size: 9px; opacity: 0.4; z-index: 100; letter-spacing: 1px; }
+
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(255, 59, 48, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); } }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="video-bg"><div id="player"></div></div>
+    <canvas id="fireworksCanvas"></canvas>
+    <div id="overlay"></div>
+
+    <div id="top-bar">
+        <div id="loyalty-zone">
+            <div class="slogan">진심은 통한다 희망을 쏴라</div>
+            <div id="rank-info" style="font-size:12px; margin-top:3px; color:var(--gold);">RANK: <span id="rank-name">WHITE OPAL</span></div>
+            <div class="count-badge">GIFT: <span id="gift-count">0</span>회</div>
+        </div>
+        <div id="ad-banner">DAON OFFICIAL PARTNERSHIP AD</div>
+    </div>
+
+    <div id="right-nav">
+        <button class="nav-circle" onclick="toggleDrawer('music-drawer')">🎵</button>
+        <button class="nav-circle" onclick="toggleDrawer('meal-drawer')">🥗</button>
+        <button class="nav-circle" onclick="toggleDrawer('vault-drawer')">📦</button>
+        <button class="nav-circle" onclick="toggleDrawer('donate-drawer')">💎</button>
+        <button class="nav-circle sos-btn" id="sos-trigger" onclick="toggleDrawer('sos-drawer')">SOS</button>
+    </div>
+
+    <div id="ui-panel">
+        <div class="input-group">
+            <input type="text" id="nickname" placeholder="NICKNAME">
+            <input type="text" id="message" placeholder="MESSAGE">
+        </div>
+        <button id="action-btn" onclick="handleLaunch()">LAUNCH (폭죽 발사)</button>
+        <div style="margin-top:12px; font-size:11px; opacity: 0.7;">
+            🔊 Sound: <input type="range" id="vol-control" min="0" max="100" value="50" onchange="updateVolume(this.value)" style="width:80px; vertical-align:middle;">
+        </div>
+    </div>
+
+    <div id="golden-seal">
+        <img src="https://cdn-icons-png.flaticon.com/512/610/610333.png" style="width:180px; filter: drop-shadow(0 0 30px gold);">
+        <h2 style="color:var(--gold); text-shadow: 0 0 20px #000;">LEGENDARY GUARDIAN</h2>
+    </div>
+
+    <div id="vault-drawer" class="drawer">
+        <span class="drawer-close" onclick="toggleDrawer('vault-drawer')">✕</span>
+        <h3 style="color:var(--accent);">📦 GIFT VAULT</h3>
+        <div id="vault-list" style="overflow-y:auto; height:85%;"></div>
+    </div>
+
+    <div id="sos-drawer" class="drawer">
+        <span class="drawer-close" onclick="toggleDrawer('sos-drawer')">✕</span>
+        <h3 style="color:var(--sos-red);">🚨 EMERGENCY CALL</h3>
+        <button onclick="alert('안심귀가 서비스가 활성화되었습니다.')" style="width:100%; padding:15px; margin-bottom:10px; border-radius:10px; background:var(--glass); color:#fff; border:1px solid var(--border);">🛡️ 안심 귀가 시작</button>
+        <button onclick="findEmergency()" style="width:100%; padding:15px; border-radius:10px; background:var(--glass); color:#fff; border:1px solid var(--border);">🏥 주변 응급실 (TOP 5)</button>
+        <div style="margin-top:30px; font-size:11px; color:#888;">* 시크릿 SOS: SOS 버튼을 20초간 유지하세요.</div>
+    </div>
+
+    <div id="watermark">© 2025 DAON OFFICIAL. HYPER-ULTIMATE EDITION.</div>
+
+    <script>
+        // [1] 카카오 및 유튜브 초기화
+        const KAKAO_KEY = 'fa462b2b643a16d837c1890cc3dc4149'; 
+        if (!Kakao.isInitialized()) Kakao.init(KAKAO_KEY);
+
+        let player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                videoId: 'WPfyXfdrCqs', // 기본 배경 영상
+                playerVars: { 'autoplay': 1, 'controls': 0, 'loop': 1, 'playlist': 'WPfyXfdrCqs', 'mute': 1 },
+                events: { 'onReady': (e) => e.target.playVideo() }
+            });
+        }
+
+        function updateVolume(v) { if(player) player.setVolume(v); }
+
+        // [2] 폭죽 엔진 (Canvas Particles)
+        const canvas = document.getElementById('fireworksCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        class Particle {
+            constructor(x, y, color, text) {
+                this.x = x; this.y = y; this.color = color; this.text = text;
+                this.velocity = { x: (Math.random() - 0.5) * 8, y: (Math.random() - 0.5) * 8 };
+                this.alpha = 1; this.friction = 0.95;
+            }
+            draw() {
+                ctx.save(); ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color; ctx.font = "bold 20px Pretendard";
+                ctx.fillText(this.text, this.x, this.y); ctx.restore();
+            }
+            update() {
+                this.velocity.x *= this.friction; this.velocity.y *= this.friction;
+                this.x += this.velocity.x; this.y += this.velocity.y;
+                this.alpha -= 0.01;
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, i) => { if (p.alpha > 0) { p.update(); p.draw(); } else { particles.splice(i, 1); } });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // [3] 로직 제어
+        let giftCount = parseInt(localStorage.getItem('daon_gift_total') || '0');
+        let vault = JSON.parse(localStorage.getItem('daon_vault') || '[]');
+
+        function handleLaunch() {
+            const nick = document.getElementById('nickname').value || "익명의 수호자";
+            const msg = document.getElementById('message').value || "행복한 2025!";
+            const btn = document.getElementById('action-btn');
+
+            if (btn.innerText.includes("LAUNCH")) {
+                // 3회 폭죽 문자 발사
+                for(let i=0; i<3; i++) {
+                    setTimeout(() => {
+                        for(let j=0; j<10; j++) particles.push(new Particle(canvas.width/2, canvas.height/2 + 100, `hsl(${Math.random()*360}, 100%, 50%)`, msg));
+                    }, i * 600);
+                }
+                btn.innerText = "SEND TO KAKAO (공유)";
+                btn.style.background = "var(--neon-pink)";
+            } else {
+                shareKakao(nick, msg);
+            }
+        }
+
+        function shareKakao(nick, msg) {
+            Kakao.Share.sendDefault({
+                objectType: 'feed',
+                content: {
+                    title: `🎆 ${nick}님의 진심 어린 불꽃 메시지`,
+                    description: msg,
+                    imageUrl: 'https://daon-fireworks-2025.vercel.app/og-image.png',
+                    link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
+                },
+                buttons: [{ title: '메시지 확인', link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }]
+            });
+            saveVault(nick, msg);
+            addCount();
+        }
+
+        function saveVault(nick, msg) {
+            vault.push({ nick, msg, date: new Date().toLocaleString() });
+            localStorage.setItem('daon_vault', JSON.stringify(vault));
+            renderVault();
+        }
+
+        function addCount() {
+            giftCount++;
+            localStorage.setItem('daon_gift_total', giftCount);
+            document.getElementById('gift-count').innerText = giftCount;
+            if(giftCount >= 1000) {
+                const seal = document.getElementById('golden-seal');
+                seal.style.display = 'block';
+                setTimeout(() => seal.style.display = 'none', 4000);
+            }
+        }
+
+        // [4] SOS 시크릿 (20초)
+        const sosBtn = document.getElementById('sos-trigger');
+        let sosTimer;
+        sosBtn.addEventListener('mousedown', () => {
+            sosTimer = setTimeout(() => {
+                if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                alert("🚨 [시크릿 SOS] 경찰 상황실에 현재 위치가 전송되었습니다.");
+            }, 20000);
+        });
+        sosBtn.addEventListener('mouseup', () => clearTimeout(sosTimer));
+
+        function toggleDrawer(id) {
+            const d = document.getElementById(id);
+            const isActive = d.classList.contains('active');
+            document.querySelectorAll('.drawer').forEach(el => el.classList.remove('active'));
+            if(!isActive) d.classList.add('active');
+        }
+
+        function findEmergency() {
+            alert("🏥 가장 가까운 대형병원: 1.성모병원 2.아산병원 3.삼성병원...");
+        }
+
+        function renderVault() {
+            const list = document.getElementById('vault-list');
+            list.innerHTML = vault.reverse().map(item => `
+                <div class="vault-item">
+                    <div style="font-size:10px; opacity:0.6;">${item.date}</div>
+                    <div style="font-weight:bold; margin:5px 0;">${item.nick}: ${item.msg}</div>
+                    <button onclick="shareKakao('${item.nick}', '${item.msg}')" style="background:var(--accent); border:none; padding:5px 10px; border-radius:5px; font-size:10px; cursor:pointer;">재전송</button>
+                    <button onclick="window.print()" style="background:#444; color:#fff; border:none; padding:5px 10px; border-radius:5px; font-size:10px; cursor:pointer;">인쇄</button>
+                </div>
+            `).join('');
+        }
+
+        window.onload = () => {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            document.getElementById('gift-count').innerText = giftCount;
+            renderVault();
+        };
+    </script>
+</body>
+</html>
