@@ -14,6 +14,7 @@
             --sos-red: #ff3b30;
             --accent: #00ffff;
             --neon-pink: #ff00d4;
+            --youtube-red: #FF0000;
         }
 
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Pretendard', sans-serif; overflow: hidden; }
@@ -95,6 +96,21 @@
         <h2 style="color:var(--gold); text-shadow: 0 0 20px #000;">LEGENDARY GUARDIAN</h2>
     </div>
 
+    <div id="music-drawer" class="drawer">
+        <span class="drawer-close" onclick="toggleDrawer('music-drawer')">✕</span>
+        <h3 style="color:var(--accent);">🎵 MUSIC & OFFICIAL</h3>
+        <div class="vault-item" style="text-align: center;">
+            <p style="font-size: 14px; margin-bottom: 15px;">다온 오피셜 유튜브 채널</p>
+            <button onclick="window.open('https://www.youtube.com/@Da-OnOfficial', '_blank')" style="width:100%; padding:12px; background:var(--youtube-red); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                📺 YouTube @Da-OnOfficial
+            </button>
+        </div>
+        <div class="vault-item">
+            <p style="font-size: 13px;">음악 다운로드 (준비중)</p>
+            <button disabled style="width:100%; padding:10px; background:var(--glass); color:#666; border:1px solid var(--border); border-radius:10px;">📥 Music Download</button>
+        </div>
+    </div>
+
     <div id="vault-drawer" class="drawer">
         <span class="drawer-close" onclick="toggleDrawer('vault-drawer')">✕</span>
         <h3 style="color:var(--accent);">📦 GIFT VAULT</h3>
@@ -167,7 +183,6 @@
             const btn = document.getElementById('action-btn');
 
             if (btn.innerText.includes("LAUNCH")) {
-                // 3회 폭죽 문자 발사
                 for(let i=0; i<3; i++) {
                     setTimeout(() => {
                         for(let j=0; j<10; j++) particles.push(new Particle(canvas.width/2, canvas.height/2 + 100, `hsl(${Math.random()*360}, 100%, 50%)`, msg));
@@ -225,6 +240,7 @@
 
         function toggleDrawer(id) {
             const d = document.getElementById(id);
+            if (!d) return;
             const isActive = d.classList.contains('active');
             document.querySelectorAll('.drawer').forEach(el => el.classList.remove('active'));
             if(!isActive) d.classList.add('active');
