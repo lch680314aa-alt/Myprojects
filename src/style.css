@@ -1,36 +1,34 @@
 :root {
-    --glass: rgba(255, 255, 255, 0.07);
-    --border: rgba(255, 255, 255, 0.12);
-    --ultimate-glow: #00ffff;
-    --black-opal: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #8b00ff);
+    --glass: rgba(255, 255, 255, 0.08);
+    --neon-cyan: #00ffff;
+    --gold: #ffd700;
 }
+body { margin: 0; background: #000; color: #fff; overflow: hidden; font-family: sans-serif; }
 
-body { margin: 0; background: #000; color: #fff; font-family: -apple-system, sans-serif; overflow: hidden; }
+/* 상단 요소 제어 */
+#ad-banner { width: 100%; height: 40px; background: #111; text-align: center; line-height: 40px; font-size: 12px; color: var(--neon-cyan); }
+#top-left-header { position: absolute; top: 50px; left: 15px; display: flex; align-items: center; gap: 8px; }
+#mini-badge { width: 15px; height: 15px; background: var(--neon-cyan); border-radius: 50%; box-shadow: 0 0 10px var(--neon-cyan); }
+#slogan { font-size: 11px; font-weight: bold; letter-spacing: -0.5px; }
 
-#loyalty-header { position: fixed; top: 0; width: 100%; padding: 20px; z-index: 1000; box-sizing: border-box; }
-.progress-info { display: flex; justify-content: space-between; font-size: 10px; font-weight: bold; margin-bottom: 8px; opacity: 0.8; }
-.progress-track { width: 100%; height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; }
-#progress-fill { width: 0%; height: 100%; background: var(--ultimate-glow); transition: width 0.8s ease; box-shadow: 0 0 10px var(--ultimate-glow); }
+/* 골든 인장 애니메이션 */
+#gold-seal {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 200px; height: 200px; background: url('gold-seal.png') no-repeat center; background-size: contain;
+    z-index: 5000; animation: fade-in-out 3s forwards;
+}
+@keyframes fade-in-out { 0% { opacity: 0; scale: 0.5; } 20% { opacity: 1; scale: 1.1; } 80% { opacity: 1; scale: 1; } 100% { opacity: 0; scale: 1.2; } }
 
-#identity-layer { position: absolute; top: 80px; left: 20px; text-align: center; z-index: 500; }
-#opal-seal { width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 10px; transition: 0.5s; }
-.rank-white { border: 2px solid #fff; box-shadow: 0 0 15px rgba(255,255,255,0.3); }
-.rank-fire { border: 2px solid #ff4d4d; animation: fire 1.5s infinite alternate; }
-.rank-black { border: 2px solid transparent; background: var(--black-opal); background-size: 300%; animation: rainbow 3s linear infinite; }
-.rank-ultimate { border: 2px solid var(--ultimate-glow); box-shadow: 0 0 30px var(--ultimate-glow); animation: ultimate 2s infinite alternate; }
+/* 우측 내비게이션 및 SOS */
+#right-nav { position: fixed; right: 15px; top: 100px; display: flex; flex-direction: column; gap: 12px; }
+#right-nav button { width: 45px; height: 45px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); background: var(--glass); color: #fff; cursor: pointer; backdrop-filter: blur(10px); }
+#sos-btn { background: rgba(255,0,0,0.3) !important; border: 1px solid #ff0000 !important; }
 
-#official-nav { position: fixed; right: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
-.nav-btn { width: 50px; height: 50px; border-radius: 50%; border: 1px solid var(--border); background: var(--glass); color: white; cursor: pointer; backdrop-filter: blur(10px); }
+/* 저작권 표시 */
+#copyright { position: fixed; bottom: 10px; right: 15px; font-size: 9px; opacity: 0.5; }
 
-.drawer, .modal-content, #ui-panel { background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 28px; padding: 20px; }
-.drawer { position: fixed; bottom: 100px; left: 20px; right: 20px; z-index: 2000; transition: 0.3s; }
-.hidden { display: none !important; }
-
-#ui-panel { position: fixed; bottom: 20px; left: 20px; right: 20px; z-index: 1000; }
-.input-stack { display: flex; gap: 10px; margin-bottom: 10px; }
-input { flex: 1; background: rgba(255,255,255,0.1); border: none; padding: 12px; border-radius: 12px; color: white; outline: none; }
-#main-action-btn { width: 100%; padding: 15px; border-radius: 15px; border: none; background: var(--ultimate-glow); color: black; font-weight: bold; cursor: pointer; }
-
-@keyframes fire { from { box-shadow: 0 0 10px #ff4d4d; } to { box-shadow: 0 0 25px #ff4d4d; } }
-@keyframes rainbow { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
-@keyframes ultimate { from { transform: scale(1); } to { transform: scale(1.05); } }
+/* 기타 UI */
+#action-panel { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; }
+.input-group { display: flex; gap: 8px; margin-bottom: 10px; }
+input { flex: 1; background: var(--glass); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 12px; color: white; }
+#launch-btn { width: 100%; padding: 15px; border-radius: 15px; background: var(--neon-cyan); color: #000; font-weight: bold; border: none; }

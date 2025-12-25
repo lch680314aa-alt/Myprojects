@@ -1,101 +1,82 @@
 const KAKAO_KEY = 'fa462b2b643a16d837c1890cc3dc4149';
 if (!Kakao.isInitialized()) Kakao.init(KAKAO_KEY);
 
-const THRESHOLDS = { FIRE: 15, BLACK: 50, ULTIMATE: 100 };
 let shareCount = parseInt(localStorage.getItem('daon_share_count') || '0');
+let sosTimer;
 
-function initIdentity() {
-    let sn = localStorage.getItem('daon_sn');
-    if (!sn) {
-        sn = `DAON-2025-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
-        localStorage.setItem('daon_sn', sn);
+// [1] 폭죽 3회 연속 발사 로직
+async function fireworkBurst(message, count = 3) {
+    for(let i = 0; i < count; i++) {
+        await new Promise(resolve => {
+            console.log(`폭죽 발사: ${message}`);
+            // 여기에 실제 Canvas 폭죽 애니메이션 실행 함수 호출 (화면 중앙 하단 -> 상단 터짐)
+            triggerCanvasFirework(message); 
+            setTimeout(resolve, 2000); // 이전 폭죽이 사라지는 시간 대기
+        });
     }
-    document.getElementById('serial-number').innerText = sn;
 }
 
-window.handleMainAction = () => {
-    const btn = document.getElementById('main-action-btn');
-    if (btn.classList.contains('send-mode')) {
-        shareToKakao();
-    } else {
-        document.getElementById('choice-modal').classList.remove('hidden');
-    }
-};
-
-window.executeLaunch = (withSound) => {
-    document.getElementById('choice-modal').classList.add('hidden');
-    const btn = document.getElementById('main-action-btn');
+function handleLaunch() {
+    const msg = document.getElementById('message').value;
+    const nick = document.getElementById('nickname').value;
+    
+    // 3회 발사 및 버튼 전환
+    fireworkBurst(msg);
+    const btn = document.getElementById('launch-btn');
     btn.innerText = "SEND TO KAKAO";
-    btn.classList.add('send-mode');
-    alert("불꽃이 준비되었습니다! 카카오톡으로 공유하여 등급을 올리세요.");
-};
+    btn.onclick = () => shareToKakao(nick, msg);
+}
 
-window.shareToKakao = () => {
-    const last = localStorage.getItem('daon_last_action') || 0;
-    const now = Date.now();
-    if (now - last < 60000) {
-        alert(`🚨 쿨타임: ${Math.ceil((60000-(now-last))/1000)}초 후 가능합니다.`);
-        return;
-    }
-
+// [2] 카카오 공유 (선물하기 통합)
+function shareToKakao(nick, msg, type = 'all') {
     Kakao.Share.sendDefault({
         objectType: 'feed',
         content: {
-            title: `🎆 DAON Guardian 메시지`,
-            description: document.getElementById('message').value || "다온과 함께하는 불꽃놀이",
+            title: `🎆 ${nick}님의 불꽃 선물`,
+            description: msg,
             imageUrl: 'https://daon-fireworks-2025.vercel.app/og-image.png',
             link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
         }
     });
-
+    
     shareCount++;
     localStorage.setItem('daon_share_count', shareCount);
-    localStorage.setItem('daon_last_action', now);
-    updateSystem();
-};
-
-function updateSystem() {
-    const seal = document.getElementById('opal-seal');
-    const rankTxt = document.getElementById('rank-text');
-    const fill = document.getElementById('progress-fill');
-    const info = document.getElementById('next-rank-info');
-    const label = document.getElementById('rank-label');
-    
-    seal.className = '';
-    let target = 0, base = 0, currentLabel = "WHITE";
-
-    if (shareCount >= THRESHOLDS.ULTIMATE) {
-        seal.classList.add('rank-ultimate');
-        rankTxt.innerText = "RANK: ULTIMATE GUARDIAN";
-        fill.style.width = "100%";
-        info.innerText = "MAX LOYALTY";
-        currentLabel = "ULTIMATE";
-    } else if (shareCount >= THRESHOLDS.BLACK) {
-        seal.classList.add('rank-black');
-        rankTxt.innerText = "RANK: BLACK OPAL";
-        target = THRESHOLDS.ULTIMATE; base = THRESHOLDS.BLACK; currentLabel = "BLACK";
-    } else if (shareCount >= THRESHOLDS.FIRE) {
-        seal.classList.add('rank-fire');
-        rankTxt.innerText = "RANK: FIRE OPAL";
-        target = THRESHOLDS.BLACK; base = THRESHOLDS.FIRE; currentLabel = "FIRE";
-    } else {
-        seal.classList.add('rank-white');
-        target = THRESHOLDS.FIRE; base = 0; currentLabel = "WHITE";
-    }
-
-    if (target > 0) {
-        const percent = ((shareCount - base) / (target - base)) * 100;
-        fill.style.width = percent + "%";
-        info.innerText = `NEXT: ${target} (${target - shareCount} left)`;
-    }
-    label.innerText = currentLabel;
+    checkGoldSeal();
 }
 
-window.toggleDrawer = (id) => {
-    const d = document.getElementById(id);
-    const isH = d.classList.contains('hidden');
-    document.querySelectorAll('.drawer').forEach(el => el.classList.add('hidden'));
-    if (isH) d.classList.remove('hidden');
+// [3] 충성고객 황금인장 (1000회)
+function checkGoldSeal() {
+    if (shareCount >= 1000) {
+        const seal = document.getElementById('gold-seal');
+        seal.classList.remove('hidden');
+        setTimeout(() => seal.classList.add('hidden'), 3000);
+    }
+}
+
+// [4] 긴급 호출 (SOS) 시크릿 로직
+window.startEmergencyPress = () => {
+    sosTimer = setTimeout(() => {
+        // 20초 롱프레스 시 진동 및 경찰 신고 시뮬레이션
+        if ("vibrate" in navigator) navigator.vibrate([100, 50, 100]);
+        alert("🚨 시크릿 SOS: 위치 정보가 경찰 상황실로 전송되었습니다.");
+    }, 20000);
+};
+window.endEmergencyPress = () => clearTimeout(sosTimer);
+
+// [5] 병원 도우미
+window.showHospitals = () => {
+    alert("가장 가까운 응급실:\n1. OO대학병원 (02-123-4567)\n2. XX종합병원 (02-987-6543)");
 };
 
-window.onload = () => { initIdentity(); updateSystem(); };
+// [6] 밀프랩 인쇄 및 저장
+window.printRecipe = () => {
+    const content = document.getElementById('meal-input').value;
+    const win = window.open('', '', 'height=500,width=500');
+    win.document.write(`<html><body><h1>DAON Meal-Prep</h1><p>${content}</p></body></html>`);
+    win.print();
+};
+
+window.onload = () => {
+    // 처음 입장 시 랜덤 폭죽 시작
+    setInterval(() => triggerCanvasFirework("DAON 2025"), 5000);
+};
