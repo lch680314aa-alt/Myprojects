@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎆 DAON 2025: GUARDIAN & SAVIOR 🎆</title>
+    <title>🎆 DAON 2025: GRAND FINALE 🎆</title>
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
-    <script src="https://www.youtube.com/iframe_api"></script>
     <style>
         :root {
             --glass: rgba(255, 255, 255, 0.08);
@@ -14,15 +13,13 @@
             --sos-red: #ff3b30;
             --accent: #00ffff;
             --neon-pink: #ff00d4;
-            --youtube-red: #FF0000;
         }
 
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Pretendard', sans-serif; overflow: hidden; }
 
         /* [1] 배경 레이어 */
-        #video-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
         #fireworksCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.5) 90%); z-index: 2; pointer-events: none; }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.6) 90%); z-index: 2; pointer-events: none; }
 
         /* [2] 상단 레이아웃 (25% 축소) */
         #top-bar { position: fixed; top: 0; width: 100%; display: flex; justify-content: space-between; padding: 8px 15px; z-index: 100; box-sizing: border-box; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); }
@@ -56,9 +53,8 @@
         @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(255, 59, 48, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); } }
     </style>
 </head>
-<body>
+<body onclick="initAudioContext()">
 
-    <div id="video-bg"><div id="player"></div></div>
     <canvas id="fireworksCanvas"></canvas>
     <div id="overlay"></div>
 
@@ -68,7 +64,7 @@
             <div id="rank-info" style="font-size:12px; margin-top:3px; color:var(--gold);">RANK: <span id="rank-name">WHITE OPAL</span></div>
             <div class="count-badge">GIFT: <span id="gift-count">0</span>회</div>
         </div>
-        <div id="ad-banner">DAON OFFICIAL PARTNERSHIP AD</div>
+        <div id="ad-banner">DAON GRAND MASTER EDITION</div>
     </div>
 
     <div id="right-nav">
@@ -86,7 +82,7 @@
         </div>
         <button id="action-btn" onclick="handleLaunch()">LAUNCH (폭죽 발사)</button>
         <div style="margin-top:12px; font-size:11px; opacity: 0.7;">
-            🔊 Sound: <input type="range" id="vol-control" min="0" max="100" value="50" onchange="updateVolume(this.value)" style="width:80px; vertical-align:middle;">
+            🔊 Master Volume: <input type="range" id="vol-control" min="0" max="100" value="70" onchange="updateVolume(this.value)" style="width:100px; vertical-align:middle;">
         </div>
     </div>
 
@@ -95,53 +91,58 @@
         <h2 style="color:var(--gold); text-shadow: 0 0 20px #000;">LEGENDARY GUARDIAN</h2>
     </div>
 
-    <div id="music-drawer" class="drawer">
-        <span class="drawer-close" onclick="toggleDrawer('music-drawer')">✕</span>
-        <h3 style="color:var(--accent);">🎵 MUSIC & OFFICIAL</h3>
-        <button onclick="window.open('https://www.youtube.com/@Da-OnOfficial', '_blank')" style="width:100%; padding:12px; background:var(--youtube-red); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">📺 YouTube @Da-OnOfficial</button>
-    </div>
+    <div id="watermark">© 2025 DAON OFFICIAL. ALL AUDIO & VISUAL ASSETS INTEGRATED.</div>
 
-    <div id="vault-drawer" class="drawer">
-        <span class="drawer-close" onclick="toggleDrawer('vault-drawer')">✕</span>
-        <h3 style="color:var(--accent);">📦 GIFT VAULT</h3>
-        <div id="vault-list" style="overflow-y:auto; height:85%;"></div>
-    </div>
-
-    <div id="sos-drawer" class="drawer">
-        <span class="drawer-close" onclick="toggleDrawer('sos-drawer')">✕</span>
-        <h3 style="color:var(--sos-red);">🚨 EMERGENCY CALL</h3>
-        <button onclick="alert('안심귀가 서비스가 활성화되었습니다.')" style="width:100%; padding:15px; margin-bottom:10px; border-radius:10px; background:var(--glass); color:#fff; border:1px solid var(--border);">🛡️ 안심 귀가 시작</button>
-    </div>
-
-    <div id="watermark">© 2025 DAON OFFICIAL. HYPER-ULTIMATE EDITION.</div>
+    <audio id="bgm" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
 
     <script>
-        // [1] 카카오 및 유튜브 초기화
+        // [1] 카카오 초기화
         const KAKAO_KEY = 'fa462b2b643a16d837c1890cc3dc4149'; 
         if (!Kakao.isInitialized()) Kakao.init(KAKAO_KEY);
 
-        let player;
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('player', {
-                videoId: 'WPfyXfdrCqs',
-                playerVars: { 'autoplay': 1, 'controls': 0, 'loop': 1, 'playlist': 'WPfyXfdrCqs', 'mute': 1 },
-                events: { 'onReady': (e) => e.target.playVideo() }
-            });
+        // [2] 사운드 시스템
+        let audioStarted = false;
+        const bgm = document.getElementById('bgm');
+        
+        function initAudioContext() {
+            if (!audioStarted) {
+                bgm.play().catch(e => console.log("Audio play blocked"));
+                audioStarted = true;
+            }
         }
-        function updateVolume(v) { if(player) player.setVolume(v); }
 
-        // [2] 폭죽 및 물리 엔진
+        function updateVolume(v) { bgm.volume = v / 100; }
+
+        function playExplosionSound() {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(100, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.5);
+        }
+
+        // [3] 폭죽 및 물리 엔진
         const canvas = document.getElementById('fireworksCanvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
         let rockets = [];
 
         class Rocket {
-            constructor(x, y, targetY, color, message) {
+            constructor(x, y, targetY, color, message, isAuto = false) {
                 this.x = x; this.y = y; this.targetY = targetY;
                 this.color = color; this.message = message;
-                this.velocity = -12; // 상승 속도
+                this.velocity = -10 - (Math.random() * 5);
                 this.alive = true;
+                this.isAuto = isAuto;
             }
             update() {
                 this.y += this.velocity;
@@ -151,13 +152,18 @@
                 }
             }
             draw() {
-                ctx.beginPath(); ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                ctx.beginPath(); ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
                 ctx.fillStyle = this.color; ctx.fill();
-                // 꼬리 효과
-                ctx.shadowBlur = 10; ctx.shadowColor = this.color;
             }
             explode() {
-                createExplosion(this.x, this.y, this.color, 40, this.message);
+                playExplosionSound();
+                const particleCount = this.isAuto ? 30 : 60;
+                for(let i = 0; i < particleCount; i++) {
+                    particles.push(new Particle(this.x, this.y, this.color));
+                }
+                if(this.message) {
+                    particles.push(new Particle(this.x, this.y, this.color, this.message));
+                }
             }
         }
 
@@ -165,18 +171,19 @@
             constructor(x, y, color, text = '') {
                 this.x = x; this.y = y; this.color = color; this.text = text;
                 const angle = Math.random() * Math.PI * 2;
-                const force = Math.random() * 8 + 2;
+                const force = Math.random() * (text ? 5 : 10) + 2;
                 this.velocity = { x: Math.cos(angle) * force, y: Math.sin(angle) * force };
-                this.alpha = 1; this.friction = 0.95; this.gravity = 0.12;
+                this.alpha = 1; this.friction = 0.95; this.gravity = 0.15;
             }
             draw() {
                 ctx.save(); ctx.globalAlpha = this.alpha;
                 if(this.text) {
-                    ctx.fillStyle = this.color; ctx.font = "bold 24px Pretendard";
+                    ctx.fillStyle = "#fff"; ctx.font = "bold 28px Pretendard";
                     ctx.textAlign = "center";
+                    ctx.shadowBlur = 15; ctx.shadowColor = this.color;
                     ctx.fillText(this.text, this.x, this.y);
                 } else {
-                    ctx.beginPath(); ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                    ctx.beginPath(); ctx.arc(this.x, this.y, Math.random() * 3, 0, Math.PI * 2);
                     ctx.fillStyle = this.color; ctx.fill();
                 }
                 ctx.restore();
@@ -185,13 +192,8 @@
                 this.velocity.x *= this.friction; this.velocity.y *= this.friction;
                 this.velocity.y += this.gravity;
                 this.x += this.velocity.x; this.y += this.velocity.y;
-                this.alpha -= 0.01;
+                this.alpha -= 0.012;
             }
-        }
-
-        function createExplosion(x, y, color, count, text = '') {
-            for(let i = 0; i < count; i++) particles.push(new Particle(x, y, color));
-            if(text) particles.push(new Particle(x, y, color, text)); // 텍스트 입자 추가
         }
 
         function animate() {
@@ -202,25 +204,31 @@
         }
         animate();
 
-        // [3] 메인 핸들러
-        let giftCount = parseInt(localStorage.getItem('daon_gift_total') || '0');
-        let vault = JSON.parse(localStorage.getItem('daon_vault') || '[]');
+        // 자동 폭죽 로직 (바탕화면용)
+        setInterval(() => {
+            const startX = Math.random() * canvas.width;
+            const targetY = canvas.height * 0.1 + (Math.random() * canvas.height * 0.4);
+            const color = `hsl(${Math.random() * 360}, 100%, 70%)`;
+            rockets.push(new Rocket(startX, canvas.height, targetY, color, "", true));
+        }, 800);
 
+        // [4] 메인 로직
+        let giftCount = parseInt(localStorage.getItem('daon_gift_total') || '0');
+        
         function handleLaunch() {
+            initAudioContext();
             const nick = document.getElementById('nickname').value || "수호자";
             const msg = document.getElementById('message').value || "DAON 2025";
             const btn = document.getElementById('action-btn');
 
             if (btn.innerText.includes("LAUNCH")) {
-                // 하단 중앙에서 발사 (Rocket 생성)
                 for(let i=0; i<3; i++) {
                     setTimeout(() => {
                         const startX = canvas.width / 2;
-                        const startY = canvas.height;
-                        const targetY = canvas.height * 0.15 + (Math.random() * 50); // 상단 타겟
+                        const targetY = canvas.height * 0.15 + (Math.random() * 100);
                         const color = `hsl(${Math.random() * 360}, 100%, 70%)`;
-                        rockets.push(new Rocket(startX, startY, targetY, color, msg));
-                    }, i * 600);
+                        rockets.push(new Rocket(startX, canvas.height, targetY, color, msg));
+                    }, i * 700);
                 }
                 btn.innerText = "SEND TO KAKAO (공유)";
                 btn.style.background = "var(--neon-pink)";
@@ -233,57 +241,23 @@
             Kakao.Share.sendDefault({
                 objectType: 'feed',
                 content: {
-                    title: `🎆 ${nick}님의 메시지`,
+                    title: `🎆 ${nick}님의 불꽃 선물`,
                     description: msg,
                     imageUrl: 'https://daon-fireworks-2025.vercel.app/og-image.png',
                     link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
                 }
             });
-            saveVault(nick, msg);
-            addCount();
-        }
-
-        function saveVault(nick, msg) {
-            vault.push({ nick, msg, date: new Date().toLocaleString() });
-            localStorage.setItem('daon_vault', JSON.stringify(vault));
-            renderVault();
-        }
-
-        function addCount() {
             giftCount++; localStorage.setItem('daon_gift_total', giftCount);
             document.getElementById('gift-count').innerText = giftCount;
-            if(giftCount >= 1000) {
-                document.getElementById('golden-seal').style.display = 'block';
-                setTimeout(() => document.getElementById('golden-seal').style.display = 'none', 4000);
-            }
-        }
-
-        function toggleDrawer(id) {
-            const d = document.getElementById(id);
-            const isActive = d.classList.contains('active');
-            document.querySelectorAll('.drawer').forEach(el => el.classList.remove('active'));
-            if(!isActive) d.classList.add('active');
-        }
-
-        function renderVault() {
-            const list = document.getElementById('vault-list');
-            list.innerHTML = vault.slice().reverse().map(item => `
-                <div class="vault-item">
-                    <small>${item.date}</small>
-                    <div style="font-weight:bold;">${item.nick}: ${item.msg}</div>
-                    <button onclick="shareKakao('${item.nick}', '${item.msg}')" style="background:var(--accent); color:black; border:none; padding:5px 10px; border-radius:5px; font-size:10px; margin-top:5px; cursor:pointer;">재전송</button>
-                </div>
-            `).join('');
         }
 
         window.onload = () => {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
             document.getElementById('gift-count').innerText = giftCount;
-            renderVault();
-            // 인트로 폭죽 (자동 발사 테스트)
-            setTimeout(() => {
-                rockets.push(new Rocket(canvas.width/2, canvas.height, canvas.height*0.2, "#00ffff", "WELCOME DAON"));
-            }, 1000);
+        };
+
+        window.onresize = () => {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
         };
     </script>
 </body>
