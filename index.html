@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -23,37 +22,22 @@
         /* 2. 불꽃놀이 캔버스 */
         #fireworks-canvas {
             position: absolute; top: 0; left: 0;
-            z-index: 0; pointer-events: none; /* UI 클릭 방해 금지 */
+            z-index: 0; pointer-events: none;
         }
 
-        /* 3. UI 레이어 (투명도 조절로 배경 투사) */
+        /* 3. UI 레이어 (정보 및 컨트롤만 남김) */
         .ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; color: white; pointer-events: none; }
-        .ui-overlay * { pointer-events: auto; } /* 하위 요소들은 클릭 가능하게 */
+        .ui-overlay * { pointer-events: auto; }
         
         .top-info { position: absolute; top: 20px; left: 20px; font-size: 14px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
         .cyan-text { color: #00ffff; }
 
-        .login-box {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(255, 255, 255, 0.9); width: 350px; padding: 40px; border-radius: 12px; color: #333; text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        /* 하단 컨트롤 바 */
+        .bottom-controls { 
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); 
+            width: 250px; text-align: center; background: rgba(0,0,0,0.5); 
+            padding: 10px; border-radius: 20px; 
         }
-        .kakao-logo { font-size: 30px; font-weight: 900; margin-bottom: 20px; }
-        .input-field { width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        .btn-login { width: 100%; padding: 12px; background: #fee500; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
-
-        .sidebar {
-            position: absolute; right: 0; top: 0; width: 220px; height: 100%;
-            background: rgba(0, 0, 0, 0.6); padding: 20px; border-left: 1px solid rgba(255,255,255,0.1);
-        }
-        .emergency-title { color: #ff4d4d; font-weight: bold; margin-bottom: 20px; }
-        .side-btn { 
-            width: 100%; padding: 12px; margin-bottom: 10px; background: rgba(50,50,50,0.8); border: 1px solid #555; 
-            color: white; border-radius: 5px; cursor: pointer; font-size: 12px; transition: 0.3s;
-        }
-        .side-btn:hover { background: #444; }
-
-        .bottom-controls { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 250px; text-align: center; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 20px; }
     </style>
 </head>
 <body>
@@ -71,42 +55,38 @@
             <span class="cyan-text">GIFT: 3회</span>
         </div>
 
-        <div class="login-box">
-            <div class="kakao-logo">kakao</div>
-            <input type="text" class="input-field" placeholder="아이디 또는 전화번호">
-            <input type="password" class="input-field" placeholder="비밀번호">
-            <button class="btn-login">로그인</button>
-        </div>
-
-        <div class="sidebar">
-            <div class="emergency-title">🚨 EMERGENCY CALL</div>
-            <button class="side-btn">📍 안심 귀가 시작</button>
-            <button class="side-btn">🏥 주변 응급실 (TOP 5)</button>
-        </div>
-
         <div class="bottom-controls">
-            <label style="font-size: 12px;">Sound Control</label>
-            <input type="range" min="0" max="100" value="50" style="width: 100%; cursor:pointer;">
+            <label style="font-size: 12px; display: block; margin-bottom: 5px;">Sound Control</label>
+            <input type="range" id="volume-slider" min="0" max="100" value="0" style="width: 100%; cursor:pointer;">
         </div>
     </div>
 
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
-        // 1. 유튜브 플레이어 설정 (사용자 요청 링크 반영)
+        // 1. 유튜브 플레이어 설정
         let player;
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('player', {
                 videoId: 'WPfyXfdrCqs',
                 playerVars: {
                     'autoplay': 1,
-                    'mute': 1, // 자동재생을 위한 음소거
+                    'mute': 1,
                     'controls': 0,
                     'loop': 1,
-                    'playlist': 'WPfyXfdrCqs', // 반복 재생을 위해 필수
+                    'playlist': 'WPfyXfdrCqs',
                     'start': 0
                 },
                 events: {
-                    'onReady': (e) => e.target.playVideo()
+                    'onReady': (e) => {
+                        e.target.playVideo();
+                        // 슬라이더 조절 시 볼륨 변경
+                        document.getElementById('volume-slider').addEventListener('input', function(event) {
+                            const vol = event.target.value;
+                            player.setVolume(vol);
+                            if(vol > 0) player.unMute();
+                            else player.mute();
+                        });
+                    }
                 }
             });
         }
@@ -124,7 +104,7 @@
                 this.velocity = velocity;
                 this.alpha = 1;
                 this.friction = 0.95;
-                this.gravity = 0.15;
+                this.gravity = 0.12;
                 this.isText = isText;
                 this.targetX = targetX;
                 this.targetY = targetY;
@@ -159,7 +139,6 @@
         const particles = [];
         const colors = ['#ff0044', '#00fbff', '#ffea00', '#ff00ff', '#ffffff', '#00ff44'];
 
-        // 일반 폭죽 (Explosion)
         function createExplosion(x, y) {
             const color = colors[Math.floor(Math.random() * colors.length)];
             for (let i = 0; i < 60; i++) {
@@ -172,25 +151,24 @@
             }
         }
 
-        // 문자 폭죽 (Text) - 중앙 하단에서 발사됨
         function createTextFirework(text) {
             const tempCanvas = document.createElement('canvas');
             const tempCtx = tempCanvas.getContext('2d');
-            tempCanvas.width = 600; tempCanvas.height = 150;
+            tempCanvas.width = 800; tempCanvas.height = 200;
             tempCtx.fillStyle = 'white';
             tempCtx.font = 'bold 50px Arial';
             tempCtx.textAlign = 'center';
-            tempCtx.fillText(text, 300, 80);
+            tempCtx.fillText(text, 400, 100);
 
-            const imgData = tempCtx.getImageData(0, 0, 600, 150).data;
+            const imgData = tempCtx.getImageData(0, 0, 800, 200).data;
             const startX = canvas.width / 2;
-            const startY = canvas.height; // 화면 중앙 하단 발사 지점
-            const destX = canvas.width / 2 - 300;
+            const startY = canvas.height;
+            const destX = canvas.width / 2 - 400;
             const destY = 150;
 
-            for (let y = 0; y < 150; y += 5) {
-                for (let x = 0; x < 600; x += 5) {
-                    if (imgData[(y * 600 + x) * 4 + 3] > 128) {
+            for (let y = 0; y < 200; y += 5) {
+                for (let x = 0; x < 800; x += 5) {
+                    if (imgData[(y * 800 + x) * 4 + 3] > 128) {
                         particles.push(new Particle(
                             startX, startY, '#00ffff', {x:0, y:0}, 
                             true, x + destX, y + destY
@@ -216,13 +194,14 @@
             requestAnimationFrame(animate);
         }
 
-        // 연출 주기 설정
+        // 일반 폭죽 간격
         setInterval(() => {
             const randomX = Math.random() * canvas.width;
             const randomY = Math.random() * (canvas.height / 2);
             createExplosion(randomX, randomY);
         }, 800);
 
+        // 문자 폭죽 간격 (5초마다)
         setInterval(() => {
             createTextFirework("진심은 통한다 희망을 쏴라");
         }, 5000);
