@@ -23,7 +23,7 @@
         #fireworksCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.6) 90%); z-index: 2; pointer-events: none; }
 
-        /* [2] 상단 레이아웃 (25% 축소) */
+        /* [2] 상단 레이아웃 */
         #top-bar { position: fixed; top: 0; width: 100%; display: flex; justify-content: space-between; padding: 8px 15px; z-index: 100; box-sizing: border-box; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); }
         #loyalty-zone { transform: scale(0.75); transform-origin: top left; }
         .slogan { font-size: 14px; font-weight: 800; letter-spacing: 1px; color: var(--accent); text-shadow: 0 0 10px var(--accent); }
@@ -35,21 +35,26 @@
         .nav-circle { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--border); background: var(--glass); backdrop-filter: blur(15px); color: #fff; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
         .nav-circle:hover { transform: scale(1.1); background: var(--accent); color: #000; }
 
-        /* [4] 서랍 시스템 */
+        /* [4] 서랍 시스템 (Common Styles) */
         .drawer { position: fixed; right: -100%; top: 0; width: 85%; max-width: 340px; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(25px); z-index: 2000; transition: 0.4s ease-in-out; padding: 20px; border-left: 1px solid var(--border); box-sizing: border-box; overflow-y: auto; }
         .drawer.active { right: 0; }
-        .drawer-close { cursor: pointer; float: right; font-size: 20px; color: #fff; }
-        .menu-content { margin-top: 40px; }
-        h3 { color: var(--accent); margin-bottom: 20px; }
-        .action-btn-sm { width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-bottom: 10px; border: none; font-size: 13px; }
+        .menu-content { margin-top: 20px; }
+        h3 { color: var(--accent); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .action-btn-sm { width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-bottom: 10px; border: none; font-size: 13px; transition: 0.2s; }
+        .home-btn { background: var(--glass); color: #fff; border: 1px solid var(--border); margin-top: 20px; }
+        .home-btn:hover { background: var(--accent); color: #000; }
+
+        /* Meal Prep Styles */
+        .meal-card { background: var(--glass); padding: 12px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--accent); font-size: 13px; }
         
-        #yt-player-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; margin-bottom: 20px; border: 1px solid var(--border); }
+        /* Donation Styles */
+        .coffee-box { text-align: center; background: linear-gradient(145deg, rgba(255,215,0,0.1), transparent); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,215,0,0.3); }
 
         /* [5] 하단 컨트롤 판넬 */
         #ui-panel { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 380px; z-index: 1000; }
         .input-group { display: flex; gap: 8px; margin-bottom: 12px; }
         input { flex: 1; background: rgba(0,0,0,0.7); border: 1px solid var(--border); padding: 14px; border-radius: 15px; color: #fff; outline: none; }
-        #main-launch-btn { width: 100%; padding: 16px; border-radius: 15px; border: none; background: var(--accent); color: #000; font-weight: 900; cursor: pointer; transition: 0.3s; }
+        #main-launch-btn { width: 100%; padding: 16px; border-radius: 15px; border: none; background: var(--accent); color: #000; font-weight: 900; cursor: pointer; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,255,255,0.3); }
 
         #watermark { position: fixed; bottom: 8px; right: 12px; font-size: 9px; opacity: 0.4; z-index: 100; letter-spacing: 1px; }
     </style>
@@ -73,26 +78,53 @@
     <div id="right-nav">
         <button class="nav-circle" onclick="toggleDrawer('music-drawer')" title="음악">🎵</button>
         <button class="nav-circle" onclick="toggleDrawer('meal-drawer')" title="밀프렙">🥗</button>
-        <button class="nav-circle" onclick="toggleDrawer('vault-drawer')" title="보관함">📦</button>
         <button class="nav-circle" onclick="toggleDrawer('donate-drawer')" title="후원">☕</button>
         <button class="nav-circle" style="background:var(--sos-red)" onclick="toggleDrawer('sos-drawer')" title="SOS">🚨</button>
     </div>
 
     <div id="music-drawer" class="drawer">
-        <span class="drawer-close" onclick="toggleDrawer('music-drawer')">✕</span>
         <div class="menu-content">
             <h3>🎵 DAON PLAYER</h3>
             <div id="yt-player-wrapper"><div id="main-player"></div></div>
-            <button class="action-btn-sm" style="background:var(--youtube-red); color:#fff;" onclick="playDaonSong('WPfyXfdrCqs')">▶ 테마 재생</button>
+            <button class="action-btn-sm" style="background:var(--youtube-red); color:#fff;" onclick="playDaonSong('WPfyXfdrCqs')">▶ 테마 재생 (In-App)</button>
             <button class="action-btn-sm" style="background:#333; color:#fff;" onclick="window.open('https://www.youtube.com/@Da-OnOfficial', '_blank')">🔗 다온 오피셜 유튜브 채널</button>
-            <button class="action-btn-sm" style="background:#222; color:#fff;" onclick="stopMusicAndClose()">■ 끄기 및 닫기</button>
+            <button class="action-btn-sm" style="background:#222; color:#fff;" onclick="stopMusicAndClose()">■ 음악 끄기</button>
+            <button class="action-btn-sm home-btn" onclick="toggleDrawer('music-drawer')">🏠 메인화면으로 돌아가기</button>
         </div>
     </div>
 
-    <div id="meal-drawer" class="drawer">... (이전 기능과 동일) ...</div>
-    <div id="vault-drawer" class="drawer">... (이전 기능과 동일) ...</div>
-    <div id="donate-drawer" class="drawer">... (이전 기능과 동일) ...</div>
-    <div id="sos-drawer" class="drawer">... (이전 기능과 동일) ...</div>
+    <div id="meal-drawer" class="drawer">
+        <div class="menu-content">
+            <h3>🥗 MUSICAL MEAL PREP</h3>
+            <div class="meal-card">
+                <input type="text" id="meal-input" placeholder="식단 메뉴를 입력하세요 (예: 닭가슴살 샐러드)" style="width:100%; background:rgba(255,255,255,0.1); border:1px solid var(--border); padding:10px; color:#fff; border-radius:8px; box-sizing:border-box;">
+                <button class="action-btn-sm" style="background:var(--accent); color:#000; margin-top:10px;" onclick="saveMeal()">식단 기록하기</button>
+            </div>
+            <div id="meal-list-container" style="margin-top:20px;"></div>
+            <button class="action-btn-sm home-btn" onclick="toggleDrawer('meal-drawer')">🏠 메인화면으로 돌아가기</button>
+        </div>
+    </div>
+
+    <div id="donate-drawer" class="drawer">
+        <div class="menu-content">
+            <h3>☕ BUY ME A COFFEE</h3>
+            <div class="coffee-box">
+                <p style="font-size:14px; line-height:1.6;">다온의 불꽃이 멈추지 않도록<br>따뜻한 커피 한 잔의 힘을 보태주세요.</p>
+                <img src="https://cdn-icons-png.flaticon.com/512/924/924514.png" style="width:100px; margin:20px 0;">
+                <button class="action-btn-sm" style="background:var(--gold); color:#000;" onclick="window.open('https://toss.me/daon-official', '_blank')">🎁 커피 후원하기 (Toss)</button>
+            </div>
+            <button class="action-btn-sm home-btn" onclick="toggleDrawer('donate-drawer')">🏠 메인화면으로 돌아가기</button>
+        </div>
+    </div>
+
+    <div id="sos-drawer" class="drawer">
+        <div class="menu-content">
+            <h3 style="color:var(--sos-red);">🚨 SOS EMERGENCY</h3>
+            <button class="action-btn-sm" style="background:var(--sos-red); color:#fff;" onclick="window.location.href='tel:112'">📞 경찰청 (112) 즉시 연결</button>
+            <button class="action-btn-sm" style="background:#ff9500; color:#fff;" onclick="window.location.href='tel:119'">📞 소방청 (119) 즉시 연결</button>
+            <button class="action-btn-sm home-btn" onclick="toggleDrawer('sos-drawer')">🏠 메인화면으로 돌아가기</button>
+        </div>
+    </div>
 
     <div id="ui-panel">
         <div class="input-group">
@@ -102,7 +134,7 @@
         <button id="main-launch-btn" onclick="handleLaunch()">LAUNCH (폭죽 발사)</button>
     </div>
 
-    <div id="watermark">© 2025 DAON OFFICIAL. HYPER-DYNAMIC SYNC.</div>
+    <div id="watermark">© 2025 DAON OFFICIAL. ALL FEATURES ACTIVE.</div>
 
     <script>
         const KAKAO_KEY = 'fa462b2b643a16d837c1890cc3dc4149'; 
@@ -117,7 +149,7 @@
             });
         }
         function playDaonSong(id) { if (ytPlayer && ytPlayer.loadVideoById) { ytPlayer.loadVideoById(id); ytPlayer.playVideo(); } }
-        function stopMusicAndClose() { if (ytPlayer && ytPlayer.stopVideo) ytPlayer.stopVideo(); toggleDrawer('music-drawer'); }
+        function stopMusicAndClose() { if (ytPlayer && ytPlayer.stopVideo) ytPlayer.stopVideo(); }
 
         // [2] 불꽃놀이 엔진
         const canvas = document.getElementById('fireworksCanvas');
@@ -149,14 +181,14 @@
             constructor(x, y, color, text = '') {
                 this.x = x; this.y = y; this.color = color; this.text = text;
                 const angle = Math.random() * Math.PI * 2;
-                const force = Math.random() * (text ? 5 : 9) + 2;
+                const force = Math.random() * (text ? 4 : 9) + 2;
                 this.velocity = { x: Math.cos(angle) * force, y: Math.sin(angle) * force };
                 this.alpha = 1; this.friction = 0.95; this.gravity = 0.15;
             }
             draw() {
                 ctx.save(); ctx.globalAlpha = this.alpha;
                 if(this.text) {
-                    ctx.fillStyle = "#fff"; ctx.font = "bold 28px Pretendard";
+                    ctx.fillStyle = "#fff"; ctx.font = "bold 26px Pretendard";
                     ctx.textAlign = "center"; ctx.shadowBlur = 15; ctx.shadowColor = this.color;
                     ctx.fillText(this.text, this.x, this.y);
                 } else {
@@ -181,17 +213,40 @@
         }
         animate();
 
-        // [3] 자동 불꽃놀이 시스템 (무한 루프)
+        // [3] 자동 불꽃놀이 (무한 루프)
         function startAutoFireworks() {
             setInterval(() => {
                 const startX = Math.random() * canvas.width;
                 const targetY = canvas.height * 0.1 + (Math.random() * canvas.height * 0.35);
-                const color = `hsl(${Math.random() * 360}, 100%, 70%)`;
-                rockets.push(new Rocket(startX, canvas.height, targetY, color, ""));
-            }, 1500); // 1.5초마다 하나씩 발사
+                rockets.push(new Rocket(startX, canvas.height, targetY, `hsl(${Math.random()*360}, 100%, 70%)`, ""));
+            }, 1800);
         }
 
-        // [4] 공유 및 인터랙션
+        // [4] 밀프렙 로직
+        function saveMeal() {
+            const input = document.getElementById('meal-input');
+            if(!input.value) return alert("식단을 입력하세요.");
+            const meals = JSON.parse(localStorage.getItem('daon_meals') || '[]');
+            meals.unshift({ text: input.value, date: new Date().toLocaleString() });
+            localStorage.setItem('daon_meals', JSON.stringify(meals));
+            input.value = ''; renderMeals();
+        }
+
+        function renderMeals() {
+            const container = document.getElementById('meal-list-container');
+            const meals = JSON.parse(localStorage.getItem('daon_meals') || '[]');
+            container.innerHTML = meals.slice(0, 5).map(m => `<div class="meal-card"><b>${m.date}</b><br>${m.text}</div>`).join('');
+        }
+
+        // [5] UI 및 공유 로직
+        function toggleDrawer(id) {
+            const d = document.getElementById(id);
+            const isActive = d.classList.contains('active');
+            document.querySelectorAll('.drawer').forEach(el => el.classList.remove('active'));
+            if(!isActive) d.classList.add('active');
+            if(id === 'meal-drawer') renderMeals();
+        }
+
         function handleLaunch() {
             const nick = document.getElementById('nickname').value || "수호자";
             const msg = document.getElementById('message').value || "DAON 2025";
@@ -212,12 +267,13 @@
         }
 
         function shareKakao(nick, msg) {
-            const shareUrl = `${window.location.origin}${window.location.pathname}?m=${encodeURIComponent(msg)}&n=${encodeURIComponent(nick)}`;
+            const baseUrl = window.location.href.split('?')[0];
+            const shareUrl = `${baseUrl}?m=${encodeURIComponent(msg)}&n=${encodeURIComponent(nick)}`;
             Kakao.Share.sendDefault({
                 objectType: 'feed',
                 content: {
-                    title: `🎆 ${nick}님의 불꽃 선물`,
-                    description: `"${msg}" - 밤하늘을 확인하세요!`,
+                    title: `🎆 ${nick}님의 선물`,
+                    description: `"${msg}"\n지금 클릭해서 밤하늘을 확인하세요!`,
                     imageUrl: 'https://daon-fireworks-2025.vercel.app/og-image.png',
                     link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
                 },
@@ -228,24 +284,13 @@
             document.getElementById('gift-count').innerText = count;
         }
 
-        function toggleDrawer(id) {
-            const d = document.getElementById(id);
-            const isActive = d.classList.contains('active');
-            document.querySelectorAll('.drawer').forEach(el => el.classList.remove('active'));
-            if(!isActive) d.classList.add('active');
-        }
-
         window.onload = () => {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
             document.getElementById('gift-count').innerText = localStorage.getItem('daon_gift_total') || '0';
-            
-            // 자동 불꽃놀이 시작
             startAutoFireworks();
-
-            // 메시지 동기화 처리
             const urlParams = new URLSearchParams(window.location.search);
             const m = urlParams.get('m');
-            if (m) { setTimeout(() => { fireRocket(m); }, 1000); }
+            if (m) { setTimeout(() => { fireRocket(m); }, 1200); }
         };
         window.onresize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
     </script>
