@@ -13,6 +13,7 @@
             --sos-red: #ff3b30;
             --accent: #00ffff;
             --neon-pink: #ff00d4;
+            --youtube-red: #FF0000;
         }
 
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Pretendard', sans-serif; overflow: hidden; }
@@ -40,11 +41,11 @@
         input { flex: 1; background: rgba(0,0,0,0.7); border: 1px solid var(--border); padding: 14px; border-radius: 15px; color: #fff; outline: none; backdrop-filter: blur(10px); }
         #action-btn { width: 100%; padding: 16px; border-radius: 15px; border: none; background: var(--accent); color: #000; font-weight: 900; cursor: pointer; letter-spacing: 1px; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,255,255,0.3); }
 
-        /* [5] 서랍 스타일 */
-        .drawer { position: fixed; right: -100%; top: 0; width: 85%; max-width: 320px; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(25px); z-index: 2000; transition: 0.4s ease-in-out; padding: 25px; border-left: 1px solid var(--border); }
+        /* [5] 서랍 스타일 (음악 메뉴 포함) */
+        .drawer { position: fixed; right: -100%; top: 0; width: 85%; max-width: 320px; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(25px); z-index: 2000; transition: 0.4s ease-in-out; padding: 25px; border-left: 1px solid var(--border); box-sizing: border-box; }
         .drawer.active { right: 0; }
-        .drawer-close { cursor: pointer; float: right; font-size: 20px; }
-        .vault-item { background: var(--glass); padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
+        .drawer-close { cursor: pointer; float: right; font-size: 20px; color: #fff; }
+        .menu-item { background: var(--glass); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border); text-align: center; }
 
         /* [6] 효과 애니메이션 */
         #golden-seal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: none; text-align: center; pointer-events: none; }
@@ -75,6 +76,22 @@
         <button class="nav-circle sos-btn" id="sos-trigger" onclick="toggleDrawer('sos-drawer')">SOS</button>
     </div>
 
+    <div id="music-drawer" class="drawer">
+        <span class="drawer-close" onclick="toggleDrawer('music-drawer')">✕</span>
+        <h3 style="color:var(--accent); margin-top: 40px;">🎵 OFFICIAL MUSIC</h3>
+        <div class="menu-item">
+            <p style="font-size: 14px; margin-bottom: 15px;">다온 오피셜 유튜브 채널</p>
+            <button onclick="window.open('https://www.youtube.com/@Da-OnOfficial', '_blank')" 
+                    style="width:100%; padding:12px; background:var(--youtube-red); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; font-size: 13px;">
+                📺 YouTube 바로가기
+            </button>
+        </div>
+        <div class="menu-item">
+            <p style="font-size: 14px;">프리미엄 사운드트랙</p>
+            <p style="font-size: 11px; color: #888; margin-bottom: 10px;">Coming Soon...</p>
+        </div>
+    </div>
+
     <div id="ui-panel">
         <div class="input-group">
             <input type="text" id="nickname" placeholder="NICKNAME">
@@ -91,7 +108,7 @@
         <h2 style="color:var(--gold); text-shadow: 0 0 20px #000;">LEGENDARY GUARDIAN</h2>
     </div>
 
-    <div id="watermark">© 2025 DAON OFFICIAL. ALL AUDIO & VISUAL ASSETS INTEGRATED.</div>
+    <div id="watermark">© 2025 DAON OFFICIAL. AUDIO & OFFICIAL LINKS ACTIVE.</div>
 
     <audio id="bgm" loop>
         <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
@@ -102,7 +119,7 @@
         const KAKAO_KEY = 'fa462b2b643a16d837c1890cc3dc4149'; 
         if (!Kakao.isInitialized()) Kakao.init(KAKAO_KEY);
 
-        // [2] 사운드 시스템
+        // [2] 사운드 및 UI 로직
         let audioStarted = false;
         const bgm = document.getElementById('bgm');
         
@@ -115,6 +132,14 @@
 
         function updateVolume(v) { bgm.volume = v / 100; }
 
+        function toggleDrawer(id) {
+            const d = document.getElementById(id);
+            if (!d) return;
+            const isActive = d.classList.contains('active');
+            document.querySelectorAll('.drawer').forEach(el => el.classList.remove('active'));
+            if(!isActive) d.classList.add('active');
+        }
+
         function playExplosionSound() {
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioCtx.createOscillator();
@@ -126,8 +151,7 @@
             gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
             oscillator.connect(gainNode);
             gainNode.connect(audioCtx.destination);
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 0.5);
+            oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.5);
         }
 
         // [3] 폭죽 및 물리 엔진
@@ -140,16 +164,12 @@
             constructor(x, y, targetY, color, message, isAuto = false) {
                 this.x = x; this.y = y; this.targetY = targetY;
                 this.color = color; this.message = message;
-                this.velocity = -10 - (Math.random() * 5);
-                this.alive = true;
-                this.isAuto = isAuto;
+                this.velocity = -11 - (Math.random() * 5);
+                this.alive = true; this.isAuto = isAuto;
             }
             update() {
                 this.y += this.velocity;
-                if (this.y <= this.targetY) {
-                    this.explode();
-                    this.alive = false;
-                }
+                if (this.y <= this.targetY) { this.explode(); this.alive = false; }
             }
             draw() {
                 ctx.beginPath(); ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
@@ -157,13 +177,9 @@
             }
             explode() {
                 playExplosionSound();
-                const particleCount = this.isAuto ? 30 : 60;
-                for(let i = 0; i < particleCount; i++) {
-                    particles.push(new Particle(this.x, this.y, this.color));
-                }
-                if(this.message) {
-                    particles.push(new Particle(this.x, this.y, this.color, this.message));
-                }
+                const particleCount = this.isAuto ? 25 : 55;
+                for(let i = 0; i < particleCount; i++) particles.push(new Particle(this.x, this.y, this.color));
+                if(this.message) particles.push(new Particle(this.x, this.y, this.color, this.message));
             }
         }
 
@@ -179,8 +195,7 @@
                 ctx.save(); ctx.globalAlpha = this.alpha;
                 if(this.text) {
                     ctx.fillStyle = "#fff"; ctx.font = "bold 28px Pretendard";
-                    ctx.textAlign = "center";
-                    ctx.shadowBlur = 15; ctx.shadowColor = this.color;
+                    ctx.textAlign = "center"; ctx.shadowBlur = 15; ctx.shadowColor = this.color;
                     ctx.fillText(this.text, this.x, this.y);
                 } else {
                     ctx.beginPath(); ctx.arc(this.x, this.y, Math.random() * 3, 0, Math.PI * 2);
@@ -190,8 +205,7 @@
             }
             update() {
                 this.velocity.x *= this.friction; this.velocity.y *= this.friction;
-                this.velocity.y += this.gravity;
-                this.x += this.velocity.x; this.y += this.velocity.y;
+                this.velocity.y += this.gravity; this.x += this.velocity.x; this.y += this.velocity.y;
                 this.alpha -= 0.012;
             }
         }
@@ -204,7 +218,7 @@
         }
         animate();
 
-        // 자동 폭죽 로직 (바탕화면용)
+        // 자동 폭죽 (0.8초 간격)
         setInterval(() => {
             const startX = Math.random() * canvas.width;
             const targetY = canvas.height * 0.1 + (Math.random() * canvas.height * 0.4);
@@ -212,9 +226,6 @@
             rockets.push(new Rocket(startX, canvas.height, targetY, color, "", true));
         }, 800);
 
-        // [4] 메인 로직
-        let giftCount = parseInt(localStorage.getItem('daon_gift_total') || '0');
-        
         function handleLaunch() {
             initAudioContext();
             const nick = document.getElementById('nickname').value || "수호자";
@@ -230,8 +241,7 @@
                         rockets.push(new Rocket(startX, canvas.height, targetY, color, msg));
                     }, i * 700);
                 }
-                btn.innerText = "SEND TO KAKAO (공유)";
-                btn.style.background = "var(--neon-pink)";
+                btn.innerText = "SEND TO KAKAO (공유)"; btn.style.background = "var(--neon-pink)";
             } else {
                 shareKakao(nick, msg);
             }
@@ -247,17 +257,14 @@
                     link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
                 }
             });
-            giftCount++; localStorage.setItem('daon_gift_total', giftCount);
-            document.getElementById('gift-count').innerText = giftCount;
+            let giftTotal = parseInt(localStorage.getItem('daon_gift_total') || '0') + 1;
+            localStorage.setItem('daon_gift_total', giftTotal);
+            document.getElementById('gift-count').innerText = giftTotal;
         }
 
         window.onload = () => {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            document.getElementById('gift-count').innerText = giftCount;
-        };
-
-        window.onresize = () => {
-            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            document.getElementById('gift-count').innerText = localStorage.getItem('daon_gift_total') || '0';
         };
     </script>
 </body>
