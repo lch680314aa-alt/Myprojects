@@ -2,214 +2,276 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAON 2025: SPECIAL FIREWORKS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎆 DAON 2025: GUARDIAN & SAVIOR 🎆</title>
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000; font-family: 'Pretendard', sans-serif; }
-        
-        /* 1. 유튜브 배경 레이어 */
-        #video-background {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; pointer-events: none;
-        }
-        #video-background iframe {
-            width: 100vw; height: 56.25vw;
-            min-height: 100vh; min-width: 177.77vh;
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
+        :root {
+            --glass: rgba(255, 255, 255, 0.08);
+            --border: rgba(255, 255, 255, 0.15);
+            --gold: #FFD700;
+            --sos-red: #ff3b30;
+            --accent: #00ffff;
+            --neon-pink: #ff00d4;
+            --youtube-red: #FF0000;
         }
 
-        /* 2. 불꽃놀이 캔버스 */
-        #fireworks-canvas {
-            position: absolute; top: 0; left: 0;
-            z-index: 0; pointer-events: none;
-        }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Pretendard', sans-serif; overflow: hidden; }
 
-        /* 3. UI 레이어 (정보 및 컨트롤만 남김) */
-        .ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; color: white; pointer-events: none; }
-        .ui-overlay * { pointer-events: auto; }
-        
-        .top-info { position: absolute; top: 20px; left: 20px; font-size: 14px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
-        .cyan-text { color: #00ffff; }
+        /* [1] 배경 레이어 */
+        #video-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        #fireworksCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.5) 90%); z-index: 2; pointer-events: none; }
 
-        /* 하단 컨트롤 바 */
-        .bottom-controls { 
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); 
-            width: 250px; text-align: center; background: rgba(0,0,0,0.5); 
-            padding: 10px; border-radius: 20px; 
-        }
+        /* [2] 상단 레이아웃 (25% 축소) */
+        #top-bar { position: fixed; top: 0; width: 100%; display: flex; justify-content: space-between; padding: 8px 15px; z-index: 100; box-sizing: border-box; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); }
+        #loyalty-zone { transform: scale(0.75); transform-origin: top left; }
+        .slogan { font-size: 14px; font-weight: 800; letter-spacing: 1px; color: var(--accent); text-shadow: 0 0 10px var(--accent); }
+        .count-badge { background: var(--accent); color: #000; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-top: 5px; display: inline-block; }
+        #ad-banner { width: 45%; height: 35px; background: var(--glass); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; border-radius: 5px; backdrop-filter: blur(5px); }
+
+        /* [3] 우측 네비게이션 */
+        #right-nav { position: fixed; right: 15px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
+        .nav-circle { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--border); background: var(--glass); backdrop-filter: blur(15px); color: #fff; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .nav-circle:hover { transform: scale(1.1); background: var(--accent); color: #000; box-shadow: 0 0 20px var(--accent); }
+        .sos-btn { background: var(--sos-red); border: none; font-weight: bold; animation: pulse-red 2s infinite; }
+
+        /* [4] 하단 컨트롤 판넬 */
+        #ui-panel { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 380px; z-index: 1000; transition: 0.5s; }
+        .input-group { display: flex; gap: 8px; margin-bottom: 12px; }
+        input { flex: 1; background: rgba(0,0,0,0.7); border: 1px solid var(--border); padding: 14px; border-radius: 15px; color: #fff; outline: none; backdrop-filter: blur(10px); }
+        #action-btn { width: 100%; padding: 16px; border-radius: 15px; border: none; background: var(--accent); color: #000; font-weight: 900; cursor: pointer; letter-spacing: 1px; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,255,255,0.3); }
+
+        /* [5] 서랍 및 모달 */
+        .drawer { position: fixed; right: -100%; top: 0; width: 85%; max-width: 320px; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(25px); z-index: 2000; transition: 0.4s ease-in-out; padding: 25px; border-left: 1px solid var(--border); }
+        .drawer.active { right: 0; }
+        .drawer-close { cursor: pointer; float: right; font-size: 20px; }
+        .vault-item { background: var(--glass); padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
+
+        /* [6] 효과 및 애니메이션 */
+        #golden-seal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: none; text-align: center; pointer-events: none; }
+        #watermark { position: fixed; bottom: 8px; right: 12px; font-size: 9px; opacity: 0.4; z-index: 100; letter-spacing: 1px; }
+
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(255, 59, 48, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); } }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <div id="video-background">
-        <div id="player"></div>
+    <div id="video-bg"><div id="player"></div></div>
+    <canvas id="fireworksCanvas"></canvas>
+    <div id="overlay"></div>
+
+    <div id="top-bar">
+        <div id="loyalty-zone">
+            <div class="slogan">진심은 통한다 희망을 쏴라</div>
+            <div id="rank-info" style="font-size:12px; margin-top:3px; color:var(--gold);">RANK: <span id="rank-name">WHITE OPAL</span></div>
+            <div class="count-badge">GIFT: <span id="gift-count">0</span>회</div>
+        </div>
+        <div id="ad-banner">DAON OFFICIAL PARTNERSHIP AD</div>
     </div>
 
-    <canvas id="fireworks-canvas"></canvas>
+    <div id="right-nav">
+        <button class="nav-circle" onclick="toggleDrawer('music-drawer')">🎵</button>
+        <button class="nav-circle" onclick="toggleDrawer('meal-drawer')">🥗</button>
+        <button class="nav-circle" onclick="toggleDrawer('vault-drawer')">📦</button>
+        <button class="nav-circle" onclick="toggleDrawer('donate-drawer')">💎</button>
+        <button class="nav-circle sos-btn" id="sos-trigger" onclick="toggleDrawer('sos-drawer')">SOS</button>
+    </div>
 
-    <div class="ui-overlay">
-        <div class="top-info">
-            <span class="cyan-text">진심은 통한다 희망을 쏴라</span><br>
-            <span>RANK: WHITE OPAL</span><br>
-            <span class="cyan-text">GIFT: 3회</span>
+    <div id="ui-panel">
+        <div class="input-group">
+            <input type="text" id="nickname" placeholder="NICKNAME">
+            <input type="text" id="message" placeholder="MESSAGE">
         </div>
-
-        <div class="bottom-controls">
-            <label style="font-size: 12px; display: block; margin-bottom: 5px;">Sound Control</label>
-            <input type="range" id="volume-slider" min="0" max="100" value="0" style="width: 100%; cursor:pointer;">
+        <button id="action-btn" onclick="handleLaunch()">LAUNCH (폭죽 발사)</button>
+        <div style="margin-top:12px; font-size:11px; opacity: 0.7;">
+            🔊 Sound: <input type="range" id="vol-control" min="0" max="100" value="50" onchange="updateVolume(this.value)" style="width:80px; vertical-align:middle;">
         </div>
     </div>
 
-    <script src="https://www.youtube.com/iframe_api"></script>
+    <div id="golden-seal">
+        <img src="https://cdn-icons-png.flaticon.com/512/610/610333.png" style="width:180px; filter: drop-shadow(0 0 30px gold);">
+        <h2 style="color:var(--gold); text-shadow: 0 0 20px #000;">LEGENDARY GUARDIAN</h2>
+    </div>
+
+    <div id="music-drawer" class="drawer">
+        <span class="drawer-close" onclick="toggleDrawer('music-drawer')">✕</span>
+        <h3 style="color:var(--accent);">🎵 MUSIC & OFFICIAL</h3>
+        <div class="vault-item" style="text-align: center;">
+            <p style="font-size: 14px; margin-bottom: 15px;">다온 오피셜 유튜브 채널</p>
+            <button onclick="window.open('https://www.youtube.com/@Da-OnOfficial', '_blank')" style="width:100%; padding:12px; background:var(--youtube-red); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">
+                📺 YouTube @Da-OnOfficial
+            </button>
+        </div>
+    </div>
+
+    <div id="vault-drawer" class="drawer">
+        <span class="drawer-close" onclick="toggleDrawer('vault-drawer')">✕</span>
+        <h3 style="color:var(--accent);">📦 GIFT VAULT</h3>
+        <div id="vault-list" style="overflow-y:auto; height:85%;"></div>
+    </div>
+
+    <div id="sos-drawer" class="drawer">
+        <span class="drawer-close" onclick="toggleDrawer('sos-drawer')">✕</span>
+        <h3 style="color:var(--sos-red);">🚨 EMERGENCY CALL</h3>
+        <button onclick="alert('안심귀가 서비스가 활성화되었습니다.')" style="width:100%; padding:15px; margin-bottom:10px; border-radius:10px; background:var(--glass); color:#fff; border:1px solid var(--border);">🛡️ 안심 귀가 시작</button>
+        <button onclick="findEmergency()" style="width:100%; padding:15px; border-radius:10px; background:var(--glass); color:#fff; border:1px solid var(--border);">🏥 주변 응급실 (TOP 5)</button>
+    </div>
+
+    <div id="watermark">© 2025 DAON OFFICIAL. HYPER-ULTIMATE EDITION.</div>
+
     <script>
-        // 1. 유튜브 플레이어 설정
+        // [1] 초기화
+        const KAKAO_KEY = 'fa462b2b643a16d837c1890cc3dc4149'; 
+        if (!Kakao.isInitialized()) Kakao.init(KAKAO_KEY);
+
         let player;
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('player', {
                 videoId: 'WPfyXfdrCqs',
-                playerVars: {
-                    'autoplay': 1,
-                    'mute': 1,
-                    'controls': 0,
-                    'loop': 1,
-                    'playlist': 'WPfyXfdrCqs',
-                    'start': 0
-                },
-                events: {
-                    'onReady': (e) => {
-                        e.target.playVideo();
-                        // 슬라이더 조절 시 볼륨 변경
-                        document.getElementById('volume-slider').addEventListener('input', function(event) {
-                            const vol = event.target.value;
-                            player.setVolume(vol);
-                            if(vol > 0) player.unMute();
-                            else player.mute();
-                        });
-                    }
-                }
+                playerVars: { 'autoplay': 1, 'controls': 0, 'loop': 1, 'playlist': 'WPfyXfdrCqs', 'mute': 1 },
+                events: { 'onReady': (e) => e.target.playVideo() }
             });
         }
+        function updateVolume(v) { if(player) player.setVolume(v); }
 
-        // 2. 화려한 불꽃놀이 시스템
-        const canvas = document.getElementById('fireworks-canvas');
+        // [2] 업그레이드된 폭죽 엔진
+        const canvas = document.getElementById('fireworksCanvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        let particles = [];
 
         class Particle {
-            constructor(x, y, color, velocity, isText = false, targetX = 0, targetY = 0) {
-                this.x = x; this.y = y;
-                this.color = color;
-                this.velocity = velocity;
-                this.alpha = 1;
-                this.friction = 0.95;
-                this.gravity = 0.12;
-                this.isText = isText;
-                this.targetX = targetX;
-                this.targetY = targetY;
+            constructor(x, y, color, text = '', size = Math.random() * 3 + 1) {
+                this.x = x; this.y = y; this.color = color; this.text = text;
+                this.size = size;
+                const angle = Math.random() * Math.PI * 2;
+                const force = Math.random() * 6 + 2;
+                this.velocity = { x: Math.cos(angle) * force, y: Math.sin(angle) * force };
+                this.alpha = 1; this.friction = 0.96; this.gravity = 0.15;
             }
             draw() {
-                ctx.save();
-                ctx.globalAlpha = this.alpha;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.isText ? 1.5 : 2.5, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = this.color;
-                ctx.fill();
+                ctx.save(); ctx.globalAlpha = this.alpha;
+                if(this.text) {
+                    ctx.fillStyle = this.color; ctx.font = "bold 22px Pretendard";
+                    ctx.fillText(this.text, this.x, this.y);
+                } else {
+                    ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color; ctx.fill();
+                }
                 ctx.restore();
             }
             update() {
-                if (this.isText) {
-                    this.x += (this.targetX - this.x) * 0.08;
-                    this.y += (this.targetY - this.y) * 0.08;
-                    this.alpha -= 0.007;
-                } else {
-                    this.velocity.x *= this.friction;
-                    this.velocity.y *= this.friction;
-                    this.velocity.y += this.gravity;
-                    this.x += this.velocity.x;
-                    this.y += this.velocity.y;
-                    this.alpha -= 0.012;
-                }
+                this.velocity.x *= this.friction; this.velocity.y *= this.friction;
+                this.velocity.y += this.gravity;
+                this.x += this.velocity.x; this.y += this.velocity.y;
+                this.alpha -= 0.012;
             }
         }
 
-        const particles = [];
-        const colors = ['#ff0044', '#00fbff', '#ffea00', '#ff00ff', '#ffffff', '#00ff44'];
-
-        function createExplosion(x, y) {
-            const color = colors[Math.floor(Math.random() * colors.length)];
-            for (let i = 0; i < 60; i++) {
-                const angle = (Math.PI * 2 / 60) * i;
-                const speed = Math.random() * 8 + 2;
-                particles.push(new Particle(x, y, color, {
-                    x: Math.cos(angle) * speed,
-                    y: Math.sin(angle) * speed
-                }));
-            }
+        function createExplosion(x, y, color, count = 30) {
+            for(let i = 0; i < count; i++) particles.push(new Particle(x, y, color));
         }
 
-        function createTextFirework(text) {
-            const tempCanvas = document.createElement('canvas');
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCanvas.width = 800; tempCanvas.height = 200;
-            tempCtx.fillStyle = 'white';
-            tempCtx.font = 'bold 50px Arial';
-            tempCtx.textAlign = 'center';
-            tempCtx.fillText(text, 400, 100);
-
-            const imgData = tempCtx.getImageData(0, 0, 800, 200).data;
-            const startX = canvas.width / 2;
-            const startY = canvas.height;
-            const destX = canvas.width / 2 - 400;
-            const destY = 150;
-
-            for (let y = 0; y < 200; y += 5) {
-                for (let x = 0; x < 800; x += 5) {
-                    if (imgData[(y * 800 + x) * 4 + 3] > 128) {
-                        particles.push(new Particle(
-                            startX, startY, '#00ffff', {x:0, y:0}, 
-                            true, x + destX, y + destY
-                        ));
-                    }
-                }
-            }
+        // [3] 인트로 자동 폭죽 쇼
+        function startIntroShow() {
+            let count = 0;
+            const introTimer = setInterval(() => {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * (canvas.height * 0.6);
+                const color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+                createExplosion(x, y, color, 40);
+                count++;
+                if(count > 8) clearInterval(introTimer);
+            }, 400);
         }
 
         function animate() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const p = particles[i];
-                if (p.alpha <= 0) {
-                    particles.splice(i, 1);
-                } else {
-                    p.update();
-                    p.draw();
-                }
-            }
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, i) => { if (p.alpha > 0) { p.update(); p.draw(); } else { particles.splice(i, 1); } });
             requestAnimationFrame(animate);
         }
-
-        // 일반 폭죽 간격
-        setInterval(() => {
-            const randomX = Math.random() * canvas.width;
-            const randomY = Math.random() * (canvas.height / 2);
-            createExplosion(randomX, randomY);
-        }, 800);
-
-        // 문자 폭죽 간격 (5초마다)
-        setInterval(() => {
-            createTextFirework("진심은 통한다 희망을 쏴라");
-        }, 5000);
-
         animate();
-        window.onresize = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+
+        // [4] 메인 로직
+        let giftCount = parseInt(localStorage.getItem('daon_gift_total') || '0');
+        let vault = JSON.parse(localStorage.getItem('daon_vault') || '[]');
+
+        function handleLaunch() {
+            const nick = document.getElementById('nickname').value || "수호자";
+            const msg = document.getElementById('message').value || "행복한 2025!";
+            const btn = document.getElementById('action-btn');
+
+            if (btn.innerText.includes("LAUNCH")) {
+                for(let i=0; i<3; i++) {
+                    setTimeout(() => {
+                        const x = canvas.width / 2; const y = canvas.height * 0.7;
+                        const color = `hsl(${Math.random() * 360}, 100%, 70%)`;
+                        createExplosion(x, y, color, 20);
+                        for(let j=0; j<8; j++) particles.push(new Particle(x, y, color, msg));
+                    }, i * 700);
+                }
+                btn.innerText = "SEND TO KAKAO (공유)";
+                btn.style.background = "var(--neon-pink)";
+            } else {
+                shareKakao(nick, msg);
+            }
+        }
+
+        function shareKakao(nick, msg) {
+            Kakao.Share.sendDefault({
+                objectType: 'feed',
+                content: {
+                    title: `🎆 ${nick}님의 불꽃 선물`,
+                    description: msg,
+                    imageUrl: 'https://daon-fireworks-2025.vercel.app/og-image.png',
+                    link: { mobileWebUrl: window.location.href, webUrl: window.location.href }
+                },
+                buttons: [{ title: '확인하기', link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }]
+            });
+            saveVault(nick, msg);
+            addCount();
+        }
+
+        function saveVault(nick, msg) {
+            vault.push({ nick, msg, date: new Date().toLocaleString() });
+            localStorage.setItem('daon_vault', JSON.stringify(vault));
+            renderVault();
+        }
+
+        function addCount() {
+            giftCount++; localStorage.setItem('daon_gift_total', giftCount);
+            document.getElementById('gift-count').innerText = giftCount;
+            if(giftCount >= 1000) {
+                document.getElementById('golden-seal').style.display = 'block';
+                setTimeout(() => document.getElementById('golden-seal').style.display = 'none', 4000);
+            }
+        }
+
+        function toggleDrawer(id) {
+            const d = document.getElementById(id);
+            const isActive = d.classList.contains('active');
+            document.querySelectorAll('.drawer').forEach(el => el.classList.remove('active'));
+            if(!isActive) d.classList.add('active');
+        }
+
+        function renderVault() {
+            const list = document.getElementById('vault-list');
+            list.innerHTML = vault.slice().reverse().map(item => `
+                <div class="vault-item">
+                    <small>${item.date}</small>
+                    <div style="font-weight:bold;">${item.nick}: ${item.msg}</div>
+                    <button onclick="shareKakao('${item.nick}', '${item.msg}')" style="background:var(--accent); border:none; padding:5px 10px; border-radius:5px; font-size:10px; margin-top:5px;">재전송</button>
+                </div>
+            `).join('');
+        }
+
+        window.onload = () => {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            document.getElementById('gift-count').innerText = giftCount;
+            renderVault();
+            setTimeout(startIntroShow, 500); // 진입 0.5초 후 불꽃 쇼 시작
         };
     </script>
 </body>
