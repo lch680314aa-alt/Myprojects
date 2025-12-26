@@ -41,20 +41,20 @@
         input { flex: 1; background: rgba(0,0,0,0.7); border: 1px solid var(--border); padding: 14px; border-radius: 15px; color: #fff; outline: none; backdrop-filter: blur(10px); }
         #action-btn { width: 100%; padding: 16px; border-radius: 15px; border: none; background: var(--accent); color: #000; font-weight: 900; cursor: pointer; letter-spacing: 1px; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,255,255,0.3); }
 
-        /* [5] 서랍 스타일 (음악 메뉴 포함) */
+        /* [5] 서랍 스타일 */
         .drawer { position: fixed; right: -100%; top: 0; width: 85%; max-width: 320px; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(25px); z-index: 2000; transition: 0.4s ease-in-out; padding: 25px; border-left: 1px solid var(--border); box-sizing: border-box; }
         .drawer.active { right: 0; }
         .drawer-close { cursor: pointer; float: right; font-size: 20px; color: #fff; }
         .menu-item { background: var(--glass); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border); text-align: center; }
 
-        /* [6] 효과 애니메이션 */
+        /* [6] 효과 및 워터마크 */
         #golden-seal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: none; text-align: center; pointer-events: none; }
         #watermark { position: fixed; bottom: 8px; right: 12px; font-size: 9px; opacity: 0.4; z-index: 100; letter-spacing: 1px; }
 
         @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(255, 59, 48, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); } }
     </style>
 </head>
-<body onclick="initAudioContext()">
+<body>
 
     <canvas id="fireworksCanvas"></canvas>
     <div id="overlay"></div>
@@ -86,10 +86,6 @@
                 📺 YouTube 바로가기
             </button>
         </div>
-        <div class="menu-item">
-            <p style="font-size: 14px;">프리미엄 사운드트랙</p>
-            <p style="font-size: 11px; color: #888; margin-bottom: 10px;">Coming Soon...</p>
-        </div>
     </div>
 
     <div id="ui-panel">
@@ -98,9 +94,6 @@
             <input type="text" id="message" placeholder="MESSAGE">
         </div>
         <button id="action-btn" onclick="handleLaunch()">LAUNCH (폭죽 발사)</button>
-        <div style="margin-top:12px; font-size:11px; opacity: 0.7;">
-            🔊 Master Volume: <input type="range" id="vol-control" min="0" max="100" value="70" onchange="updateVolume(this.value)" style="width:100px; vertical-align:middle;">
-        </div>
     </div>
 
     <div id="golden-seal">
@@ -110,27 +103,27 @@
 
     <div id="watermark">© 2025 DAON OFFICIAL. AUDIO & OFFICIAL LINKS ACTIVE.</div>
 
-    <audio id="bgm" loop>
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-    </audio>
-
     <script>
         // [1] 카카오 초기화
         const KAKAO_KEY = 'fa462b2b643a16d837c1890cc3dc4149'; 
         if (!Kakao.isInitialized()) Kakao.init(KAKAO_KEY);
 
-        // [2] 사운드 및 UI 로직
-        let audioStarted = false;
-        const bgm = document.getElementById('bgm');
-        
-        function initAudioContext() {
-            if (!audioStarted) {
-                bgm.play().catch(e => console.log("Audio play blocked"));
-                audioStarted = true;
-            }
+        // [2] 효과음 시스템 (폭죽 터질 때만 실행)
+        function playExplosionSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(100, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime); // 작게 설정
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.5);
+            } catch(e) { console.log("Audio block"); }
         }
-
-        function updateVolume(v) { bgm.volume = v / 100; }
 
         function toggleDrawer(id) {
             const d = document.getElementById(id);
@@ -138,20 +131,6 @@
             const isActive = d.classList.contains('active');
             document.querySelectorAll('.drawer').forEach(el => el.classList.remove('active'));
             if(!isActive) d.classList.add('active');
-        }
-
-        function playExplosionSound() {
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            oscillator.type = 'sawtooth';
-            oscillator.frequency.setValueAtTime(100, audioCtx.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.5);
         }
 
         // [3] 폭죽 및 물리 엔진
@@ -177,7 +156,7 @@
             }
             explode() {
                 playExplosionSound();
-                const particleCount = this.isAuto ? 25 : 55;
+                const particleCount = this.isAuto ? 20 : 50;
                 for(let i = 0; i < particleCount; i++) particles.push(new Particle(this.x, this.y, this.color));
                 if(this.message) particles.push(new Particle(this.x, this.y, this.color, this.message));
             }
@@ -218,16 +197,15 @@
         }
         animate();
 
-        // 자동 폭죽 (0.8초 간격)
+        // 자동 폭죽
         setInterval(() => {
             const startX = Math.random() * canvas.width;
             const targetY = canvas.height * 0.1 + (Math.random() * canvas.height * 0.4);
             const color = `hsl(${Math.random() * 360}, 100%, 70%)`;
             rockets.push(new Rocket(startX, canvas.height, targetY, color, "", true));
-        }, 800);
+        }, 1200);
 
         function handleLaunch() {
-            initAudioContext();
             const nick = document.getElementById('nickname').value || "수호자";
             const msg = document.getElementById('message').value || "DAON 2025";
             const btn = document.getElementById('action-btn');
