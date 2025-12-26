@@ -28,24 +28,27 @@
         #loyalty-zone { transform: scale(0.75); transform-origin: top left; }
         .slogan { font-size: 14px; font-weight: 800; letter-spacing: 1px; color: var(--accent); text-shadow: 0 0 10px var(--accent); }
         .count-badge { background: var(--accent); color: #000; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-top: 5px; display: inline-block; }
-        #ad-banner { width: 45%; height: 35px; background: var(--glass); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; border-radius: 5px; backdrop-filter: blur(5px); }
+        
+        /* [수정] 상단 광고 배너 스타일 (링크 강조) */
+        #ad-banner { 
+            width: 45%; height: 35px; background: var(--glass); border: 1px solid var(--border); 
+            display: flex; align-items: center; justify-content: center; font-size: 10px; border-radius: 5px; 
+            backdrop-filter: blur(5px); cursor: pointer; transition: 0.3s; color: #fff; text-decoration: none;
+        }
+        #ad-banner:hover { background: rgba(255, 255, 255, 0.15); border-color: var(--accent); color: var(--accent); }
 
         /* [3] 우측 네비게이션 */
         #right-nav { position: fixed; right: 15px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
         .nav-circle { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--border); background: var(--glass); backdrop-filter: blur(15px); color: #fff; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
         .nav-circle:hover { background: var(--accent); color: #000; box-shadow: 0 0 15px var(--accent); }
-        .sos-btn { background: var(--sos-red); border: none; font-weight: bold; animation: pulse-red 2s infinite; }
 
-        /* [4] 서랍 스타일 (음악 메뉴 전용) */
+        /* [4] 서랍 스타일 */
         .drawer { position: fixed; right: -100%; top: 0; width: 85%; max-width: 340px; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(25px); z-index: 2000; transition: 0.4s ease-in-out; padding: 20px; border-left: 1px solid var(--border); box-sizing: border-box; }
         .drawer.active { right: 0; }
         .drawer-close { cursor: pointer; float: right; font-size: 20px; color: #fff; }
-        
         #yt-player-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; margin: 30px 0 10px; border: 1px solid var(--border); }
         .song-btn { width: 100%; padding: 12px; border-radius: 10px; color:#fff; font-weight:bold; cursor:pointer; font-size: 13px; border: none; transition: 0.2s; margin-bottom: 10px; }
         .play-btn { background: var(--youtube-red); }
-        .channel-btn { background: #333; border: 1px solid var(--border); }
-        .channel-btn:hover { background: #444; border-color: var(--accent); }
         .stop-btn { background: #222; opacity: 0.8; }
 
         /* [5] 하단 컨트롤 판넬 */
@@ -55,7 +58,6 @@
         #action-btn { width: 100%; padding: 16px; border-radius: 15px; border: none; background: var(--accent); color: #000; font-weight: 900; cursor: pointer; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,255,255,0.3); }
 
         #watermark { position: fixed; bottom: 8px; right: 12px; font-size: 9px; opacity: 0.4; z-index: 100; letter-spacing: 1px; }
-        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(255, 59, 48, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); } }
     </style>
 </head>
 <body>
@@ -69,7 +71,9 @@
             <div id="rank-info" style="font-size:12px; margin-top:3px; color:var(--gold);">RANK: <span id="rank-name">WHITE OPAL</span></div>
             <div class="count-badge">GIFT: <span id="gift-count">0</span>회</div>
         </div>
-        <div id="ad-banner">DAON 251227 FINAL MASTER</div>
+        <div id="ad-banner" onclick="window.open('https://www.youtube.com/@Da-OnOfficial', '_blank')">
+            📺 DAON OFFICIAL YouTube
+        </div>
     </div>
 
     <div id="right-nav">
@@ -77,22 +81,15 @@
         <button class="nav-circle" onclick="toggleDrawer('meal-drawer')">🥗</button>
         <button class="nav-circle" onclick="toggleDrawer('vault-drawer')">📦</button>
         <button class="nav-circle" onclick="toggleDrawer('donate-drawer')">💎</button>
-        <button class="nav-circle sos-btn" onclick="toggleDrawer('sos-drawer')">SOS</button>
+        <button class="nav-circle sos-btn" style="background:var(--sos-red)" onclick="toggleDrawer('sos-drawer')">SOS</button>
     </div>
 
     <div id="music-drawer" class="drawer">
         <span class="drawer-close" onclick="toggleDrawer('music-drawer')">✕</span>
-        <h3 style="color:var(--accent); margin-top: 10px;">🎵 DAON MUSIC PLAYER</h3>
-        
+        <h3 style="color:var(--accent); margin-top: 10px;">🎵 DAON PLAYER</h3>
         <div id="yt-player-wrapper"><div id="main-player"></div></div>
-        
         <button class="song-btn play-btn" onclick="playDaonSong('WPfyXfdrCqs')">▶ 테마 재생 (In-App)</button>
-        
-        <button class="song-btn channel-btn" onclick="window.open('https://www.youtube.com/@Da-OnOfficial', '_blank')">🔗 다온 오피셜 유튜브 채널</button>
-        
         <button class="song-btn stop-btn" onclick="stopMusicAndClose()">■ 음악 끄기 및 닫기</button>
-        
-        <p style="font-size: 11px; color: #888; text-align: center; margin-top: 15px;">* 재생 버튼을 누르면 이 화면에서 바로 시작됩니다.</p>
     </div>
 
     <div id="ui-panel">
@@ -103,7 +100,7 @@
         <button id="action-btn" onclick="handleLaunch()">LAUNCH (폭죽 발사)</button>
     </div>
 
-    <div id="watermark">© 2025 DAON OFFICIAL. HYPER-LINK INTEGRATED.</div>
+    <div id="watermark">© 2025 DAON OFFICIAL. BANNER LINK ENABLED.</div>
 
     <script>
         const KAKAO_KEY = 'fa462b2b643a16d837c1890cc3dc4149'; 
@@ -150,7 +147,7 @@
             constructor(x, y, color, text = '') {
                 this.x = x; this.y = y; this.color = color; this.text = text;
                 const angle = Math.random() * Math.PI * 2;
-                const force = Math.random() * (text ? 4 : 9) + 2;
+                const force = Math.random() * (text ? 5 : 9) + 2;
                 this.velocity = { x: Math.cos(angle) * force, y: Math.sin(angle) * force };
                 this.alpha = 1; this.friction = 0.95; this.gravity = 0.15;
             }
@@ -224,7 +221,6 @@
             const d = document.getElementById(id);
             if (!d) return;
             const isActive = d.classList.contains('active');
-            document.querySelectorAll('.drawer').forEach(el => el.classList.add('active' ? el.classList.remove('active') : null)); // 다른거 닫기
             document.querySelectorAll('.drawer').forEach(el => el.classList.remove('active'));
             if(!isActive) d.classList.add('active');
         }
