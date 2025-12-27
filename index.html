@@ -8,7 +8,7 @@
     <script src="https://www.youtube.com/iframe_api"></script>
     
     <style>
-        /* [DESIGN SYSTEM] 다온이의 꿈을 담은 색상 팔레트 */
+        /* [DESIGN SYSTEM] */
         :root {
             --glass: rgba(255, 255, 255, 0.1);
             --border: rgba(255, 255, 255, 0.2);
@@ -24,45 +24,57 @@
         #fireworksCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.8) 100%); z-index: 2; pointer-events: none; }
         
-        /* 녹화 표시기 (REC) */
-        #rec-indicator { display: none; position: fixed; top: 20px; right: 20px; color: #ff0000; font-weight: 900; z-index: 3000; font-size: 14px; animation: blink 1s infinite; text-shadow: 0 0 10px red; }
+        #rec-indicator { display: none; position: fixed; top: 70px; right: 20px; color: #ff0000; font-weight: 900; z-index: 3000; font-size: 14px; animation: blink 1s infinite; text-shadow: 0 0 10px red; }
         @keyframes blink { 50% { opacity: 0; } }
 
-        /* [2] 상단 바 */
-        #top-bar { position: fixed; top: 0; width: 100%; display: flex; justify-content: space-between; padding: 10px 15px; z-index: 100; box-sizing: border-box; background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent); }
-        #project-info { transform: scale(0.9); transform-origin: top left; }
+        /* [2] 상단 바 및 배너 */
+        #header-container { position: fixed; top: 0; width: 100%; z-index: 100; display: flex; flex-direction: column; }
+        
+        #top-bar { display: flex; justify-content: space-between; padding: 10px 15px; background: linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.5)); }
+        
+        /* [NEW] 좌측 상단 슬로건 스타일 */
+        #project-info { transform-origin: top left; }
+        .slogan-text { font-size: 12px; color: var(--gold); font-weight: bold; margin-bottom: 2px; letter-spacing: -0.5px; animation: glow 2s infinite alternate; }
         .title-text { font-size: 16px; font-weight: 800; letter-spacing: 1px; color: var(--hope-cyan); text-shadow: 0 0 15px var(--hope-cyan); }
-        .version-badge { background: rgba(255,255,255,0.2); border: 1px solid var(--hope-cyan); color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-top: 4px; display: inline-block; }
+        @keyframes glow { from { text-shadow: 0 0 5px var(--gold); } to { text-shadow: 0 0 15px var(--gold), 0 0 5px #fff; } }
 
-        /* [3] 우측 네비게이션 (플로팅 버튼) */
+        /* [NEW] 상단 배너 광고 스타일 */
+        #ad-banner { 
+            width: 100%; height: 30px; 
+            background: rgba(255, 0, 212, 0.15); 
+            border-top: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; color: #fff; cursor: pointer; overflow: hidden;
+        }
+        .marquee { white-space: nowrap; animation: slide 10s linear infinite; }
+        @keyframes slide { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+
+        /* [3] 우측 네비게이션 */
         #right-nav { position: fixed; right: 15px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
-        .nav-btn { width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--border); background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); color: #fff; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .nav-btn { width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--border); background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); color: #fff; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .nav-btn:hover { transform: scale(1.15); background: var(--hope-cyan); color: #000; border-color: var(--hope-cyan); }
         .nav-btn.sos { border-color: var(--sos-red); color: var(--sos-red); }
-        .nav-btn.sos:hover { background: var(--sos-red); color: #fff; }
 
-        /* [4] 슬라이딩 서랍 (Drawers) */
+        /* [4] 슬라이딩 서랍 */
         .drawer { position: fixed; right: -100%; top: 0; width: 85%; max-width: 360px; height: 100%; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(30px); z-index: 2000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); padding: 25px; border-left: 1px solid var(--border); box-sizing: border-box; overflow-y: auto; display: flex; flex-direction: column; }
         .drawer.active { right: 0; }
         .drawer-header { font-size: 18px; font-weight: bold; color: var(--hope-cyan); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
         .close-btn { margin-top: auto; padding: 15px; background: rgba(255,255,255,0.1); border: 1px solid var(--border); color: #fff; border-radius: 12px; cursor: pointer; font-weight: bold; }
         
-        /* 서랍 내부 요소 */
         .card { background: var(--glass); padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid var(--border); }
         .action-btn { width: 100%; padding: 14px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; border: none; font-size: 14px; transition: 0.2s; }
         .btn-neon { background: var(--daon-pink); color: #fff; box-shadow: 0 0 15px var(--daon-pink); }
-        .btn-blue { background: var(--hope-cyan); color: #000; }
-
-        /* [5] 하단 컨트롤 패널 */
+        
+        /* [5] 하단 컨트롤 */
         #ui-panel { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; z-index: 1000; }
         .input-box { display: flex; gap: 10px; margin-bottom: 10px; background: rgba(0,0,0,0.6); padding: 5px; border-radius: 15px; border: 1px solid var(--border); backdrop-filter: blur(10px); }
         input { flex: 1; background: transparent; border: none; padding: 12px; color: #fff; font-size: 14px; outline: none; }
         .btn-group { display: flex; gap: 10px; }
-        #launch-btn { flex: 2; padding: 16px; border-radius: 15px; border: none; background: var(--hope-cyan); color: #000; font-weight: 900; cursor: pointer; font-size: 16px; box-shadow: 0 5px 20px rgba(0,255,255,0.3); transition: 0.2s; }
-        #launch-btn:active { transform: scale(0.95); }
-        #video-btn { flex: 1; padding: 16px; border-radius: 15px; border: none; background: #333; color: #fff; font-weight: bold; cursor: pointer; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; gap: 5px; }
+        #launch-btn { flex: 2; padding: 16px; border-radius: 15px; border: none; background: var(--hope-cyan); color: #000; font-weight: 900; cursor: pointer; font-size: 16px; box-shadow: 0 5px 20px rgba(0,255,255,0.3); }
+        #video-btn { flex: 1; padding: 16px; border-radius: 15px; border: none; background: #333; color: #fff; font-weight: bold; cursor: pointer; border: 1px solid var(--border); }
 
-        /* 워터마크 */
         #watermark { position: fixed; bottom: 10px; right: 15px; font-size: 10px; opacity: 0.5; z-index: 100; letter-spacing: 1px; font-family: monospace; }
     </style>
 </head>
@@ -72,27 +84,40 @@
     <div id="overlay"></div>
     <div id="rec-indicator">● REC</div>
 
-    <div id="top-bar">
-        <div id="project-info">
-            <div class="title-text">DAON 2025 FINALE</div>
-            <div class="version-badge">D-DAY 25.12.28</div>
+    <div id="header-container">
+        <div id="top-bar">
+            <div id="project-info">
+                <div class="slogan-text">"진심은 통한다 진심을 쏴라"</div>
+                <div class="title-text">DAON 2025 FINALE</div>
+            </div>
+            <div style="font-size: 20px;" onclick="window.open('https://youtube.com/@Da-OnOfficial')">📺</div>
         </div>
-        <div style="font-size: 20px;" onclick="window.open('https://youtube.com/@Da-OnOfficial')">📺</div>
+        
+        <div id="ad-banner" onclick="window.open('https://www.youtube.com/@Da-OnOfficial')">
+            <div class="marquee">📢 [공지] 다온이의 새로운 영상이 업로드되었습니다! 클릭해서 구독과 좋아요 부탁드려요! 💖 (DAON OFFICIAL)</div>
+        </div>
     </div>
 
     <div id="right-nav">
-        <button class="nav-btn" onclick="openDrawer('music')" title="음악">🎵</button>
+        <button class="nav-btn" onclick="openDrawer('music')" title="음악 & 채널">🎵</button>
         <button class="nav-btn" onclick="openDrawer('meal')" title="밀프랩">🥗</button>
         <button class="nav-btn" onclick="openDrawer('donate')" title="후원">☕</button>
         <button class="nav-btn sos" onclick="openDrawer('sos')" title="SOS">🚨</button>
     </div>
 
     <div id="music" class="drawer">
-        <div class="drawer-header">🎵 DAON PLAYER</div>
+        <div class="drawer-header">🎵 MUSIC & CHANNEL</div>
+        
+        <button class="action-btn btn-neon" onclick="window.open('https://www.youtube.com/@Da-OnOfficial')">
+            📺 다온 유튜브 채널 바로가기
+        </button>
+        <div style="font-size:11px; text-align:center; margin:5px 0 20px 0; color:#aaa;">구독과 좋아요는 다온이에게 큰 힘이 됩니다!</div>
+
         <div class="card" style="height: 200px; padding: 0; overflow: hidden;">
             <div id="player"></div>
         </div>
-        <button class="action-btn" style="background:#ff0000; color:#fff;" onclick="playBGM()">▶ 테마곡 재생 (YouTube)</button>
+        <button class="action-btn" style="background:#ff0000; color:#fff;" onclick="playBGM()">▶ 배경음악 재생 (BGM)</button>
+        
         <button class="close-btn" onclick="closeDrawer()">닫기</button>
     </div>
 
@@ -103,12 +128,7 @@
             <input type="text" id="meal-input" placeholder="예: 닭가슴살 샐러드, 딸기" style="width:100%; background:rgba(255,255,255,0.1); border:1px solid #555; padding:10px; color:#fff; border-radius:8px; box-sizing:border-box;">
             <button class="action-btn" style="background:var(--hope-cyan); color:#000;" onclick="addMeal()">기록하기</button>
         </div>
-        
-        <button class="action-btn btn-neon" onclick="playMealShow()">
-            ✨ 내 식단 불꽃쇼 보기
-        </button>
-        <div style="font-size:11px; text-align:center; margin-top:5px; opacity:0.7;">식단 재료에 맞춰 색색깔 불꽃이 터집니다!</div>
-
+        <button class="action-btn btn-neon" onclick="playMealShow()">✨ 내 식단 불꽃쇼 보기</button>
         <div id="meal-list" style="margin-top:20px;"></div>
         <button class="close-btn" onclick="closeDrawer()">닫기</button>
     </div>
@@ -143,7 +163,7 @@
     <div id="watermark">v.251228 FINAL_BUILD | © 2025 DAON OFFICIAL</div>
 
     <script>
-        // [0] 초기화 및 설정
+        // [0] 초기화
         const KAKAO_KEY = 'fa462b2b643a16d837c1890cc3dc4149'; 
         try { if (!Kakao.isInitialized()) Kakao.init(KAKAO_KEY); } catch(e) {}
 
@@ -156,13 +176,13 @@
         let player;
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('player', {
-                height: '100%', width: '100%', videoId: 'WPfyXfdrCqs', // 다온 테마곡 ID
+                height: '100%', width: '100%', videoId: 'WPfyXfdrCqs',
                 playerVars: { 'autoplay': 0, 'controls': 1, 'rel': 0 }
             });
         }
         function playBGM() { if(player) player.playVideo(); }
 
-        // [2] 불꽃놀이 엔진 (Canvas)
+        // [2] 불꽃놀이 엔진
         class Rocket {
             constructor(x, y, targetY, color, text = null, special = false) {
                 this.x = x; this.y = y; this.targetY = targetY;
@@ -171,10 +191,7 @@
             }
             update() {
                 this.y += this.vy;
-                if (this.y <= this.targetY) {
-                    this.alive = false;
-                    this.explode();
-                }
+                if (this.y <= this.targetY) { this.alive = false; this.explode(); }
             }
             draw() {
                 ctx.beginPath(); ctx.arc(this.x, this.y, 3, 0, Math.PI*2);
@@ -228,23 +245,18 @@
         function animate() {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
             rockets.forEach((r, i) => { r.update(); r.draw(); if(!r.alive) rockets.splice(i, 1); });
             particles.forEach((p, i) => { p.update(); p.draw(); if(p.alpha <= 0 || (p.life && p.life<=0)) particles.splice(i, 1); });
-            
             requestAnimationFrame(animate);
         }
 
-        // [3] 기능 로직
+        // [3] 로직 함수들
         function launchCustomRocket() {
             const input = document.getElementById('user-msg');
             const msg = input.value || "DAON 2025";
             const color = `hsl(${Math.random()*360}, 100%, 70%)`;
-            
             rockets.push(new Rocket(canvas.width/2, canvas.height, canvas.height*0.2, color, msg, true));
             input.value = "";
-            
-            // 버튼 상태 변경 (공유 유도)
             const btn = document.getElementById('launch-btn');
             if(btn.innerText.includes("쏘아올리기")) {
                 setTimeout(() => {
@@ -255,7 +267,6 @@
             }
         }
 
-        // 밀프랩 로직
         function addMeal() {
             const input = document.getElementById('meal-input');
             if(!input.value) return;
@@ -277,7 +288,6 @@
         function getMealColor(text) {
             if(text.includes('딸기') || text.includes('고기')) return '#ff4d4d';
             if(text.includes('샐러드') || text.includes('채소')) return '#2ecc71';
-            if(text.includes('계란') || text.includes('치즈')) return '#f1c40f';
             return '#00ffff';
         }
 
@@ -294,16 +304,13 @@
             });
         }
 
-        // 비디오 녹화 로직
         async function recordVideo() {
             if(!confirm("6초 동안 화면을 녹화하여 다운로드합니다. 시작할까요?")) return;
             try {
                 const stream = canvas.captureStream(30);
                 const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
                 const chunks = [];
-                
                 document.getElementById('rec-indicator').style.display = 'block';
-                
                 recorder.ondataavailable = e => { if(e.data.size > 0) chunks.push(e.data); };
                 recorder.onstop = () => {
                     const blob = new Blob(chunks, { type: 'video/webm' });
@@ -314,26 +321,20 @@
                     document.getElementById('rec-indicator').style.display = 'none';
                     alert("영상이 갤러리에 저장되었습니다!");
                 };
-                
                 recorder.start();
-                // 자동 불꽃 연출
                 rockets.push(new Rocket(canvas.width/2, canvas.height, canvas.height*0.2, "#ff00d4", "VIDEO RECORDING", true));
-                setTimeout(() => recorder.stop(), 6000); // 6초 후 종료
-            } catch(e) {
-                alert("이 브라우저는 녹화를 지원하지 않습니다.");
-            }
+                setTimeout(() => recorder.stop(), 6000);
+            } catch(e) { alert("이 브라우저는 녹화를 지원하지 않습니다."); }
         }
 
-        // 공유 로직
         function shareKakao(msg) {
             Kakao.Share.sendDefault({
                 objectType: 'text',
-                text: `[다온 프로젝트] 2025년 12월 28일의 메시지:\n"${msg}"\n\n밤하늘에 수놓은 불꽃을 확인해보세요!`,
+                text: `[다온 프로젝트] 메시지:\n"${msg}"\n\n진심은 통한다, 진심을 쏴라!`,
                 link: { mobileWebUrl: window.location.href, webUrl: window.location.href },
             });
         }
 
-        // UI 제어
         function openDrawer(id) {
             document.querySelectorAll('.drawer').forEach(d => d.classList.remove('active'));
             document.getElementById(id).classList.add('active');
@@ -341,25 +342,15 @@
         }
         function closeDrawer() { document.querySelectorAll('.drawer').forEach(d => d.classList.remove('active')); }
 
-        // [4] 실행
         window.onload = () => {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
             animate();
-            
-            // 자동 배경 불꽃
             setInterval(() => {
                 rockets.push(new Rocket(Math.random()*canvas.width, canvas.height, canvas.height*0.2 + Math.random()*canvas.height*0.5, `hsl(${Math.random()*360}, 100%, 70%)`));
             }, 1800);
-
-            // [이스터에그] 251228 기념 오프닝
-            setTimeout(() => {
-                rockets.push(new Rocket(canvas.width/2, canvas.height, canvas.height*0.4, "#FFD700", "2025.12.28", true));
-            }, 2000);
-            setTimeout(() => {
-                rockets.push(new Rocket(canvas.width/2, canvas.height, canvas.height*0.2, "#fff", "다온 프로젝트 완성", true));
-            }, 4000);
+            setTimeout(() => rockets.push(new Rocket(canvas.width/2, canvas.height, canvas.height*0.4, "#FFD700", "진심은 통한다", true)), 2000);
+            setTimeout(() => rockets.push(new Rocket(canvas.width/2, canvas.height, canvas.height*0.2, "#fff", "진심을 쏴라", true)), 4000);
         };
-        
         window.onresize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
     </script>
 </body>
