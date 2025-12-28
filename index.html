@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎆 DAON 2025: FINAL ULTIMATE 🎆</title>
+    <title>🎆 DAON 2025: ULTIMATE PLATFORM 🎆</title>
     
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
@@ -37,7 +37,7 @@
         #intro-video { width: 100%; height: 100%; object-fit: cover; display: none; }
         #intro-img { width: 100%; height: 100%; object-fit: contain; display: none; }
 
-        /* 기본 캐릭터 (미디어 없을 때) */
+        /* 기본 캐릭터 (미디어 없을 때 표시) */
         #default-intro-group { display: flex; flex-direction: column; align-items: center; z-index: 5; }
         .daon-avatar {
             width: 150px; height: 150px; border-radius: 50%;
@@ -51,7 +51,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
 
-        /* 인트로 하단 버튼 */
+        /* 인트로 하단 버튼들 */
         .intro-btn-group { 
             position: absolute; bottom: 40px; 
             display: flex; flex-direction: column; gap: 15px; align-items: center; z-index: 20; 
@@ -69,13 +69,15 @@
         /* [1] 캔버스 & 오버레이 */
         #bg-media-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; object-fit: cover; opacity: 0.5; display: none; }
         #fireworksCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.8) 100%); z-index: 2; pointer-events: none; }
         #rec-indicator { display: none; position: fixed; top: 90px; right: 20px; color: red; font-weight: 900; z-index: 3000; animation: blink 1s infinite; }
         
-        /* 텍스트 불꽃 끄기 버튼 (숨겨져 있다가 활성화 시 표시) */
+        /* 텍스트 불꽃 끄기 버튼 (수신자가 보는 버튼) */
         #stop-text-btn {
             display: none; position: fixed; top: 120px; left: 50%; transform: translateX(-50%);
-            padding: 5px 15px; background: rgba(255,255,255,0.2); border: 1px solid #fff;
-            color: #fff; font-size: 12px; border-radius: 15px; cursor: pointer; z-index: 200;
+            padding: 8px 20px; background: rgba(255, 59, 48, 0.8); border: 1px solid #fff;
+            color: #fff; font-size: 14px; font-weight:bold; border-radius: 20px; cursor: pointer; z-index: 200;
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
         }
 
         /* [2] 상단 헤더 */
@@ -166,7 +168,7 @@
 
     <canvas id="fireworksCanvas"></canvas>
     
-    <button id="stop-text-btn" onclick="stopTextFirework()">텍스트 그만 보기 X</button>
+    <button id="stop-text-btn" onclick="stopTextFirework()">텍스트 닫기 (메인화면으로)</button>
 
     <div id="rec-indicator">● REC</div>
 
@@ -264,7 +266,7 @@
         </div>
     </div>
 
-    <div id="watermark">v.251228 FINAL_ULTIMATE_V5 | © 2025 DAON OFFICIAL</div>
+    <div id="watermark">v.251228 FINAL_ULTIMATE_V6 | © 2025 DAON OFFICIAL</div>
 
     <script>
         // [0] 초기화
@@ -282,7 +284,7 @@
         let player;
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('player', {
-                height: '0', width: '0', videoId: 'WPfyXfdrCqs',
+                height: '0', width: '0', videoId: 'WPfyXfdrCqs', // 오디오만 활용
                 playerVars: { 'autoplay': 0, 'controls': 0, 'rel': 0 }
             });
         }
@@ -481,6 +483,7 @@
             particles.forEach((p, i) => { p.update(); p.draw(); if(p.alpha <= 0) particles.splice(i, 1); });
             requestAnimationFrame(animate);
         }
+        // [텍스트 닫기 버튼 로직]
         function stopTextFirework() {
             if(activeTextRocket) activeTextRocket.life = 0; // 즉시 소멸
             document.getElementById('stop-text-btn').style.display = 'none';
