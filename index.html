@@ -22,7 +22,7 @@
 
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Pretendard', sans-serif; overflow: hidden; }
 
-        /* [0] 인트로 화면 (2분 유지, 미디어 저장) */
+        /* [0] 인트로 화면 */
         #intro-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 9999;
@@ -37,16 +37,9 @@
         #intro-video { width: 100%; height: 100%; object-fit: cover; display: none; }
         #intro-img { width: 100%; height: 100%; object-fit: contain; display: none; }
 
-        /* 기본 캐릭터 (미디어 없을 때 표시) */
+        /* 기본 그룹 (다온이 이미지 없음) */
         #default-intro-group { display: flex; flex-direction: column; align-items: center; z-index: 5; }
-        .daon-avatar {
-            width: 150px; height: 150px; border-radius: 50%;
-            border: 4px solid var(--daon-pink);
-            /* 이미지는 제거됨 (배경만 남김) */
-            background: #222; 
-            box-shadow: 0 0 40px var(--daon-pink); margin-bottom: 20px; animation: float 3s infinite;
-            display: none; /* 아예 안 보이게 처리 */
-        }
+        
         .intro-bubble {
             background: rgba(255,255,255,0.9); color: #000; padding: 15px 25px; border-radius: 20px;
             font-weight: bold; font-size: 16px; text-align: center; max-width: 80%;
@@ -75,18 +68,22 @@
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.8) 100%); z-index: 2; pointer-events: none; }
         #rec-indicator { display: none; position: fixed; top: 90px; right: 20px; color: red; font-weight: 900; z-index: 3000; animation: blink 1s infinite; }
         
-        /* [수정됨] 텍스트 불꽃 끄기 버튼 (우측 하단 이동) */
+        /* [수정됨] 텍스트 불꽃 끄기 버튼 (입력창 위 중앙, 사이즈 축소) */
         #stop-text-btn {
             display: none; 
             position: fixed; 
-            bottom: 120px; /* 하단 컨트롤바 위 */
-            right: 20px;   /* 우측 배치 */
-            padding: 10px 20px; 
+            bottom: 160px; /* 입력창(ui-panel) 바로 위 */
+            left: 50%;
+            transform: translateX(-50%); /* 정확히 가운데 정렬 */
+            padding: 6px 12px; /* 사이즈 반으로 줄임 */
             background: rgba(255, 59, 48, 0.9); 
             border: 1px solid #fff;
-            color: #fff; font-size: 14px; font-weight:bold; border-radius: 30px; 
-            cursor: pointer; z-index: 200;
-            box-shadow: 0 0 15px rgba(255,59,48,0.5); 
+            color: #fff; 
+            font-size: 11px; /* 글자 크기 축소 */
+            font-weight: bold; 
+            border-radius: 15px; 
+            cursor: pointer; z-index: 2000;
+            box-shadow: 0 0 10px rgba(255,59,48,0.5); 
             animation: pulse 2s infinite;
         }
 
@@ -158,7 +155,6 @@
         </div>
         
         <div id="default-intro-group">
-            <div class="daon-avatar"></div>
             <div class="intro-bubble">
                 안녕? 난 다온이야! 👋<br>
                 <span style="font-size:14px; font-weight:normal; opacity:0.9; margin-top:8px; display:block;">
@@ -282,10 +278,9 @@
         </div>
     </div>
 
-    <div id="watermark">v.251229 FINAL_PATCH | © 2025 DAON OFFICIAL</div>
+    <div id="watermark">v.251229 FINAL_MOBILE_PATCH | © 2025 DAON OFFICIAL</div>
 
     <script>
-        // [중요] 사용자의 수익 링크 (쿠팡 파트너스)
         const COUPANG_HOME_LINK = "https://link.coupang.com/a/diSpS0"; 
         
         // [0] 초기화
@@ -310,7 +305,7 @@
         function playBGM() { if(player) player.playVideo(); }
         function stopBGM() { if(player) player.stopVideo(); }
 
-        // [2] 매일 바뀌는 명언 (자동)
+        // [2] 매일 바뀌는 명언
         const dailyQuotes = [
             { text: "진심은 통한다 희망을 쏴라" },
             { text: "진심은 통한다 행복을 쏴라" },
@@ -322,7 +317,7 @@
             document.getElementById('daily-slogan').innerText = `"${dailyQuotes[index].text}"`;
         }
 
-        // [3] 인트로 미디어 핸들러 (저장 기능)
+        // [3] 인트로 미디어 핸들러
         function handleIntroMedia(input) {
             const file = input.files[0]; if (!file) return;
             const reader = new FileReader();
@@ -372,9 +367,9 @@
         }
         function closeDrawerAndStopMedia() {
             closeDrawer();
-            stopBGM(); // 유튜브 정지
+            stopBGM(); 
             const vid = document.getElementById('local-video-display');
-            if(vid) { vid.pause(); vid.currentTime = 0; } // 로컬 비디오 정지
+            if(vid) { vid.pause(); vid.currentTime = 0; } 
         }
 
         // [3-2] 배경 설정
@@ -422,7 +417,7 @@
         function toggleAll(source) { document.querySelectorAll('.contact-chk').forEach(chk => chk.checked = source.checked); }
         function sendToPerson(phone, msg, link) { window.open(`sms:${phone}?body=${encodeURIComponent(`[DAON] ${msg} ${link}`)}`, '_blank'); }
 
-        // [5] 밀프랩 (수익화 적용)
+        // [5] 밀프랩
         function goCoupangHome() {
             window.open(COUPANG_HOME_LINK, '_blank');
         }
@@ -446,7 +441,6 @@
             const list = document.getElementById('meal-list');
             const meals = JSON.parse(localStorage.getItem('daon_meals') || '[]');
             list.innerHTML = meals.slice(0, 5).map((m, i) => {
-                // 쿠팡 검색 링크
                 const searchUrl = `https://www.coupang.com/np/search?component=&q=${encodeURIComponent(m.t)}`;
                 return `
                     <div class="card meal-item" style="border-left:3px solid ${getMealColor(m.t)}">
@@ -470,7 +464,7 @@
             meals.slice(0,5).forEach((m, i) => setTimeout(() => rockets.push(new Rocket(Math.random()*canvas.width, canvas.height, canvas.height*0.3, "#fff", m.t, true)), i*1500));
         }
 
-        // [6] 불꽃놀이 엔진 (1분 유지 & 끄기 기능)
+        // [6] 불꽃놀이 엔진 (위치 수정됨: 배너 바로 아래)
         class Rocket {
             constructor(x, y, targetY, color, text = null, special = false) {
                 this.x = x; this.y = y; this.targetY = targetY; this.color = color; this.text = text; this.special = special; this.vy = -12; this.alive = true;
@@ -511,12 +505,15 @@
             document.getElementById('stop-text-btn').style.display = 'none';
         }
 
-        // [7] 발사 & 공유 & 녹화
+        // [7] 발사 & 공유 & 녹화 (폭죽 위치 수정됨)
         function launchCustomRocket(message = null) {
             const input = document.getElementById('user-msg');
             const msg = message || input.value || "DAON 2025";
             const color = `hsl(${Math.random()*360}, 100%, 70%)`;
-            const targetY = canvas.height * 0.15 + 60; // 배너 아래
+            
+            // [수정됨] 배너(약 80px) 바로 아래인 120px 위치에서 터지도록 고정
+            const targetY = 120; 
+            
             rockets.push(new Rocket(canvas.width/2, canvas.height, targetY, color, msg, true));
             input.value = "";
             if(!message) {
@@ -539,7 +536,7 @@
         function openDrawer(id) { document.querySelectorAll('.drawer').forEach(d => d.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id==='meal') renderMeals(); }
         function closeDrawer() { document.querySelectorAll('.drawer').forEach(d => d.classList.remove('active')); }
 
-        // [8] 인트로 종료 (2분 유지)
+        // [8] 인트로 종료
         let introClosed = false;
         function closeIntro() {
             if(introClosed) return;
