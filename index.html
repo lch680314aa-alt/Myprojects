@@ -34,6 +34,7 @@
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
+        /* muted 속성 제거 -> 소리 나옴 */
         #intro-video { width: 100%; height: 100%; object-fit: cover; display: none; }
         #intro-img { width: 100%; height: 100%; object-fit: contain; display: none; }
 
@@ -74,7 +75,7 @@
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.8) 100%); z-index: 2; pointer-events: none; }
         #rec-indicator { display: none; position: fixed; top: 90px; right: 20px; color: red; font-weight: 900; z-index: 3000; animation: blink 1s infinite; }
         
-        /* 텍스트 불꽃 끄기 버튼 (입력창 위 중앙, 사이즈 축소) */
+        /* 텍스트 불꽃 끄기 버튼 */
         #stop-text-btn {
             display: none; 
             position: fixed; 
@@ -156,7 +157,7 @@
 
     <div id="intro-overlay">
         <div id="intro-media-container">
-            <video id="intro-video" autoplay muted loop playsinline></video>
+            <video id="intro-video" autoplay loop playsinline></video>
             <img id="intro-img">
         </div>
         
@@ -284,7 +285,7 @@
         </div>
     </div>
 
-    <div id="watermark">v.251229 FINAL_ALL_CENTER | © 2025 DAON OFFICIAL</div>
+    <div id="watermark">v.251229 FINAL_INTRO_FOR_ALL | © 2025 DAON OFFICIAL</div>
 
     <script>
         const COUPANG_HOME_LINK = "https://link.coupang.com/a/diSpS0"; 
@@ -348,7 +349,11 @@
             document.getElementById('default-intro-group').style.display = 'none';
 
             if (type.startsWith('video/')) {
-                video.src = src; video.style.display = 'block'; img.style.display = 'none'; video.play();
+                video.src = src; 
+                video.muted = false; 
+                video.style.display = 'block'; 
+                img.style.display = 'none'; 
+                video.play().catch(e => console.log("자동 재생 정책으로 인해 소리가 차단될 수 있습니다."));
             } else {
                 img.src = src; img.style.display = 'block'; video.style.display = 'none';
             }
@@ -516,10 +521,7 @@
             const input = document.getElementById('user-msg');
             const msg = message || input.value || "DAON 2025";
             const color = `hsl(${Math.random()*360}, 100%, 70%)`;
-            
-            // [수정됨] PC와 모바일 모두 화면 정중앙(height / 2)에서 터지도록 설정
             const targetY = canvas.height / 2; 
-            
             rockets.push(new Rocket(canvas.width/2, canvas.height, targetY, color, msg, true));
             input.value = "";
             if(!message) {
@@ -542,7 +544,7 @@
         function openDrawer(id) { document.querySelectorAll('.drawer').forEach(d => d.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id==='meal') renderMeals(); }
         function closeDrawer() { document.querySelectorAll('.drawer').forEach(d => d.classList.remove('active')); }
 
-        // [8] 인트로 종료
+        // [8] 인트로 종료 (수정됨: 메시지 있어도 인트로 후 실행)
         let introClosed = false;
         function closeIntro() {
             if(introClosed) return;
@@ -552,14 +554,22 @@
             intro.style.opacity = '0';
             setTimeout(() => {
                 intro.style.display = 'none';
+                
+                // [NEW] 인트로가 닫힐 때 메시지가 있는지 확인
                 const urlParams = new URLSearchParams(window.location.search);
-                if (!urlParams.get('m')) {
+                const receivedMsg = urlParams.get('m');
+                
+                if (receivedMsg) {
+                    // 수신자 모드: 인트로 종료 후 메시지 발사
+                    setTimeout(() => launchCustomRocket(receivedMsg), 500);
+                } else {
+                    // 일반 모드: 랜덤 불꽃
                     setInterval(() => rockets.push(new Rocket(Math.random()*canvas.width, canvas.height, canvas.height*0.4, `hsl(${Math.random()*360}, 100%, 70%)`)), 2000);
                 }
             }, 500); 
         }
 
-        // [9] 실행
+        // [9] 실행 (수정됨: 무조건 인트로 실행)
         window.onload = () => {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
             setDailySlogan();
@@ -567,18 +577,9 @@
             loadSavedIntro(); 
             animate();
             
-            const urlParams = new URLSearchParams(window.location.search);
-            const receivedMsg = urlParams.get('m');
-            const intro = document.getElementById('intro-overlay');
-
-            if (receivedMsg) {
-                // 수신자 모드: 인트로 생략
-                intro.style.display = 'none';
-                setTimeout(() => launchCustomRocket(receivedMsg), 1000);
-            } else {
-                // 일반 모드: 인트로 2분(120초) 유지
-                introTimeout = setTimeout(closeIntro, 120000);
-            }
+            // [NEW] 메시지 유무와 상관없이 무조건 2분 타이머 시작
+            // (사용자가 스킵 버튼을 누르거나 2분이 지나야 closeIntro가 호출됨)
+            introTimeout = setTimeout(closeIntro, 120000);
         };
         window.onresize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
     </script>
