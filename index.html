@@ -22,7 +22,7 @@
 
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Pretendard', sans-serif; overflow: hidden; }
 
-        /* [0] 인트로 화면 (1분 유지, 스킵 가능) */
+        /* [0] 인트로 화면 (1분 유지, 미디어 중심) */
         #intro-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 9999;
@@ -35,7 +35,7 @@
             display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
         #intro-video { width: 100%; height: 100%; object-fit: cover; display: none; }
-        #intro-img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        #intro-img { width: 100%; height: 100%; object-fit: contain; display: none; } /* 사진 비율 유지 */
 
         .daon-avatar {
             width: 150px; height: 150px; border-radius: 50%;
@@ -51,9 +51,12 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
         
-        /* 인트로 컨트롤 버튼들 */
-        .intro-btn-group { margin-top: 30px; display: flex; gap: 10px; z-index: 10; flex-direction: column; align-items: center; }
-        #custom-intro-btn { padding: 8px 16px; background: rgba(0,0,0,0.6); border: 1px solid #aaa; color: #ccc; border-radius: 20px; cursor: pointer; font-size: 11px; }
+        /* 인트로 하단 버튼 그룹 (사진 가리지 않게 하단 배치) */
+        .intro-btn-group { 
+            position: absolute; bottom: 50px; 
+            display: flex; gap: 15px; z-index: 10; flex-direction: column; align-items: center; 
+        }
+        #custom-intro-btn { padding: 8px 16px; background: rgba(0,0,0,0.6); border: 1px solid #aaa; color: #ccc; border-radius: 20px; cursor: pointer; font-size: 12px; }
         #skip-btn { 
             padding: 12px 30px; background: var(--daon-pink); border: none; 
             color: #fff; border-radius: 30px; cursor: pointer; font-size: 16px; font-weight: bold;
@@ -232,7 +235,7 @@
         </div>
     </div>
 
-    <div id="watermark">v.251228 PLATFORM_EDITION | © 2025 DAON OFFICIAL</div>
+    <div id="watermark">v.251228 PLATFORM_V3 | © 2025 DAON OFFICIAL</div>
 
     <script>
         // [0] 초기화
@@ -243,7 +246,7 @@
         const ctx = canvas.getContext('2d');
         let particles = [];
         let rockets = [];
-        let introTimeout; // 인트로 타이머 변수
+        let introTimeout; // 인트로 타이머
 
         // [1] 유튜브 API
         let player;
@@ -271,14 +274,17 @@
         }
         function openDailyStory() { if(currentQuoteUrl) window.open(currentQuoteUrl, '_blank'); }
 
-        // [3] 미디어 핸들러
+        // [3] 미디어 핸들러 (인트로 업데이트: 이미지를 가리지 않게 숨김)
         function handleIntroMedia(input) {
             const file = input.files[0]; if (!file) return;
             const url = URL.createObjectURL(file);
             const video = document.getElementById('intro-video');
             const img = document.getElementById('intro-img');
+            
+            // [중요] 사용자가 미디어를 올리면 다온이와 말풍선을 숨김
             document.getElementById('default-avatar').style.display = 'none';
             document.getElementById('default-bubble').style.display = 'none';
+            
             if (file.type.startsWith('video/')) { video.src = url; video.style.display = 'block'; img.style.display = 'none'; video.play(); }
             else { img.src = url; img.style.display = 'block'; video.style.display = 'none'; }
         }
@@ -326,7 +332,7 @@
         function toggleAll(source) { document.querySelectorAll('.contact-chk').forEach(chk => chk.checked = source.checked); }
         function sendToPerson(phone, msg, link) { window.open(`sms:${phone}?body=${encodeURIComponent(`[DAON] ${msg} ${link}`)}`, '_blank'); }
 
-        // [5] 밀프랩 (재료 보기 버튼 수정됨)
+        // [5] 밀프랩 (재료 보기 버튼: 아이콘 제거, 글자만 표시)
         function addMeal() { 
             const input = document.getElementById('meal-input');
             if(!input.value) return;
@@ -416,7 +422,7 @@
         function openDrawer(id) { document.querySelectorAll('.drawer').forEach(d => d.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id==='meal') renderMeals(); }
         function closeDrawer() { document.querySelectorAll('.drawer').forEach(d => d.classList.remove('active')); }
 
-        // [8] 인트로 종료 함수 (스킵 버튼 & 타이머 공용)
+        // [8] 인트로 종료 함수 (스킵 버튼 & 1분 타이머 공용)
         let introClosed = false;
         function closeIntro() {
             if(introClosed) return;
