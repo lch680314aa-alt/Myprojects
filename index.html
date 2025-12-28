@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎆 DAON 2025: PLATFORM EDITION 🎆</title>
+    <title>🎆 DAON 2025: ULTIMATE PLATFORM 🎆</title>
     
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
@@ -22,7 +22,7 @@
 
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Pretendard', sans-serif; overflow: hidden; }
 
-        /* [0] 인트로 화면 */
+        /* [0] 인트로 화면 (2분 유지, 저장 기능 포함) */
         #intro-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 9999;
@@ -37,43 +37,36 @@
         #intro-video { width: 100%; height: 100%; object-fit: cover; display: none; }
         #intro-img { width: 100%; height: 100%; object-fit: contain; display: none; }
 
-        /* 기본 아바타 그룹 (업로드 시 숨김) */
-        #default-intro-group {
-            display: flex; flex-direction: column; align-items: center;
-            z-index: 5; /* 미디어보다 위에, 버튼보다 아래 */
-        }
-
+        /* 기본 아바타 (미디어 없을 때 표시) */
+        #default-intro-group { display: flex; flex-direction: column; align-items: center; z-index: 5; }
         .daon-avatar {
             width: 150px; height: 150px; border-radius: 50%;
             border: 4px solid var(--daon-pink);
             background: #222 url('https://cdn-icons-png.flaticon.com/512/4140/4140048.png') no-repeat center/cover;
-            box-shadow: 0 0 40px var(--daon-pink);
-            margin-bottom: 20px;
-            animation: float 3s infinite;
+            box-shadow: 0 0 40px var(--daon-pink); margin-bottom: 20px; animation: float 3s infinite;
         }
         .intro-bubble {
             background: rgba(255,255,255,0.9); color: #000; padding: 15px 25px; border-radius: 20px;
             font-weight: bold; font-size: 16px; text-align: center; max-width: 80%;
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
-        
-        /* 인트로 하단 버튼 (화면 최하단 배치) */
+
+        /* 인트로 하단 버튼들 */
         .intro-btn-group { 
             position: absolute; bottom: 40px; 
             display: flex; flex-direction: column; gap: 15px; align-items: center; z-index: 20; 
         }
-        #custom-intro-btn { padding: 8px 16px; background: rgba(0,0,0,0.6); border: 1px solid #aaa; color: #ccc; border-radius: 20px; cursor: pointer; font-size: 11px; }
         #skip-btn { 
             padding: 12px 35px; background: var(--daon-pink); border: none; 
             color: #fff; border-radius: 30px; cursor: pointer; font-size: 16px; font-weight: bold;
             box-shadow: 0 0 20px var(--daon-pink); animation: pulse 2s infinite;
         }
+        #custom-intro-btn { padding: 8px 16px; background: rgba(0,0,0,0.6); border: 1px solid #aaa; color: #ccc; border-radius: 20px; cursor: pointer; font-size: 11px; }
 
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        /* [1] 배경 및 캔버스 */
-        #bg-media-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; object-fit: cover; opacity: 0.5; display: none; }
+        /* [1] 캔버스 & 오버레이 */
         #fireworksCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.8) 100%); z-index: 2; pointer-events: none; }
         #rec-indicator { display: none; position: fixed; top: 90px; right: 20px; color: red; font-weight: 900; z-index: 3000; animation: blink 1s infinite; }
@@ -113,7 +106,7 @@
         .btn-neon { background: var(--daon-pink); color: #fff; }
         .card { background: var(--glass); padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid var(--border); }
 
-        /* [NEW] 밀프랩 리스트 스타일 */
+        /* 밀프랩 리스트 */
         .meal-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
         .meal-btn-group { display: flex; gap: 5px; }
         .btn-link { background: #333; color: #fff; border: 1px solid #555; border-radius: 5px; padding: 5px 8px; font-size: 11px; cursor: pointer; }
@@ -135,7 +128,7 @@
         #watermark { position: fixed; bottom: 10px; right: 15px; font-size: 10px; opacity: 0.5; z-index: 100; letter-spacing: 1px; font-family: monospace; }
         
         /* 숨김 파일 인풋 */
-        #intro-file-input, #bg-file-input, #excel-file-input { display: none; }
+        #intro-file-input, #excel-file-input, #local-video-input { display: none; }
     </style>
 </head>
 <body>
@@ -158,12 +151,10 @@
 
         <div class="intro-btn-group">
             <button id="skip-btn" onclick="closeIntro()">SKIP (메인화면으로) >></button>
-            <button id="custom-intro-btn" onclick="document.getElementById('intro-file-input').click()">📷 사진/영상 올리기</button>
+            <button id="custom-intro-btn" onclick="document.getElementById('intro-file-input').click()">📷 사진/영상 올리기 & 저장</button>
         </div>
         <input type="file" id="intro-file-input" accept="image/*,video/*" onchange="handleIntroMedia(this)">
     </div>
-
-    <video id="bg-media-layer" autoplay muted loop playsinline></video>
 
     <canvas id="fireworksCanvas"></canvas>
     <div id="overlay"></div> 
@@ -172,7 +163,7 @@
     <div id="header-container">
         <div id="top-bar">
             <div id="project-info" onclick="window.open('https://www.youtube.com/@Da-OnOfficial', '_blank')">
-                <div class="slogan-text" id="daily-slogan">"진심은 통한다 행복을 쏴라"</div>
+                <div class="slogan-text" id="daily-slogan">"진심은 통한다 희망을 쏴라"</div>
                 <div class="title-text">DAON 2025 PLATFORM</div>
             </div>
             <div style="font-size: 20px;" onclick="window.open('https://youtube.com/@Da-OnOfficial')">📺</div>
@@ -183,18 +174,28 @@
     </div>
 
     <div id="right-nav">
-        <button class="nav-btn" onclick="openDrawer('music')" title="음악 & 채널">🎵</button>
+        <button class="nav-btn" onclick="openDrawer('music')" title="음악 & 비디오">🎵</button>
         <button class="nav-btn" onclick="openDrawer('meal')" title="밀프랩">🥗</button>
         <button class="nav-btn" onclick="openDrawer('send')" title="단체 전송 (Excel)">📤</button>
-        <button class="nav-btn" onclick="openDrawer('settings')" title="배경 설정">⚙️</button>
+        <button class="nav-btn sos" onclick="openDrawer('sos')" title="SOS">🚨</button>
     </div>
 
     <div id="music" class="drawer">
-        <div class="drawer-header">🎵 MUSIC & CHANNEL</div>
+        <div class="drawer-header">🎵 MEDIA CENTER</div>
         <button class="action-btn btn-neon" onclick="window.open('https://www.youtube.com/@Da-OnOfficial')">📺 다온 유튜브 채널</button>
-        <div style="font-size:11px; text-align:center; margin:10px 0 20px 0; color:#ccc;">▲ 버튼을 누르면 채널로 이동합니다</div>
-        <div class="card" style="height: 200px; padding: 0; overflow: hidden; margin-top:10px;"><div id="player"></div></div>
-        <button class="action-btn" style="background:#ff0000; color:#fff;" onclick="playBGM()">▶ 배경음악 재생</button>
+        
+        <div style="margin-top:20px; border-top:1px solid rgba(255,255,255,0.2); padding-top:10px;">
+            <p style="font-size:12px; color:#aaa;">내 폰/PC 동영상 보기</p>
+            <button class="action-btn" style="background:#555;" onclick="document.getElementById('local-video-input').click()">📁 동영상 불러오기</button>
+            <input type="file" id="local-video-input" accept="video/*" onchange="playLocalVideo(this)">
+            <video id="local-video-display" controls style="width:100%; margin-top:10px; display:none; border-radius:10px;"></video>
+        </div>
+
+        <div style="margin-top:20px;">
+            <p style="font-size:12px; color:#aaa;">배경 음악 (YouTube)</p>
+            <div id="player" style="display:none;"></div> <button class="action-btn" style="background:#ff0000; color:#fff;" onclick="playBGM()">▶ 배경음악 재생</button>
+        </div>
+        
         <button class="close-btn" onclick="closeDrawer()">닫기</button>
     </div>
 
@@ -221,18 +222,13 @@
             <span id="count-display" style="font-size:12px; margin-left:10px;">0명 로드됨</span>
         </div>
         <div id="contact-list" style="max-height:300px; overflow-y:auto; border:1px solid #333; padding:5px;"></div>
-        <div style="font-size:11px; color:#aaa; margin-top:10px;">* 보안 정책상 개별 [전송] 버튼을 눌러야 합니다.</div>
         <button class="close-btn" onclick="closeDrawer()">닫기</button>
     </div>
 
-    <div id="settings" class="drawer">
-        <div class="drawer-header">⚙️ BACKGROUND SETTING</div>
-        <div class="card">
-            <p style="font-size:12px;">PC/폰에 있는 미디어를<br>배경으로 설정하세요.</p>
-            <button class="action-btn" style="background:#555; color:#fff;" onclick="document.getElementById('bg-file-input').click()">📁 미디어 불러오기</button>
-            <input type="file" id="bg-file-input" accept="image/*,video/*" onchange="handleBgMedia(this)">
-            <button class="action-btn" style="background:var(--sos-red); color:#fff; margin-top:5px;" onclick="clearBgMedia()">배경 지우기</button>
-        </div>
+    <div id="sos" class="drawer">
+        <div class="drawer-header" style="color:var(--sos-red);">🚨 EMERGENCY</div>
+        <button class="action-btn" style="background:var(--sos-red); color:#fff; font-size:18px;" onclick="location.href='tel:112'">📞 112 (경찰)</button>
+        <button class="action-btn" style="background:#ff9500; color:#fff; font-size:18px;" onclick="location.href='tel:119'">📞 119 (구급)</button>
         <button class="close-btn" onclick="closeDrawer()">닫기</button>
     </div>
 
@@ -246,7 +242,7 @@
         </div>
     </div>
 
-    <div id="watermark">v.251228 PLATFORM_V4 | © 2025 DAON OFFICIAL</div>
+    <div id="watermark">v.251228 FINAL_ULTIMATE_V5 | © 2025 DAON OFFICIAL</div>
 
     <script>
         // [0] 초기화
@@ -263,16 +259,16 @@
         let player;
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('player', {
-                height: '100%', width: '100%', videoId: 'WPfyXfdrCqs',
-                playerVars: { 'autoplay': 0, 'controls': 1, 'rel': 0 }
+                height: '0', width: '0', videoId: 'WPfyXfdrCqs', // 오디오만 활용
+                playerVars: { 'autoplay': 0, 'controls': 0, 'rel': 0 }
             });
         }
         function playBGM() { if(player) player.playVideo(); }
 
-        // [2] 매일 바뀌는 명언 (자동 업데이트)
+        // [2] 매일 바뀌는 명언 (자동)
         const dailyQuotes = [
-            { text: "진심은 통한다 행복을 쏴라" },
             { text: "진심은 통한다 희망을 쏴라" },
+            { text: "진심은 통한다 행복을 쏴라" },
             { text: "당신의 꿈을 응원합니다" },
             { text: "사랑은 나눌수록 커집니다" }
         ];
@@ -281,27 +277,60 @@
             document.getElementById('daily-slogan').innerText = `"${dailyQuotes[index].text}"`;
         }
 
-        // [3] 미디어 핸들러 (이미지 가림 해결)
+        // [3] 인트로 미디어 핸들러 (저장 기능 포함)
         function handleIntroMedia(input) {
             const file = input.files[0]; if (!file) return;
-            const url = URL.createObjectURL(file);
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const dataUrl = e.target.result;
+                
+                // 로컬 스토리지에 저장 (용량 제한 주의)
+                try {
+                    localStorage.setItem('daon_intro_media', dataUrl);
+                    localStorage.setItem('daon_intro_type', file.type);
+                    applyIntroMedia(dataUrl, file.type);
+                    alert("저장되었습니다! 다음에 방문해도 이 사진/영상이 나옵니다.");
+                } catch (err) {
+                    // 용량 초과 시 (특히 영상) 현재만 적용
+                    applyIntroMedia(URL.createObjectURL(file), file.type);
+                    alert("파일이 너무 커서 저장은 안 되지만, 지금은 볼 수 있습니다!");
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function applyIntroMedia(src, type) {
             const video = document.getElementById('intro-video');
             const img = document.getElementById('intro-img');
-            
-            // [핵심] 다온이 아바타 그룹 숨기기
-            document.getElementById('default-intro-group').style.display = 'none';
-            
-            if (file.type.startsWith('video/')) { video.src = url; video.style.display = 'block'; img.style.display = 'none'; video.play(); }
-            else { img.src = url; img.style.display = 'block'; video.style.display = 'none'; }
+            document.getElementById('default-intro-group').style.display = 'none'; // 기본 숨김
+
+            if (type.startsWith('video/')) {
+                video.src = src; video.style.display = 'block'; img.style.display = 'none'; video.play();
+            } else {
+                img.src = src; img.style.display = 'block'; video.style.display = 'none';
+            }
         }
-        function handleBgMedia(input) {
-            const file = input.files[0]; if (!file) return;
-            const url = URL.createObjectURL(file);
-            const bg = document.getElementById('bg-media-layer');
-            bg.src = url; bg.style.display = 'block';
-            if (!file.type.startsWith('image/')) bg.play();
+
+        function loadSavedIntro() {
+            const savedMedia = localStorage.getItem('daon_intro_media');
+            const savedType = localStorage.getItem('daon_intro_type');
+            if(savedMedia && savedType) {
+                applyIntroMedia(savedMedia, savedType);
+            }
         }
-        function clearBgMedia() { const bg = document.getElementById('bg-media-layer'); bg.src = ""; bg.style.display = 'none'; }
+
+        // [3-1] 로컬 비디오 플레이어
+        function playLocalVideo(input) {
+            const file = input.files[0];
+            if(file) {
+                const url = URL.createObjectURL(file);
+                const vid = document.getElementById('local-video-display');
+                vid.src = url;
+                vid.style.display = 'block';
+                vid.play();
+            }
+        }
 
         // [4] 엑셀 처리
         function readExcel(input) {
@@ -338,14 +367,14 @@
         function toggleAll(source) { document.querySelectorAll('.contact-chk').forEach(chk => chk.checked = source.checked); }
         function sendToPerson(phone, msg, link) { window.open(`sms:${phone}?body=${encodeURIComponent(`[DAON] ${msg} ${link}`)}`, '_blank'); }
 
-        // [5] 밀프랩 (입력 초기화 + 삭제 + 재료보기 수정)
+        // [5] 밀프랩 (쿠팡 + 삭제 + 초기화)
         function addMeal() { 
             const input = document.getElementById('meal-input');
             if(!input.value) return;
             const meals = JSON.parse(localStorage.getItem('daon_meals') || '[]');
             meals.unshift({ t: input.value, d: new Date().toLocaleDateString() });
             localStorage.setItem('daon_meals', JSON.stringify(meals));
-            input.value = ''; // [핵심] 입력 후 글자 지우기
+            input.value = ''; 
             renderMeals();
         }
         function deleteMeal(index) {
@@ -381,7 +410,7 @@
             meals.slice(0,5).forEach((m, i) => setTimeout(() => rockets.push(new Rocket(Math.random()*canvas.width, canvas.height, canvas.height*0.3, "#fff", m.t, true)), i*1500));
         }
 
-        // [6] 불꽃놀이 엔진
+        // [6] 불꽃놀이 엔진 (1분 유지)
         class Rocket {
             constructor(x, y, targetY, color, text = null, special = false) {
                 this.x = x; this.y = y; this.targetY = targetY; this.color = color; this.text = text; this.special = special; this.vy = -12; this.alive = true;
@@ -402,7 +431,7 @@
             draw() { ctx.globalAlpha = this.alpha; ctx.beginPath(); ctx.arc(this.x, this.y, 2, 0, Math.PI*2); ctx.fillStyle = this.color; ctx.fill(); ctx.globalAlpha = 1; }
         }
         class TextParticle {
-            constructor(x, y, text, color) { this.x = x; this.y = y; this.text = text; this.color = color; this.alpha = 1; this.life = 1800; }
+            constructor(x, y, text, color) { this.x = x; this.y = y; this.text = text; this.color = color; this.alpha = 1; this.life = 3600; /* 60초 */ }
             update() { this.life--; if(this.life < 120) this.alpha -= 0.01; }
             draw() { ctx.save(); ctx.globalAlpha = this.alpha; ctx.fillStyle = "#fff"; ctx.font = "bold 32px Pretendard"; ctx.textAlign = "center"; ctx.shadowColor = this.color; ctx.shadowBlur = 20; ctx.fillText(this.text, this.x, this.y); ctx.restore(); }
         }
@@ -441,29 +470,30 @@
         function openDrawer(id) { document.querySelectorAll('.drawer').forEach(d => d.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id==='meal') renderMeals(); }
         function closeDrawer() { document.querySelectorAll('.drawer').forEach(d => d.classList.remove('active')); }
 
-        // [8] 인트로 종료 (헤헤헤 제거 및 1분 고정)
+        // [8] 인트로 종료 (헤헤헤 등 잔상 제거)
         let introClosed = false;
         function closeIntro() {
             if(introClosed) return;
             introClosed = true;
-            clearTimeout(introTimeout); // 타이머 정리
+            clearTimeout(introTimeout); 
             const intro = document.getElementById('intro-overlay');
             intro.style.opacity = '0';
             setTimeout(() => {
-                intro.style.display = 'none'; // DOM에서 제거
+                intro.style.display = 'none'; // DOM 제거
                 // 메시지 수신 상태가 아닐 때만 자동 불꽃 시작
                 const urlParams = new URLSearchParams(window.location.search);
                 if (!urlParams.get('m')) {
                     setInterval(() => rockets.push(new Rocket(Math.random()*canvas.width, canvas.height, canvas.height*0.4, `hsl(${Math.random()*360}, 100%, 70%)`)), 2000);
                 }
-            }, 500); // 0.5초 후 완전히 사라짐
+            }, 500); 
         }
 
         // [9] 실행
         window.onload = () => {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
             setDailySlogan();
-            renderMeals(); // 저장된 식단 불러오기
+            renderMeals(); 
+            loadSavedIntro(); // 저장된 인트로 불러오기
             animate();
             
             const urlParams = new URLSearchParams(window.location.search);
@@ -471,11 +501,12 @@
             const intro = document.getElementById('intro-overlay');
 
             if (receivedMsg) {
+                // 수신자 모드: 인트로 생략, 메시지 즉시 발사
                 intro.style.display = 'none';
                 setTimeout(() => launchCustomRocket(receivedMsg), 1000);
             } else {
-                // [핵심] 1분(60초) 뒤 자동 종료
-                introTimeout = setTimeout(closeIntro, 60000);
+                // 일반 모드: 인트로 2분(120초) 유지
+                introTimeout = setTimeout(closeIntro, 120000);
             }
         };
         window.onresize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
