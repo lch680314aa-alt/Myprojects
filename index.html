@@ -68,18 +68,18 @@
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.8) 100%); z-index: 2; pointer-events: none; }
         #rec-indicator { display: none; position: fixed; top: 90px; right: 20px; color: red; font-weight: 900; z-index: 3000; animation: blink 1s infinite; }
         
-        /* [수정됨] 텍스트 불꽃 끄기 버튼 (입력창 위 중앙, 사이즈 축소) */
+        /* 텍스트 불꽃 끄기 버튼 (입력창 위 중앙, 사이즈 축소) */
         #stop-text-btn {
             display: none; 
             position: fixed; 
-            bottom: 160px; /* 입력창(ui-panel) 바로 위 */
+            bottom: 160px; 
             left: 50%;
-            transform: translateX(-50%); /* 정확히 가운데 정렬 */
-            padding: 6px 12px; /* 사이즈 반으로 줄임 */
+            transform: translateX(-50%); 
+            padding: 6px 12px; 
             background: rgba(255, 59, 48, 0.9); 
             border: 1px solid #fff;
             color: #fff; 
-            font-size: 11px; /* 글자 크기 축소 */
+            font-size: 11px; 
             font-weight: bold; 
             border-radius: 15px; 
             cursor: pointer; z-index: 2000;
@@ -278,7 +278,7 @@
         </div>
     </div>
 
-    <div id="watermark">v.251229 FINAL_MOBILE_PATCH | © 2025 DAON OFFICIAL</div>
+    <div id="watermark">v.251229 FINAL_CENTER | © 2025 DAON OFFICIAL</div>
 
     <script>
         const COUPANG_HOME_LINK = "https://link.coupang.com/a/diSpS0"; 
@@ -464,7 +464,7 @@
             meals.slice(0,5).forEach((m, i) => setTimeout(() => rockets.push(new Rocket(Math.random()*canvas.width, canvas.height, canvas.height*0.3, "#fff", m.t, true)), i*1500));
         }
 
-        // [6] 불꽃놀이 엔진 (위치 수정됨: 배너 바로 아래)
+        // [6] 불꽃놀이 엔진 (모바일 센터, PC는 배너 아래)
         class Rocket {
             constructor(x, y, targetY, color, text = null, special = false) {
                 this.x = x; this.y = y; this.targetY = targetY; this.color = color; this.text = text; this.special = special; this.vy = -12; this.alive = true;
@@ -505,14 +505,17 @@
             document.getElementById('stop-text-btn').style.display = 'none';
         }
 
-        // [7] 발사 & 공유 & 녹화 (폭죽 위치 수정됨)
+        // [7] 발사 & 공유 & 녹화 (모바일 센터 수정됨)
         function launchCustomRocket(message = null) {
             const input = document.getElementById('user-msg');
             const msg = message || input.value || "DAON 2025";
             const color = `hsl(${Math.random()*360}, 100%, 70%)`;
             
-            // [수정됨] 배너(약 80px) 바로 아래인 120px 위치에서 터지도록 고정
-            const targetY = 120; 
+            // [수정됨] 화면 크기에 따라 터지는 위치 자동 조정
+            let targetY = 120; // PC 기본값 (배너 아래)
+            if (window.innerWidth < 768) { 
+                targetY = canvas.height / 2; // 모바일에서는 화면 정중앙
+            }
             
             rockets.push(new Rocket(canvas.width/2, canvas.height, targetY, color, msg, true));
             input.value = "";
