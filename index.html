@@ -36,10 +36,10 @@
         .prev-btn { left: 20px; }
         .next-btn { right: 20px; background: var(--daon-pink); border: none; }
 
-        /* [수정됨] 메인화면 전용 뒤로가기 버튼 (반응형 적용) */
+        /* [수정됨] 메인화면 뒤로가기 버튼 (PC 기본값) */
         #main-back-btn {
             position: fixed; 
-            bottom: 120px; /* PC 기본 위치 */
+            bottom: 120px; 
             left: 20px; 
             padding: 8px 16px; 
             background: rgba(255, 255, 255, 0.15); 
@@ -51,19 +51,6 @@
             cursor: pointer;
             backdrop-filter: blur(5px);
             transition: 0.3s;
-        }
-
-        /* 📱 모바일 전용 스타일 (폰에서만 적용) */
-        @media (max-width: 600px) {
-            #main-back-btn {
-                bottom: 110px; /* 입력창(약 60px) + 여백 바로 위 */
-                left: 50%; /* 가운데 정렬 */
-                transform: translateX(-50%); 
-                background: rgba(0, 0, 0, 0.7);
-                border-color: var(--hope-cyan);
-                font-weight: bold;
-                padding: 10px 20px;
-            }
         }
 
         /* [SCREEN 1] 인트로 화면 */
@@ -87,23 +74,24 @@
             box-shadow: 0 5px 25px rgba(0,0,0,0.8); margin-bottom: 20px;
         }
         
-        /* [수정됨] 인트로 컨트롤 박스 (항상 보이게) */
+        /* [중요] 인트로 컨트롤 (항상 최상단 노출) */
         .intro-controls {
             position: absolute; bottom: 100px;
             display: flex; flex-direction: column; gap: 12px; 
-            align-items: center; z-index: 20;
+            align-items: center; z-index: 99999; /* 영상 위에 뜨도록 */
         }
         #custom-intro-btn { 
-            padding: 8px 16px; background: rgba(0,0,0,0.6); 
-            border: 1px solid #aaa; color: #ccc; border-radius: 20px; 
-            cursor: pointer; font-size: 11px; 
+            padding: 10px 20px; background: rgba(0,0,0,0.7); 
+            border: 1px solid var(--hope-cyan); color: #fff; border-radius: 25px; 
+            cursor: pointer; font-size: 13px; font-weight: bold;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
         #skip-btn { 
-            padding: 10px 30px; background: transparent; border: 1px solid #aaa; 
+            padding: 8px 20px; background: transparent; border: 1px solid #aaa; 
             color: #ccc; border-radius: 30px; cursor: pointer; font-size: 12px;
         }
 
-        /* [SCREEN 2] 쇼핑 화면 (메뉴판) */
+        /* [SCREEN 2] 쇼핑 화면 */
         #shopping-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.95); z-index: 8888;
@@ -139,16 +127,9 @@
             cursor: pointer; z-index: 2000; box-shadow: 0 0 10px rgba(255,59,48,0.5); animation: pulse 2s infinite;
         }
         
-        /* 상단 헤더 & 링크 */
-        #header-container { 
-            position: fixed; top: 0; width: 100%; z-index: 100; 
-            background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); 
-        }
-        #top-bar { 
-            display: flex; justify-content: space-between; 
-            padding: 25px 15px 10px 15px; 
-            align-items: flex-start; 
-        }
+        /* 상단 헤더 */
+        #header-container { position: fixed; top: 0; width: 100%; z-index: 100; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); }
+        #top-bar { display: flex; justify-content: space-between; padding: 25px 15px 10px 15px; align-items: flex-start; }
         #project-info { display: flex; flex-direction: column; }
         .slogan-text { font-size: 13px; color: var(--gold); font-weight: bold; margin-bottom: 3px; letter-spacing: -0.5px; animation: glow 2s infinite alternate; }
         .title-text { font-size: 16px; font-weight: 800; color: var(--hope-cyan); }
@@ -193,7 +174,7 @@
         .excel-name { flex: 1; margin-left: 10px; }
         .send-btn-sm { padding: 5px 10px; background: var(--hope-cyan); color: #000; border-radius: 5px; border: none; cursor: pointer; font-size: 11px; font-weight: bold; }
 
-        /* 하단 컨트롤 */
+        /* 하단 컨트롤 (PC 기본) */
         #ui-panel { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; z-index: 1000; }
         .input-box { display: flex; gap: 10px; margin-bottom: 10px; background: rgba(0,0,0,0.6); padding: 5px; border-radius: 15px; border: 1px solid var(--border); backdrop-filter: blur(10px); }
         input { flex: 1; background: transparent; border: none; padding: 12px; color: #fff; font-size: 14px; outline: none; }
@@ -202,8 +183,37 @@
         #video-btn { flex: 1; padding: 16px; border-radius: 15px; border: none; background: #333; color: #fff; font-weight: bold; border: 1px solid var(--border); }
         
         #watermark { position: fixed; bottom: 10px; right: 15px; font-size: 10px; opacity: 0.5; z-index: 100; letter-spacing: 1px; font-family: monospace; }
-        
         #intro-file-input, #bg-file-input, #excel-file-input, #local-video-input { display: none; }
+
+        /* ------------------------------------------- */
+        /* [중요] 모바일 최적화 (버튼 위치 조정) */
+        /* ------------------------------------------- */
+        @media (max-width: 600px) {
+            /* 1. 쇼핑가기 버튼을 입력창 바로 옆(왼쪽)으로 이동 */
+            #main-back-btn {
+                position: fixed;
+                bottom: 86px; /* 입력창 높이 고려 */
+                left: 5%;
+                width: 25%;
+                height: 46px; /* 입력창과 높이 맞춤 */
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(0,0,0,0.7);
+                border: 1px solid var(--hope-cyan);
+                font-weight: bold;
+                font-size: 12px;
+                z-index: 2000;
+                transform: none; /* 기존 transform 제거 */
+            }
+
+            /* 2. 입력창을 오른쪽으로 밀어서 공간 확보 */
+            #ui-panel .input-box {
+                margin-left: 28%; /* 버튼 들어갈 자리 */
+                width: auto;
+            }
+        }
     </style>
 </head>
 <body>
@@ -350,7 +360,7 @@
         </div>
     </div>
 
-    <div id="watermark">v.251230 FINAL_V2 | © 2025 DAON OFFICIAL</div>
+    <div id="watermark">v.251230 FINAL_V3_MOBILE_OPT | © 2025 DAON OFFICIAL</div>
 
     <script>
         const COUPANG_HOME_LINK = "https://link.coupang.com/a/diSpS0"; 
@@ -367,7 +377,7 @@
         let activeTextRocket = null; 
         let isMainScreen = false;
 
-        // [1] 화면 이동 함수 (버그 수정됨)
+        // [1] 화면 이동 함수
         function goShoppingScreen() {
             const intro = document.getElementById('intro-overlay');
             const shop = document.getElementById('shopping-overlay');
@@ -399,7 +409,7 @@
             }
         }
 
-        // [2] 테마 선택 및 원클릭 자동화
+        // [2] 테마 선택
         function selectTheme(theme) {
             const meals = JSON.parse(localStorage.getItem('daon_meals') || '[]');
             let newItems = [];
@@ -428,7 +438,7 @@
             }
         }
 
-        // [3] 대형 불꽃
+        // [3] 불꽃놀이
         function launchBigFirework() {
             const bigColor = `hsl(${Math.random()*360}, 100%, 50%)`;
             const r = new Rocket(canvas.width/2, canvas.height, canvas.height/2, bigColor, "DAON 2025", true);
@@ -436,7 +446,6 @@
             rockets.push(r);
         }
 
-        // [4] 불꽃놀이 엔진
         class Rocket {
             constructor(x, y, targetY, color, text = null, special = false) {
                 this.x = x; this.y = y; this.targetY = targetY; this.color = color; 
@@ -510,9 +519,7 @@
         function applyIntroMedia(src, type) {
             const video = document.getElementById('intro-video');
             const img = document.getElementById('intro-img');
-            // [수정] 기본 멘트는 숨기지만, 컨트롤 버튼은 그대로 둠
             document.getElementById('default-intro-group').style.display = 'none';
-            
             if (type.startsWith('video/')) { video.src = src; video.muted = false; video.style.display = 'block'; img.style.display = 'none'; video.play().catch(e=>{}); } 
             else { img.src = src; img.style.display = 'block'; video.style.display = 'none'; }
         }
