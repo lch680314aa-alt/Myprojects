@@ -26,14 +26,15 @@
         /* [공통] 네비게이션 버튼 (이전/다음) */
         .nav-arrow-btn {
             position: absolute; bottom: 30px; 
-            padding: 10px 20px; background: rgba(0, 0, 0, 0.6); 
-            border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 30px; 
-            cursor: pointer; z-index: 100; backdrop-filter: blur(5px);
-            font-weight: bold; transition: 0.3s; font-size: 13px;
+            padding: 12px 24px; background: rgba(0, 0, 0, 0.8); 
+            border: 1px solid var(--hope-cyan); color: #fff; border-radius: 30px; 
+            cursor: pointer; z-index: 99999; /* 최상단 보장 */
+            font-weight: bold; transition: 0.2s; font-size: 14px;
+            box-shadow: 0 0 10px rgba(0,255,255,0.3);
         }
-        .nav-arrow-btn:hover { background: var(--hope-cyan); color: #000; border-color: var(--hope-cyan); }
+        .nav-arrow-btn:active { transform: scale(0.95); }
         .prev-btn { left: 20px; }
-        .next-btn { right: 20px; }
+        .next-btn { right: 20px; background: var(--daon-pink); border: none; }
 
         /* [SCREEN 1] 인트로 화면 */
         #intro-overlay {
@@ -60,10 +61,10 @@
         /* [SCREEN 2] 쇼핑 화면 (메뉴판) */
         #shopping-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.9); z-index: 8888;
-            display: none; /* 초기엔 숨김 */
+            background: rgba(0, 0, 0, 0.95); z-index: 8888;
+            display: none; opacity: 0; /* 초기엔 투명 */
             flex-direction: column; align-items: center; justify-content: center;
-            backdrop-filter: blur(10px); transition: opacity 0.5s ease-out;
+            transition: opacity 0.5s ease-in;
         }
         .shopping-title { font-size: 22px; font-weight: 900; color: var(--gold); margin-bottom: 25px; text-shadow: 0 0 10px var(--gold); letter-spacing: 1px; }
         
@@ -83,7 +84,17 @@
         .theme-btn:hover { background: var(--hope-cyan); color: #000; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,255,255,0.3); }
         .theme-icon { font-size: 24px; margin-bottom: 5px; }
 
-        /* [SCREEN 3] 메인 화면 (불꽃놀이) */
+        /* 인트로 하단 버튼 그룹 (위치 조정) */
+        .intro-btn-group { 
+            position: absolute; bottom: 100px; /* 다음 버튼과 겹치지 않게 위로 올림 */
+            display: flex; flex-direction: column; gap: 10px; align-items: center; z-index: 20; 
+        }
+        #skip-btn { 
+            padding: 10px 30px; background: transparent; border: 1px solid #aaa; 
+            color: #ccc; border-radius: 30px; cursor: pointer; font-size: 12px;
+        }
+
+        /* [SCREEN 3] 메인 화면 */
         #bg-media-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; object-fit: cover; opacity: 0.5; display: none; }
         #fireworksCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
         #stop-text-btn {
@@ -96,16 +107,13 @@
         /* 상단 헤더 & 링크 */
         #header-container { position: fixed; top: 0; width: 100%; z-index: 100; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); }
         #top-bar { display: flex; justify-content: space-between; padding: 10px 15px; align-items: flex-start; }
-        
         #project-info { display: flex; flex-direction: column; }
         .slogan-text { font-size: 13px; color: var(--gold); font-weight: bold; margin-bottom: 3px; letter-spacing: -0.5px; animation: glow 2s infinite alternate; }
         .title-text { font-size: 16px; font-weight: 800; color: var(--hope-cyan); }
         
-        /* [NEW] 상단 링크 메뉴 스타일 */
         #top-links { display: flex; gap: 12px; font-size: 11px; margin-top: 5px; opacity: 0.9; flex-wrap: wrap; }
         .top-link { color: #ccc; text-decoration: none; cursor: pointer; padding-bottom: 2px; transition: 0.3s; }
         .top-link:hover { color: #fff; border-bottom: 1px solid #fff; }
-        /* 신작 업로드 알림용 노란색 스타일 */
         .top-link.new-update { color: var(--new-yellow); font-weight: bold; border-bottom: 1px solid var(--new-yellow); animation: blink-text 2s infinite; }
         @keyframes blink-text { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
@@ -172,7 +180,12 @@
             <button id="custom-intro-btn" onclick="document.getElementById('intro-file-input').click()">📷 사진/영상 올리기 & 저장</button>
         </div>
 
+        <div class="intro-btn-group">
+            <button id="skip-btn" onclick="closeAllOverlays()">바로 메인으로 가기 >></button>
+        </div>
+
         <button class="nav-arrow-btn next-btn" onclick="goShoppingScreen()">다음: 테마 선택 >></button>
+        
         <input type="file" id="intro-file-input" accept="image/*,video/*" onchange="handleIntroMedia(this)">
     </div>
 
@@ -188,7 +201,7 @@
             <div class="theme-btn" onclick="selectTheme('pet')"><span class="theme-icon">🐶</span>댕냥이</div>
             <div class="theme-btn" onclick="selectTheme('night')"><span class="theme-icon">🍺</span>야식타임</div>
         </div>
-        <button class="nav-arrow-btn prev-btn" onclick="goIntroScreen()"><< 이전</button>
+        <button class="nav-arrow-btn prev-btn" onclick="goIntroScreen()"><< 인트로</button>
         <button class="nav-arrow-btn next-btn" onclick="closeAllOverlays()">건너뛰기 (메인) >></button>
     </div>
 
@@ -228,11 +241,10 @@
     <div id="music" class="drawer">
         <div class="drawer-header">🎵 MEDIA CENTER</div>
         <button class="action-btn btn-neon" onclick="window.open('https://www.youtube.com/@Da-OnOfficial')">📺 다온 유튜브 채널</button>
-        <button class="action-btn" style="background:#444; margin-top:5px;" onclick="window.open('https://www.youtube.com/@Da-OnOfficial', '_blank')">🏢 다온 오피셜 (홈페이지)</button>
         <div style="margin-top:20px; border-top:1px solid rgba(255,255,255,0.2); padding-top:10px;">
             <p style="font-size:12px; color:#aaa;">내 폰/PC 동영상 보기</p>
-            <button class="action-btn" style="background:#555;" onclick="document.getElementById('local-video-input').click()">📁 동영상 불러오기</button>
             <input type="file" id="local-video-input" accept="video/*" onchange="playLocalVideo(this)">
+            <button class="action-btn" style="background:#555;" onclick="document.getElementById('local-video-input').click()">📁 동영상 불러오기</button>
             <video id="local-video-display" controls style="width:100%; margin-top:10px; display:none; border-radius:10px;"></video>
         </div>
         <div style="margin-top:20px;">
@@ -259,13 +271,9 @@
     <div id="send" class="drawer">
         <div class="drawer-header">📤 BULK SENDER</div>
         <div class="card">
-            <p style="font-size:12px; color:#aaa;">엑셀 파일(.xlsx)을 불러오세요.<br>(A열: 이름, B열: 전화번호)</p>
-            <button class="action-btn" style="background:#217346; color:#fff;" onclick="document.getElementById('excel-file-input').click()">📂 엑셀 파일 열기</button>
+            <p style="font-size:12px; color:#aaa;">엑셀 파일(.xlsx)을 불러오세요.</p>
             <input type="file" id="excel-file-input" accept=".xlsx, .xls" onchange="readExcel(this)">
-        </div>
-        <div id="excel-controls" style="display:none; margin-bottom:10px;">
-            <label><input type="checkbox" id="check-all" onchange="toggleAll(this)"> 전체 선택</label>
-            <span id="count-display" style="font-size:12px; margin-left:10px;">0명 로드됨</span>
+            <button class="action-btn" style="background:#217346; color:#fff;" onclick="document.getElementById('excel-file-input').click()">📂 엑셀 파일 열기</button>
         </div>
         <div id="contact-list" style="max-height:300px; overflow-y:auto; border:1px solid #333; padding:5px;"></div>
         <button class="close-btn" onclick="closeDrawer()">닫기</button>
@@ -274,9 +282,9 @@
     <div id="settings" class="drawer">
         <div class="drawer-header">⚙️ BACKGROUND SETTING</div>
         <div class="card">
-            <p style="font-size:12px;">PC/폰에 있는 미디어를<br>배경으로 설정하세요.</p>
-            <button class="action-btn" style="background:#555; color:#fff;" onclick="document.getElementById('bg-file-input').click()">📁 미디어 불러오기</button>
+            <p style="font-size:12px;">PC/폰에 있는 미디어를 배경으로 설정하세요.</p>
             <input type="file" id="bg-file-input" accept="image/*,video/*" onchange="handleBgMedia(this)">
+            <button class="action-btn" style="background:#555; color:#fff;" onclick="document.getElementById('bg-file-input').click()">📁 미디어 불러오기</button>
             <button class="action-btn" style="background:var(--sos-red); color:#fff; margin-top:5px;" onclick="clearBgMedia()">배경 지우기</button>
         </div>
         <button class="close-btn" onclick="closeDrawer()">닫기</button>
@@ -299,13 +307,12 @@
         </div>
     </div>
 
-    <div id="watermark">v.251230 FINAL_ULTIMATE | © 2025 DAON OFFICIAL</div>
+    <div id="watermark">v.251230 FINAL_FIXED | © 2025 DAON OFFICIAL</div>
 
     <script>
         const COUPANG_HOME_LINK = "https://link.coupang.com/a/diSpS0"; 
         const ALI_HOME_LINK = "https://portals.aliexpress.com/"; 
         
-        // [0] 초기화
         const KAKAO_KEY = 'fa462b2b643a16d837c1890cc3dc4149'; 
         try { if (!Kakao.isInitialized()) Kakao.init(KAKAO_KEY); } catch(e) {}
 
@@ -315,53 +322,52 @@
         let rockets = [];
         let introTimeout; 
         let activeTextRocket = null; 
-        let isMainScreen = false; // 메인 화면 진입 여부 체크
+        let isMainScreen = false;
 
-        // [1] 화면 이동 함수들 (인트로 <-> 쇼핑 <-> 메인)
+        // [1] 화면 이동 함수 (버그 수정됨)
         function goShoppingScreen() {
-            document.getElementById('intro-overlay').style.opacity = '0';
+            const intro = document.getElementById('intro-overlay');
+            const shop = document.getElementById('shopping-overlay');
+            // 애니메이션 시작
+            intro.style.opacity = '0'; 
+            // 0.5초 뒤 전환
             setTimeout(() => {
-                document.getElementById('intro-overlay').style.display = 'none';
-                document.getElementById('shopping-overlay').style.display = 'flex';
-                document.getElementById('shopping-overlay').style.opacity = '1';
+                intro.style.display = 'none';
+                shop.style.display = 'flex'; 
+                // 살짝 지연 후 투명도 복구 (Fade In 효과)
+                setTimeout(() => { shop.style.opacity = '1'; }, 50);
             }, 500);
         }
 
         function goIntroScreen() {
-            document.getElementById('shopping-overlay').style.opacity = '0';
+            const intro = document.getElementById('intro-overlay');
+            const shop = document.getElementById('shopping-overlay');
+            shop.style.opacity = '0';
             setTimeout(() => {
-                document.getElementById('shopping-overlay').style.display = 'none';
-                document.getElementById('intro-overlay').style.display = 'flex';
-                document.getElementById('intro-overlay').style.opacity = '1';
+                shop.style.display = 'none';
+                intro.style.display = 'flex';
+                setTimeout(() => { intro.style.opacity = '1'; }, 50);
             }, 500);
         }
 
         function closeAllOverlays() {
             document.getElementById('intro-overlay').style.display = 'none';
             document.getElementById('shopping-overlay').style.display = 'none';
-            
-            // 메인 화면 처음 진입 시 대형 불꽃 팡!
             if (!isMainScreen) {
                 isMainScreen = true;
                 setTimeout(launchBigFirework, 500); 
             }
         }
 
-        // [2] 테마 선택 및 원클릭 자동화 (스마트 라우팅)
+        // [2] 테마 선택 및 원클릭 자동화
         function selectTheme(theme) {
             const meals = JSON.parse(localStorage.getItem('daon_meals') || '[]');
             let newItems = [];
-            let shopType = 'coupang'; // 기본 쿠팡
+            let shopType = 'coupang'; 
 
-            // 쿠팡이 유리한 테마
-            if (theme === 'diet') {
-                newItems = [{t: '곰곰 닭가슴살', d: '다온 추천'}, {t: '고구마 3kg', d: '다온 추천'}, {t: '제로 콜라', d: '다온 추천'}];
-            } else if (theme === 'ramen') {
-                newItems = [{t: '신라면 5개입', d: '다온 추천'}, {t: '햇반 210g', d: '다온 추천'}, {t: '비비고 김치', d: '다온 추천'}];
-            } else if (theme === 'night') {
-                newItems = [{t: '곰곰 반건조 오징어', d: '다온 추천'}, {t: '논알콜 맥주', d: '다온 추천'}, {t: '직화 튤립 닭발', d: '다온 추천'}];
-            } 
-            // 알리가 유리한 테마
+            if (theme === 'diet') newItems = [{t: '곰곰 닭가슴살', d: '다온 추천'}, {t: '고구마 3kg', d: '다온 추천'}, {t: '제로 콜라', d: '다온 추천'}];
+            else if (theme === 'ramen') newItems = [{t: '신라면 5개입', d: '다온 추천'}, {t: '햇반 210g', d: '다온 추천'}, {t: '비비고 김치', d: '다온 추천'}];
+            else if (theme === 'night') newItems = [{t: '곰곰 반건조 오징어', d: '다온 추천'}, {t: '논알콜 맥주', d: '다온 추천'}, {t: '직화 튤립 닭발', d: '다온 추천'}];
             else {
                 shopType = 'ali';
                 if (theme === 'party') newItems = [{t: '홈파티 풍선 세트', d: '다온 추천'}, {t: '파티 조명', d: '다온 추천'}, {t: '일회용 와인잔', d: '다온 추천'}];
@@ -374,27 +380,214 @@
             if(newItems.length > 0) {
                 const updatedMeals = [...newItems, ...meals];
                 localStorage.setItem('daon_meals', JSON.stringify(updatedMeals));
-                localStorage.setItem('daon_shop_type', shopType); // 쇼핑몰 타입 저장
+                localStorage.setItem('daon_shop_type', shopType);
                 
                 renderMeals();
-                closeAllOverlays(); // 메인으로 이동
-                setTimeout(() => openDrawer('meal'), 1000); // 1초 뒤 서랍 오픈
+                closeAllOverlays(); 
+                setTimeout(() => openDrawer('meal'), 1000); 
             }
         }
 
-        // [3] 대형 불꽃 (메인 진입 축하용)
+        // [3] 대형 불꽃
         function launchBigFirework() {
             const bigColor = `hsl(${Math.random()*360}, 100%, 50%)`;
-            const targetY = canvas.height / 2;
-            const r = new Rocket(canvas.width/2, canvas.height, targetY, bigColor, "DAON 2025", true);
-            // 일반 불꽃보다 훨씬 크게 설정
-            r.explosionRadius = 150; 
-            r.particleCount = 150;
+            const r = new Rocket(canvas.width/2, canvas.height, canvas.height/2, bigColor, "DAON 2025", true);
+            r.explosionRadius = 150; r.particleCount = 150;
             rockets.push(r);
         }
 
-        // [4] 불꽃놀이 엔진 (중앙 터짐 + 모바일 폰트 조절)
+        // [4] 불꽃놀이 엔진
         class Rocket {
             constructor(x, y, targetY, color, text = null, special = false) {
                 this.x = x; this.y = y; this.targetY = targetY; this.color = color; 
-                this.text = text; this.special = special; this.vy
+                this.text = text; this.special = special; this.vy = -12; this.alive = true;
+                this.explosionRadius = special ? 80 : 50; this.particleCount = special ? 80 : 50;
+            }
+            update() { this.y += this.vy; if (this.y <= this.targetY) { this.alive = false; this.explode(); } }
+            draw() { ctx.beginPath(); ctx.arc(this.x, this.y, 3, 0, Math.PI*2); ctx.fillStyle = this.color; ctx.fill(); }
+            explode() {
+                for(let i=0; i<this.particleCount; i++) particles.push(new Particle(this.x, this.y, this.color));
+                if(this.text) {
+                    const tp = new TextParticle(this.x, this.y, this.text, this.color);
+                    particles.push(tp);
+                    activeTextRocket = tp; 
+                    document.getElementById('stop-text-btn').style.display = 'block'; 
+                }
+            }
+        }
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x; this.y = y; this.color = color; const angle = Math.random() * Math.PI * 2; const speed = Math.random() * 5 + 2; this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed; this.alpha = 1; this.friction = 0.95; this.gravity = 0.15;
+            }
+            update() { this.vx *= this.friction; this.vy *= this.friction; this.vy += this.gravity; this.x += this.vx; this.y += this.vy; this.alpha -= 0.015; }
+            draw() { ctx.globalAlpha = this.alpha; ctx.beginPath(); ctx.arc(this.x, this.y, 2, 0, Math.PI*2); ctx.fillStyle = this.color; ctx.fill(); ctx.globalAlpha = 1; }
+        }
+        class TextParticle {
+            constructor(x, y, text, color) { this.x = x; this.y = y; this.text = text; this.color = color; this.alpha = 1; this.life = 3600; }
+            update() { this.life--; if(this.life < 120) this.alpha -= 0.01; if(this.life <= 0) document.getElementById('stop-text-btn').style.display = 'none'; }
+            draw() { 
+                ctx.save(); ctx.globalAlpha = this.alpha; ctx.fillStyle = "#fff"; 
+                const fontSize = window.innerWidth < 600 ? "20px" : "32px";
+                ctx.font = `bold ${fontSize} Pretendard`; 
+                ctx.textAlign = "center"; ctx.shadowColor = this.color; ctx.shadowBlur = 20; 
+                ctx.fillText(this.text, this.x, this.y); ctx.restore(); 
+            }
+        }
+        function animate() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            rockets.forEach((r, i) => { r.update(); r.draw(); if(!r.alive) rockets.splice(i, 1); });
+            particles.forEach((p, i) => { p.update(); p.draw(); if(p.alpha <= 0) particles.splice(i, 1); });
+            requestAnimationFrame(animate);
+        }
+        function stopTextFirework() {
+            if(activeTextRocket) activeTextRocket.life = 0; 
+            document.getElementById('stop-text-btn').style.display = 'none';
+        }
+
+        // [5] 기타 기능들
+        let player;
+        function onYouTubeIframeAPIReady() { player = new YT.Player('player', { height: '0', width: '0', videoId: 'WPfyXfdrCqs', playerVars: { 'autoplay': 0, 'controls': 0, 'rel': 0 } }); }
+        function playBGM() { if(player) player.playVideo(); }
+        function stopBGM() { if(player) player.stopVideo(); }
+
+        const dailyQuotes = [ { text: "진심은 통한다 희망을 쏴라" }, { text: "진심은 통한다 행복을 쏴라" }, { text: "당신의 꿈을 응원합니다" }, { text: "사랑은 나눌수록 커집니다" } ];
+        function setDailySlogan() { document.getElementById('daily-slogan').innerText = `"${dailyQuotes[new Date().getDate() % dailyQuotes.length].text}"`; }
+
+        function handleIntroMedia(input) {
+            const file = input.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const dataUrl = e.target.result;
+                try {
+                    localStorage.setItem('daon_intro_media', dataUrl);
+                    localStorage.setItem('daon_intro_type', file.type);
+                    applyIntroMedia(dataUrl, file.type);
+                    alert("저장 완료!");
+                } catch (err) { applyIntroMedia(URL.createObjectURL(file), file.type); alert("파일이 커서 임시 재생됩니다."); }
+            };
+            reader.readAsDataURL(file);
+        }
+        function applyIntroMedia(src, type) {
+            const video = document.getElementById('intro-video');
+            const img = document.getElementById('intro-img');
+            document.getElementById('default-intro-group').style.display = 'none';
+            if (type.startsWith('video/')) { video.src = src; video.muted = false; video.style.display = 'block'; img.style.display = 'none'; video.play().catch(e=>{}); } 
+            else { img.src = src; img.style.display = 'block'; video.style.display = 'none'; }
+        }
+        function loadSavedIntro() {
+            const savedMedia = localStorage.getItem('daon_intro_media');
+            const savedType = localStorage.getItem('daon_intro_type');
+            if(savedMedia && savedType) applyIntroMedia(savedMedia, savedType);
+        }
+
+        function playLocalVideo(input) { const file = input.files[0]; if(file) { const url = URL.createObjectURL(file); const vid = document.getElementById('local-video-display'); vid.src = url; vid.style.display = 'block'; vid.play(); } }
+        function closeDrawerAndStopMedia() { closeDrawer(); stopBGM(); const vid = document.getElementById('local-video-display'); if(vid) { vid.pause(); vid.currentTime = 0; } }
+        function handleBgMedia(input) { const file = input.files[0]; if (!file) return; const url = URL.createObjectURL(file); const bg = document.getElementById('bg-media-layer'); bg.src = url; bg.style.display = 'block'; if (!file.type.startsWith('image/')) bg.play(); }
+        function clearBgMedia() { const bg = document.getElementById('bg-media-layer'); bg.src = ""; bg.style.display = 'none'; }
+
+        function readExcel(input) {
+            const file = input.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1});
+                renderContactList(jsonData);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+        function renderContactList(data) {
+            const listDiv = document.getElementById('contact-list'); listDiv.innerHTML = ""; let count = 0;
+            for (let i = 1; i < data.length; i++) {
+                const row = data[i];
+                if (row[0] && row[1]) {
+                    count++;
+                    const rowDiv = document.createElement('div'); rowDiv.className = 'excel-row';
+                    const msg = document.getElementById('user-msg').value || "행복을 쏴라!";
+                    const link = `${window.location.origin}${window.location.pathname}?m=${encodeURIComponent(msg)}`;
+                    rowDiv.innerHTML = `<input type="checkbox" class="contact-chk"><span class="excel-name">${row[0]} (${row[1]})</span><button class="send-btn-sm" onclick="sendToPerson('${row[1]}', '${msg}', '${link}')">전송</button>`;
+                    listDiv.appendChild(rowDiv);
+                }
+            }
+            document.getElementById('excel-controls').style.display = 'block'; document.getElementById('count-display').innerText = `${count}명 로드됨`;
+        }
+        function toggleAll(source) { document.querySelectorAll('.contact-chk').forEach(chk => chk.checked = source.checked); }
+        function sendToPerson(phone, msg, link) { window.open(`sms:${phone}?body=${encodeURIComponent(`[DAON] ${msg} ${link}`)}`, '_blank'); }
+
+        function goCoupangHome() { window.open(COUPANG_HOME_LINK, '_blank'); }
+        function goAliHome() { window.open(ALI_HOME_LINK, '_blank'); }
+        function addMeal() { 
+            const input = document.getElementById('meal-input'); if(!input.value) return;
+            const meals = JSON.parse(localStorage.getItem('daon_meals') || '[]');
+            meals.unshift({ t: input.value, d: new Date().toLocaleDateString() });
+            localStorage.setItem('daon_meals', JSON.stringify(meals)); input.value = ''; renderMeals();
+        }
+        function deleteMeal(index) {
+            const meals = JSON.parse(localStorage.getItem('daon_meals') || '[]');
+            meals.splice(index, 1); localStorage.setItem('daon_meals', JSON.stringify(meals)); renderMeals();
+        }
+        function renderMeals() {
+            const list = document.getElementById('meal-list');
+            const meals = JSON.parse(localStorage.getItem('daon_meals') || '[]');
+            const shopType = localStorage.getItem('daon_shop_type') || 'coupang';
+            list.innerHTML = meals.slice(0, 5).map((m, i) => {
+                let searchUrl = '', btnText = '재료 보기';
+                if (shopType === 'ali') { searchUrl = `https://ko.aliexpress.com/wholesale?SearchText=${encodeURIComponent(m.t)}`; btnText = '최저가 보기'; } 
+                else { searchUrl = `https://www.coupang.com/np/search?component=&q=${encodeURIComponent(m.t)}`; btnText = '로켓 보기'; }
+                return `<div class="card meal-item" style="border-left:3px solid ${getMealColor(m.t)}"><div><span style="font-size:10px; opacity:0.6">${m.d}</span><br><strong>${m.t}</strong></div><div class="meal-btn-group"><button class="btn-link" onclick="window.open('${searchUrl}', '_blank')" style="${shopType === 'ali' ? 'background:#FF5500;' : ''}">${btnText}</button><button class="btn-del" onclick="deleteMeal(${i})">삭제</button></div></div>`;
+            }).join('');
+        }
+        function getMealColor(text) {
+            if(text.includes('딸기') || text.includes('고기')) return '#ff4d4d';
+            if(text.includes('샐러드') || text.includes('채소')) return '#2ecc71';
+            return '#00ffff';
+        }
+        function launchCustomRocket(message = null) {
+            const input = document.getElementById('user-msg');
+            const msg = message || input.value || "DAON 2025";
+            const color = `hsl(${Math.random()*360}, 100%, 70%)`;
+            const targetY = canvas.height / 2; 
+            rockets.push(new Rocket(canvas.width/2, canvas.height, targetY, color, msg, true));
+            input.value = "";
+            if(!message) {
+                const btn = document.getElementById('launch-btn');
+                if(btn.innerText.includes("쏘아올리기")) { setTimeout(() => { btn.innerText = "카톡으로 자랑하기"; btn.style.background = "var(--daon-pink)"; btn.onclick = () => shareKakao(msg); }, 2000); }
+            }
+        }
+        function shareKakao(msg) {
+            const shareUrl = `${window.location.origin}${window.location.pathname}?m=${encodeURIComponent(msg)}`;
+            Kakao.Share.sendDefault({ objectType: 'text', text: `[DAON] 메시지 도착: "${msg}"\n불꽃놀이를 확인하세요!`, link: { mobileWebUrl: shareUrl, webUrl: shareUrl } });
+        }
+        async function recordVideo() {
+            if(!confirm("6초간 녹화합니다.")) return;
+            const stream = canvas.captureStream(30); const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' }); const chunks = [];
+            document.getElementById('rec-indicator').style.display = 'block';
+            recorder.ondataavailable = e => { if(e.data.size > 0) chunks.push(e.data); };
+            recorder.onstop = () => { const blob = new Blob(chunks, { type: 'video/webm' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'DAON_VIDEO.webm'; a.click(); document.getElementById('rec-indicator').style.display = 'none'; };
+            recorder.start(); setTimeout(() => recorder.stop(), 6000);
+        }
+        function openDrawer(id) { document.querySelectorAll('.drawer').forEach(d => d.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id==='meal') renderMeals(); }
+        function closeDrawer() { document.querySelectorAll('.drawer').forEach(d => d.classList.remove('active')); }
+
+        // [9] 실행
+        window.onload = () => {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            setDailySlogan();
+            renderMeals(); 
+            loadSavedIntro(); 
+            animate();
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const receivedMsg = urlParams.get('m');
+            const setMenu = urlParams.get('set'); 
+
+            if (setMenu) selectTheme(setMenu); // URL 테마 자동 실행
+            else if (receivedMsg) {
+                closeAllOverlays();
+                setTimeout(() => launchCustomRocket(receivedMsg), 1000);
+            }
+        };
+        window.onresize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+    </script>
+</body>
+</html>
