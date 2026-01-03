@@ -74,11 +74,11 @@
             box-shadow: 0 5px 25px rgba(0,0,0,0.8); margin-bottom: 20px;
         }
         
-        /* [중요] 인트로 컨트롤 (항상 최상단 노출) */
+        /* 인트로 컨트롤 */
         .intro-controls {
             position: absolute; bottom: 100px;
             display: flex; flex-direction: column; gap: 12px; 
-            align-items: center; z-index: 99999; /* 영상 위에 뜨도록 */
+            align-items: center; z-index: 99999; 
         }
         #custom-intro-btn { 
             padding: 10px 20px; background: rgba(0,0,0,0.7); 
@@ -185,34 +185,22 @@
         #watermark { position: fixed; bottom: 10px; right: 15px; font-size: 10px; opacity: 0.5; z-index: 100; letter-spacing: 1px; font-family: monospace; }
         #intro-file-input, #bg-file-input, #excel-file-input, #local-video-input { display: none; }
 
-        /* ------------------------------------------- */
-        /* [중요] 모바일 최적화 (버튼 위치 조정) */
-        /* ------------------------------------------- */
+        /* [모바일 최적화: 버튼 위치 조정] */
         @media (max-width: 600px) {
-            /* 1. 쇼핑가기 버튼을 입력창 바로 옆(왼쪽)으로 이동 */
             #main-back-btn {
                 position: fixed;
-                bottom: 86px; /* 입력창 높이 고려 */
+                bottom: 86px;
                 left: 5%;
                 width: 25%;
-                height: 46px; /* 입력창과 높이 맞춤 */
+                height: 46px; 
                 padding: 0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                display: flex; align-items: center; justify-content: center;
                 background: rgba(0,0,0,0.7);
                 border: 1px solid var(--hope-cyan);
-                font-weight: bold;
-                font-size: 12px;
-                z-index: 2000;
-                transform: none; /* 기존 transform 제거 */
+                font-weight: bold; font-size: 12px; z-index: 2000;
+                transform: none; 
             }
-
-            /* 2. 입력창을 오른쪽으로 밀어서 공간 확보 */
-            #ui-panel .input-box {
-                margin-left: 28%; /* 버튼 들어갈 자리 */
-                width: auto;
-            }
+            #ui-panel .input-box { margin-left: 28%; width: auto; }
         }
     </style>
 </head>
@@ -223,21 +211,16 @@
             <video id="intro-video" autoplay loop playsinline></video>
             <img id="intro-img">
         </div>
-        
         <div id="default-intro-group">
             <div class="intro-bubble">
-                안녕? 난 다온이야! 👋<br>
-                오늘도 힘차게 시작해볼까?
+                안녕? 난 다온이야! 👋<br>오늘도 힘차게 시작해볼까?
             </div>
         </div>
-
         <div class="intro-controls">
             <button id="custom-intro-btn" onclick="document.getElementById('intro-file-input').click()">📷 사진/영상 변경</button>
             <button id="skip-btn" onclick="closeAllOverlays()">바로 메인으로 가기 >></button>
         </div>
-
         <button class="nav-arrow-btn next-btn" onclick="goShoppingScreen()">다음: 테마 선택 >></button>
-        
         <input type="file" id="intro-file-input" accept="image/*,video/*" onchange="handleIntroMedia(this)">
     </div>
 
@@ -259,10 +242,8 @@
 
     <video id="bg-media-layer" autoplay muted loop playsinline></video>
     <canvas id="fireworksCanvas"></canvas>
-    
     <button id="stop-text-btn" onclick="stopTextFirework()">❌ 텍스트 닫기</button>
     <div id="rec-indicator">● REC</div>
-
     <button id="main-back-btn" onclick="goShoppingScreen()">< 쇼핑화면</button>
 
     <div id="header-container">
@@ -360,7 +341,7 @@
         </div>
     </div>
 
-    <div id="watermark">v.251230 FINAL_V3_MOBILE_OPT | © 2025 DAON OFFICIAL</div>
+    <div id="watermark">v.251230 FINAL_V4_FIREWORK_FOCUS | © 2025 DAON OFFICIAL</div>
 
     <script>
         const COUPANG_HOME_LINK = "https://link.coupang.com/a/diSpS0"; 
@@ -377,7 +358,6 @@
         let activeTextRocket = null; 
         let isMainScreen = false;
 
-        // [1] 화면 이동 함수
         function goShoppingScreen() {
             const intro = document.getElementById('intro-overlay');
             const shop = document.getElementById('shopping-overlay');
@@ -409,7 +389,6 @@
             }
         }
 
-        // [2] 테마 선택
         function selectTheme(theme) {
             const meals = JSON.parse(localStorage.getItem('daon_meals') || '[]');
             let newItems = [];
@@ -434,11 +413,11 @@
                 
                 renderMeals();
                 closeAllOverlays(); 
-                setTimeout(() => openDrawer('meal'), 1000); 
+                // [수정됨] 자동 서랍 열림 기능 제거 (불꽃만 감상하도록)
+                // setTimeout(() => openDrawer('meal'), 1000); 
             }
         }
 
-        // [3] 불꽃놀이
         function launchBigFirework() {
             const bigColor = `hsl(${Math.random()*360}, 100%, 50%)`;
             const r = new Rocket(canvas.width/2, canvas.height, canvas.height/2, bigColor, "DAON 2025", true);
@@ -468,7 +447,12 @@
             constructor(x, y, color) {
                 this.x = x; this.y = y; this.color = color; const angle = Math.random() * Math.PI * 2; const speed = Math.random() * 5 + 2; this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed; this.alpha = 1; this.friction = 0.95; this.gravity = 0.15;
             }
-            update() { this.vx *= this.friction; this.vy *= this.friction; this.vy += this.gravity; this.x += this.vx; this.y += this.vy; this.alpha -= 0.015; }
+            update() { 
+                this.vx *= this.friction; this.vy *= this.friction; this.vy += this.gravity; 
+                this.x += this.vx; this.y += this.vy; 
+                // [수정됨] 불꽃이 천천히 사라지도록 (0.015 -> 0.005)
+                this.alpha -= 0.005; 
+            }
             draw() { ctx.globalAlpha = this.alpha; ctx.beginPath(); ctx.arc(this.x, this.y, 2, 0, Math.PI*2); ctx.fillStyle = this.color; ctx.fill(); ctx.globalAlpha = 1; }
         }
         class TextParticle {
@@ -493,7 +477,6 @@
             document.getElementById('stop-text-btn').style.display = 'none';
         }
 
-        // [5] 기타 기능들
         let player;
         function onYouTubeIframeAPIReady() { player = new YT.Player('player', { height: '0', width: '0', videoId: 'WPfyXfdrCqs', playerVars: { 'autoplay': 0, 'controls': 0, 'rel': 0 } }); }
         function playBGM() { if(player) player.playVideo(); }
