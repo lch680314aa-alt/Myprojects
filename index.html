@@ -80,12 +80,25 @@
             display: flex; flex-direction: column; gap: 12px; 
             align-items: center; z-index: 99999; 
         }
+        
+        /* 버튼 그룹 (변경/삭제 나란히) */
+        .intro-btn-row { display: flex; gap: 8px; }
+
         #custom-intro-btn { 
-            padding: 10px 20px; background: rgba(0,0,0,0.7); 
+            padding: 10px 15px; background: rgba(0,0,0,0.7); 
             border: 1px solid var(--hope-cyan); color: #fff; border-radius: 25px; 
             cursor: pointer; font-size: 13px; font-weight: bold;
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
+        
+        /* [NEW] 삭제 버튼 스타일 */
+        #reset-intro-btn {
+            padding: 10px 15px; background: rgba(255, 59, 48, 0.8); 
+            border: 1px solid #ff3b30; color: #fff; border-radius: 25px; 
+            cursor: pointer; font-size: 13px; font-weight: bold;
+            box-shadow: 0 0 10px rgba(255, 59, 48, 0.5);
+        }
+
         #skip-btn { 
             padding: 8px 20px; background: transparent; border: 1px solid #aaa; 
             color: #ccc; border-radius: 30px; cursor: pointer; font-size: 12px;
@@ -211,15 +224,22 @@
             <video id="intro-video" autoplay loop playsinline></video>
             <img id="intro-img">
         </div>
+        
         <div id="default-intro-group">
             <div class="intro-bubble">
-                안녕? 난 다온이야! 👋<br>오늘도 힘차게 시작해볼까?
+                안녕? 난 다온이야! 👋<br>
+                오늘도 힘차게 시작해볼까?
             </div>
         </div>
+
         <div class="intro-controls">
-            <button id="custom-intro-btn" onclick="document.getElementById('intro-file-input').click()">📷 사진/영상 변경</button>
+            <div class="intro-btn-row">
+                <button id="custom-intro-btn" onclick="document.getElementById('intro-file-input').click()">📷 변경</button>
+                <button id="reset-intro-btn" onclick="resetIntroMedia()">🗑️ 삭제</button>
+            </div>
             <button id="skip-btn" onclick="closeAllOverlays()">바로 메인으로 가기 >></button>
         </div>
+
         <button class="nav-arrow-btn next-btn" onclick="goShoppingScreen()">다음: 테마 선택 >></button>
         <input type="file" id="intro-file-input" accept="image/*,video/*" onchange="handleIntroMedia(this)">
     </div>
@@ -242,8 +262,10 @@
 
     <video id="bg-media-layer" autoplay muted loop playsinline></video>
     <canvas id="fireworksCanvas"></canvas>
+    
     <button id="stop-text-btn" onclick="stopTextFirework()">❌ 텍스트 닫기</button>
     <div id="rec-indicator">● REC</div>
+
     <button id="main-back-btn" onclick="goShoppingScreen()">< 쇼핑화면</button>
 
     <div id="header-container">
@@ -341,7 +363,7 @@
         </div>
     </div>
 
-    <div id="watermark">v.251230 FINAL_V5_AUTO_DRAWER | © 2025 DAON OFFICIAL</div>
+    <div id="watermark">v.251230 FINAL_V6_RESET | © 2025 DAON OFFICIAL</div>
 
     <script>
         const COUPANG_HOME_LINK = "https://link.coupang.com/a/diSpS0"; 
@@ -389,7 +411,6 @@
             }
         }
 
-        // [2] 테마 선택 및 원클릭 자동화
         function selectTheme(theme) {
             const meals = JSON.parse(localStorage.getItem('daon_meals') || '[]');
             let newItems = [];
@@ -414,15 +435,13 @@
                 
                 renderMeals();
                 closeAllOverlays(); 
-                // [복구됨] 자동 서랍 열기 (1초 뒤)
                 setTimeout(() => openDrawer('meal'), 1000); 
             }
         }
 
-        // [3] 대형 불꽃 (글자 제거됨)
         function launchBigFirework() {
             const bigColor = `hsl(${Math.random()*360}, 100%, 50%)`;
-            const r = new Rocket(canvas.width/2, canvas.height, canvas.height/2, bigColor, null, true); // Text is null
+            const r = new Rocket(canvas.width/2, canvas.height, canvas.height/2, bigColor, null, true); 
             r.explosionRadius = 150; 
             r.particleCount = 150;
             rockets.push(r);
@@ -512,6 +531,21 @@
             const savedMedia = localStorage.getItem('daon_intro_media');
             const savedType = localStorage.getItem('daon_intro_type');
             if(savedMedia && savedType) applyIntroMedia(savedMedia, savedType);
+        }
+
+        // [NEW] 인트로 초기화(삭제) 함수
+        function resetIntroMedia() {
+            if(!confirm("저장된 사진/영상을 삭제하고 기본 화면으로 돌아갈까요?")) return;
+            localStorage.removeItem('daon_intro_media');
+            localStorage.removeItem('daon_intro_type');
+            
+            document.getElementById('intro-video').style.display = 'none';
+            document.getElementById('intro-img').style.display = 'none';
+            document.getElementById('intro-video').src = "";
+            document.getElementById('intro-img').src = "";
+            
+            document.getElementById('default-intro-group').style.display = 'flex';
+            alert("초기화 완료!");
         }
 
         function playLocalVideo(input) { const file = input.files[0]; if(file) { const url = URL.createObjectURL(file); const vid = document.getElementById('local-video-display'); vid.src = url; vid.style.display = 'block'; vid.play(); } }
