@@ -36,7 +36,7 @@
         .prev-btn { left: 20px; }
         .next-btn { right: 20px; background: var(--daon-pink); border: none; }
 
-        /* [수정됨] 메인화면 뒤로가기 버튼 (PC 기본값) */
+        /* [메인화면 뒤로가기 버튼] */
         #main-back-btn {
             position: fixed; 
             bottom: 120px; 
@@ -341,7 +341,7 @@
         </div>
     </div>
 
-    <div id="watermark">v.251230 FINAL_V4_FIREWORK_FOCUS | © 2025 DAON OFFICIAL</div>
+    <div id="watermark">v.251230 FINAL_V5_AUTO_DRAWER | © 2025 DAON OFFICIAL</div>
 
     <script>
         const COUPANG_HOME_LINK = "https://link.coupang.com/a/diSpS0"; 
@@ -389,6 +389,7 @@
             }
         }
 
+        // [2] 테마 선택 및 원클릭 자동화
         function selectTheme(theme) {
             const meals = JSON.parse(localStorage.getItem('daon_meals') || '[]');
             let newItems = [];
@@ -413,15 +414,17 @@
                 
                 renderMeals();
                 closeAllOverlays(); 
-                // [수정됨] 자동 서랍 열림 기능 제거 (불꽃만 감상하도록)
-                // setTimeout(() => openDrawer('meal'), 1000); 
+                // [복구됨] 자동 서랍 열기 (1초 뒤)
+                setTimeout(() => openDrawer('meal'), 1000); 
             }
         }
 
+        // [3] 대형 불꽃 (글자 제거됨)
         function launchBigFirework() {
             const bigColor = `hsl(${Math.random()*360}, 100%, 50%)`;
-            const r = new Rocket(canvas.width/2, canvas.height, canvas.height/2, bigColor, "DAON 2025", true);
-            r.explosionRadius = 150; r.particleCount = 150;
+            const r = new Rocket(canvas.width/2, canvas.height, canvas.height/2, bigColor, null, true); // Text is null
+            r.explosionRadius = 150; 
+            r.particleCount = 150;
             rockets.push(r);
         }
 
@@ -450,7 +453,6 @@
             update() { 
                 this.vx *= this.friction; this.vy *= this.friction; this.vy += this.gravity; 
                 this.x += this.vx; this.y += this.vy; 
-                // [수정됨] 불꽃이 천천히 사라지도록 (0.015 -> 0.005)
                 this.alpha -= 0.005; 
             }
             draw() { ctx.globalAlpha = this.alpha; ctx.beginPath(); ctx.arc(this.x, this.y, 2, 0, Math.PI*2); ctx.fillStyle = this.color; ctx.fill(); ctx.globalAlpha = 1; }
