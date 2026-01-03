@@ -36,10 +36,10 @@
         .prev-btn { left: 20px; }
         .next-btn { right: 20px; background: var(--daon-pink); border: none; }
 
-        /* 메인화면 전용 뒤로가기 버튼 (위치 및 스타일 수정됨) */
+        /* [수정됨] 메인화면 전용 뒤로가기 버튼 (반응형 적용) */
         #main-back-btn {
             position: fixed; 
-            bottom: 100px; /* 입력창 위 */
+            bottom: 120px; /* PC 기본 위치 */
             left: 20px; 
             padding: 8px 16px; 
             background: rgba(255, 255, 255, 0.15); 
@@ -50,6 +50,20 @@
             z-index: 5000; 
             cursor: pointer;
             backdrop-filter: blur(5px);
+            transition: 0.3s;
+        }
+
+        /* 📱 모바일 전용 스타일 (폰에서만 적용) */
+        @media (max-width: 600px) {
+            #main-back-btn {
+                bottom: 110px; /* 입력창(약 60px) + 여백 바로 위 */
+                left: 50%; /* 가운데 정렬 */
+                transform: translateX(-50%); 
+                background: rgba(0, 0, 0, 0.7);
+                border-color: var(--hope-cyan);
+                font-weight: bold;
+                padding: 10px 20px;
+            }
         }
 
         /* [SCREEN 1] 인트로 화면 */
@@ -72,7 +86,22 @@
             font-weight: bold; font-size: 16px; text-align: center; max-width: 80%;
             box-shadow: 0 5px 25px rgba(0,0,0,0.8); margin-bottom: 20px;
         }
-        #custom-intro-btn { margin-top: 10px; padding: 8px 16px; background: rgba(0,0,0,0.6); border: 1px solid #aaa; color: #ccc; border-radius: 20px; cursor: pointer; font-size: 11px; }
+        
+        /* [수정됨] 인트로 컨트롤 박스 (항상 보이게) */
+        .intro-controls {
+            position: absolute; bottom: 100px;
+            display: flex; flex-direction: column; gap: 12px; 
+            align-items: center; z-index: 20;
+        }
+        #custom-intro-btn { 
+            padding: 8px 16px; background: rgba(0,0,0,0.6); 
+            border: 1px solid #aaa; color: #ccc; border-radius: 20px; 
+            cursor: pointer; font-size: 11px; 
+        }
+        #skip-btn { 
+            padding: 10px 30px; background: transparent; border: 1px solid #aaa; 
+            color: #ccc; border-radius: 30px; cursor: pointer; font-size: 12px;
+        }
 
         /* [SCREEN 2] 쇼핑 화면 (메뉴판) */
         #shopping-overlay {
@@ -100,16 +129,6 @@
         .theme-btn:hover { background: var(--hope-cyan); color: #000; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,255,255,0.3); }
         .theme-icon { font-size: 24px; margin-bottom: 5px; }
 
-        /* 인트로 하단 버튼 그룹 */
-        .intro-btn-group { 
-            position: absolute; bottom: 100px;
-            display: flex; flex-direction: column; gap: 10px; align-items: center; z-index: 20; 
-        }
-        #skip-btn { 
-            padding: 10px 30px; background: transparent; border: 1px solid #aaa; 
-            color: #ccc; border-radius: 30px; cursor: pointer; font-size: 12px;
-        }
-
         /* [SCREEN 3] 메인 화면 */
         #bg-media-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; object-fit: cover; opacity: 0.5; display: none; }
         #fireworksCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
@@ -120,14 +139,14 @@
             cursor: pointer; z-index: 2000; box-shadow: 0 0 10px rgba(255,59,48,0.5); animation: pulse 2s infinite;
         }
         
-        /* 상단 헤더 & 링크 (위치 수정됨: 패딩 추가) */
+        /* 상단 헤더 & 링크 */
         #header-container { 
             position: fixed; top: 0; width: 100%; z-index: 100; 
             background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); 
         }
         #top-bar { 
             display: flex; justify-content: space-between; 
-            padding: 25px 15px 10px 15px; /* 상단 패딩을 25px로 늘려 글자 잘림 방지 */
+            padding: 25px 15px 10px 15px; 
             align-items: flex-start; 
         }
         #project-info { display: flex; flex-direction: column; }
@@ -200,10 +219,10 @@
                 안녕? 난 다온이야! 👋<br>
                 오늘도 힘차게 시작해볼까?
             </div>
-            <button id="custom-intro-btn" onclick="document.getElementById('intro-file-input').click()">📷 사진/영상 올리기 & 저장</button>
         </div>
 
-        <div class="intro-btn-group">
+        <div class="intro-controls">
+            <button id="custom-intro-btn" onclick="document.getElementById('intro-file-input').click()">📷 사진/영상 변경</button>
             <button id="skip-btn" onclick="closeAllOverlays()">바로 메인으로 가기 >></button>
         </div>
 
@@ -331,7 +350,7 @@
         </div>
     </div>
 
-    <div id="watermark">v.251230 FINAL_PATCHED | © 2025 DAON OFFICIAL</div>
+    <div id="watermark">v.251230 FINAL_V2 | © 2025 DAON OFFICIAL</div>
 
     <script>
         const COUPANG_HOME_LINK = "https://link.coupang.com/a/diSpS0"; 
@@ -491,7 +510,9 @@
         function applyIntroMedia(src, type) {
             const video = document.getElementById('intro-video');
             const img = document.getElementById('intro-img');
+            // [수정] 기본 멘트는 숨기지만, 컨트롤 버튼은 그대로 둠
             document.getElementById('default-intro-group').style.display = 'none';
+            
             if (type.startsWith('video/')) { video.src = src; video.muted = false; video.style.display = 'block'; img.style.display = 'none'; video.play().catch(e=>{}); } 
             else { img.src = src; img.style.display = 'block'; video.style.display = 'none'; }
         }
