@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.png">
+    
     <title>🎆 DAON 2025: ULTIMATE PLATFORM 🎆</title>
     
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
@@ -80,8 +86,6 @@
             display: flex; flex-direction: column; gap: 12px; 
             align-items: center; z-index: 99999; 
         }
-        
-        /* 버튼 그룹 (변경/삭제 나란히) */
         .intro-btn-row { display: flex; gap: 8px; }
 
         #custom-intro-btn { 
@@ -90,15 +94,12 @@
             cursor: pointer; font-size: 13px; font-weight: bold;
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
-        
-        /* [NEW] 삭제 버튼 스타일 */
         #reset-intro-btn {
             padding: 10px 15px; background: rgba(255, 59, 48, 0.8); 
             border: 1px solid #ff3b30; color: #fff; border-radius: 25px; 
             cursor: pointer; font-size: 13px; font-weight: bold;
             box-shadow: 0 0 10px rgba(255, 59, 48, 0.5);
         }
-
         #skip-btn { 
             padding: 8px 20px; background: transparent; border: 1px solid #aaa; 
             color: #ccc; border-radius: 30px; cursor: pointer; font-size: 12px;
@@ -198,7 +199,7 @@
         #watermark { position: fixed; bottom: 10px; right: 15px; font-size: 10px; opacity: 0.5; z-index: 100; letter-spacing: 1px; font-family: monospace; }
         #intro-file-input, #bg-file-input, #excel-file-input, #local-video-input { display: none; }
 
-        /* [모바일 최적화: 버튼 위치 조정] */
+        /* [모바일 최적화] */
         @media (max-width: 600px) {
             #main-back-btn {
                 position: fixed;
@@ -363,7 +364,15 @@
         </div>
     </div>
 
-    <div id="watermark">v.251230 FINAL_V6_RESET | © 2025 DAON OFFICIAL</div>
+    <div id="watermark">v.251230 FINAL_PWA_READY | © 2025 DAON OFFICIAL</div>
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+          .then(() => console.log('Service Worker Registered'))
+          .catch((err) => console.log('Service Worker Failed', err));
+      }
+    </script>
 
     <script>
         const COUPANG_HOME_LINK = "https://link.coupang.com/a/diSpS0"; 
@@ -441,6 +450,7 @@
 
         function launchBigFirework() {
             const bigColor = `hsl(${Math.random()*360}, 100%, 50%)`;
+            // Text is null -> 글자 안 나옴
             const r = new Rocket(canvas.width/2, canvas.height, canvas.height/2, bigColor, null, true); 
             r.explosionRadius = 150; 
             r.particleCount = 150;
@@ -533,7 +543,6 @@
             if(savedMedia && savedType) applyIntroMedia(savedMedia, savedType);
         }
 
-        // [NEW] 인트로 초기화(삭제) 함수
         function resetIntroMedia() {
             if(!confirm("저장된 사진/영상을 삭제하고 기본 화면으로 돌아갈까요?")) return;
             localStorage.removeItem('daon_intro_media');
