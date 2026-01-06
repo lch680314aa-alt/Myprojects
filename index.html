@@ -108,11 +108,24 @@
         /* [SCREEN 3] 메인 화면 */
         #bg-media-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; object-fit: cover; opacity: 0.5; display: none; }
         #fireworksCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        
+        /* 텍스트 닫기 버튼 수정 (우측 하단) */
         #stop-text-btn {
-            display: none; position: fixed; bottom: 160px; left: 50%; transform: translateX(-50%); 
-            padding: 6px 12px; background: rgba(255, 59, 48, 0.9); border: 1px solid #fff;
-            color: #fff; font-size: 11px; font-weight: bold; border-radius: 15px; 
-            cursor: pointer; z-index: 2000; box-shadow: 0 0 10px rgba(255,59,48,0.5); animation: pulse 2s infinite;
+            display: none; 
+            position: fixed; 
+            bottom: 100px; /* 입력창과 겹치지 않게 */
+            right: 20px; 
+            padding: 8px 16px; 
+            background: rgba(255, 59, 48, 0.8); 
+            border: 1px solid #fff;
+            color: #fff; 
+            font-size: 12px; 
+            font-weight: bold; 
+            border-radius: 20px; 
+            cursor: pointer; 
+            z-index: 2000; 
+            box-shadow: 0 0 10px rgba(255,59,48,0.5); 
+            animation: pulse 2s infinite;
         }
         
         /* 상단 헤더 */
@@ -233,7 +246,9 @@
 
     <video id="bg-media-layer" autoplay muted loop playsinline></video>
     <canvas id="fireworksCanvas"></canvas>
+    
     <button id="stop-text-btn" onclick="stopTextFirework()">❌ 텍스트 닫기</button>
+    
     <div id="rec-indicator" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); background:red; color:white; padding:5px 15px; border-radius:20px; font-weight:bold; z-index:3000; animation:pulse 1s infinite;">● REC (6초)</div>
 
     <button id="main-back-btn" onclick="goShoppingScreen()">< 쇼핑화면</button>
@@ -258,11 +273,23 @@
     </div>
 
     <div id="right-nav">
+        <button class="nav-btn" onclick="openDrawer('settings')" title="배경 설정" style="border: 2px solid var(--gold);">⚙️</button>
         <button class="nav-btn" onclick="openDrawer('music')" title="음악 & 비디오">🎵</button>
         <button class="nav-btn" onclick="openDrawer('gallery')" title="비디오 보관함">📹</button>
         <button class="nav-btn" onclick="openDrawer('meal')" title="밀프랩">🥗</button>
         <button class="nav-btn" onclick="openDrawer('send')" title="단체 전송 (Excel)">📤</button>
         <button class="nav-btn sos" onclick="openDrawer('sos')" title="SOS">🚨</button>
+    </div>
+
+    <div id="settings" class="drawer">
+        <div class="drawer-header">⚙️ BACKGROUND SETTING</div>
+        <div class="card">
+            <p style="font-size:12px; margin-bottom:10px;">나만의 사진이나 영상을 배경으로 깔아보세요!</p>
+            <input type="file" id="bg-file-input" accept="image/*,video/*" onchange="handleBgMedia(this)">
+            <button class="action-btn" style="background:#555; color:#fff;" onclick="document.getElementById('bg-file-input').click()">📷 배경 변경 (사진/영상)</button>
+            <button class="action-btn" style="background:var(--sos-red); color:#fff; margin-top:5px;" onclick="clearBgMedia()">🗑️ 배경 지우기</button>
+        </div>
+        <button class="close-btn" onclick="closeDrawer()">닫기</button>
     </div>
 
     <div id="gallery" class="drawer">
@@ -340,7 +367,7 @@
         </div>
     </div>
 
-    <div id="watermark">v.251231 FINAL_REC_UPDATE | © 2025 DAON OFFICIAL</div>
+    <div id="watermark">v.260101 FINAL_BG_UPDATE | © 2025 DAON OFFICIAL</div>
 
     <script>
       if ('serviceWorker' in navigator) {
@@ -362,15 +389,19 @@
         let rockets = [];
         let activeTextRocket = null; 
         let isMainScreen = false;
+        let inactivityTimer = null; // 12초 자동 복귀용 타이머
         
         // 녹화 관련 변수
         let mediaRecorder;
         let recordedChunks = [];
         let currentVideoBlob = null;
-        let savedVideos = []; // 임시 저장소
+        let savedVideos = [];
 
         /* 화면 이동 관련 */
         function goShoppingScreen() {
+            // 복귀 시 타이머 취소
+            if(inactivityTimer) clearTimeout(inactivityTimer);
+
             const intro = document.getElementById('intro-overlay');
             const shop = document.getElementById('shopping-overlay');
             intro.style.opacity = '0'; 
@@ -379,6 +410,7 @@
                 shop.style.display = 'flex'; 
                 setTimeout(() => { shop.style.opacity = '1'; }, 50);
             }, 500);
+            isMainScreen = false;
         }
 
         function goIntroScreen() {
@@ -390,6 +422,7 @@
                 intro.style.display = 'flex';
                 setTimeout(() => { intro.style.opacity = '1'; }, 50);
             }, 500);
+            isMainScreen = false;
         }
 
         function closeAllOverlays() {
@@ -400,6 +433,80 @@
                 setTimeout(launchBigFirework, 500); 
             }
         }
+
+        /* 배경 미디어 설정 (사진/영상) */
+        function handleBgMedia(input) {
+            const file = input.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const dataUrl = e.target.result;
+                try {
+                    localStorage.setItem('daon_bg_media', dataUrl);
+                    localStorage.setItem('daon_bg_type', file.type);
+                    applyBgMedia(dataUrl, file.type);
+                    alert("배경이 변경되었습니다!");
+                } catch (err) { 
+                    applyBgMedia(URL.createObjectURL(file), file.type); 
+                    alert("파일이 커서 임시 적용됩니다 (새로고침시 초기화)."); 
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+        function applyBgMedia(src, type) {
+            const bg = document.getElementById('bg-media-layer');
+            bg.src = src;
+            bg.style.display = 'block';
+            if (type && type.startsWith('image/')) {
+                // 이미지는 비디오 태그 대신 poster로 처리하거나 css로 해야하지만, 
+                // 간단히 video 태그의 poster 속성을 활용하거나 img 태그로 교체하는 로직 필요.
+                // 편의상 video 태그 하나로 처리하되 이미지는 재생이 안되므로 멈춰있는 상태로 보임.
+                // 더 정확한 처리를 위해 dataUrl을 poster로 넣습니다.
+                bg.autoplay = false;
+                bg.loop = false;
+                bg.poster = src; 
+            } else {
+                bg.autoplay = true;
+                bg.loop = true;
+                bg.play().catch(e=>{});
+            }
+        }
+        function clearBgMedia() {
+            localStorage.removeItem('daon_bg_media');
+            localStorage.removeItem('daon_bg_type');
+            const bg = document.getElementById('bg-media-layer');
+            bg.src = "";
+            bg.style.display = 'none';
+            alert("배경이 삭제되었습니다.");
+        }
+        function loadSavedBg() {
+            const savedMedia = localStorage.getItem('daon_bg_media');
+            const savedType = localStorage.getItem('daon_bg_type');
+            if(savedMedia) applyBgMedia(savedMedia, savedType);
+        }
+
+        /* 12초 자동 복귀 로직 */
+        function startInactivityTimer() {
+            // 기존 타이머 취소
+            if(inactivityTimer) clearTimeout(inactivityTimer);
+            
+            // 12초 후 실행
+            inactivityTimer = setTimeout(() => {
+                if(isMainScreen) {
+                    goShoppingScreen(); // 자동으로 쇼핑화면(테마선택)으로 이동
+                }
+            }, 12000);
+        }
+        function resetInactivityTimer() {
+            // 사용자가 화면을 터치하거나 클릭하면 타이머 리셋
+            if(inactivityTimer) {
+                clearTimeout(inactivityTimer);
+                inactivityTimer = null; // 다시 문자 사라질 때까지 대기
+            }
+        }
+        // 화면 터치시 복귀 타이머 취소
+        window.addEventListener('click', resetInactivityTimer);
+        window.addEventListener('touchstart', resetInactivityTimer);
+
 
         /* 테마 선택 */
         function selectTheme(theme) {
@@ -462,7 +569,16 @@
         }
         class TextParticle {
             constructor(x, y, text, color) { this.x = x; this.y = y; this.text = text; this.color = color; this.alpha = 1; this.life = 3600; }
-            update() { this.life--; if(this.life < 120) this.alpha -= 0.01; if(this.life <= 0) document.getElementById('stop-text-btn').style.display = 'none'; }
+            update() { 
+                this.life--; 
+                if(this.life < 120) this.alpha -= 0.01; 
+                if(this.life <= 0) {
+                    // 문자가 사라질 때 버튼도 사라지게 처리
+                    document.getElementById('stop-text-btn').style.display = 'none';
+                    // 문자가 사라진 후 12초 타이머 시작
+                    startInactivityTimer();
+                }
+            }
             draw() { 
                 ctx.save(); ctx.globalAlpha = this.alpha; ctx.fillStyle = "#fff"; 
                 const fontSize = window.innerWidth < 600 ? "20px" : "32px";
@@ -478,7 +594,11 @@
             requestAnimationFrame(animate);
         }
         function stopTextFirework() {
-            if(activeTextRocket) activeTextRocket.life = 0; 
+            if(activeTextRocket) {
+                activeTextRocket.life = 0; 
+                // 강제 종료 시에도 타이머 시작
+                startInactivityTimer();
+            }
             document.getElementById('stop-text-btn').style.display = 'none';
         }
 
@@ -716,6 +836,7 @@
             setDailySlogan();
             renderMeals(); 
             loadSavedIntro(); 
+            loadSavedBg(); // 저장된 배경 불러오기
             animate();
             
             const urlParams = new URLSearchParams(window.location.search);
