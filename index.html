@@ -29,7 +29,7 @@
 
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Pretendard', sans-serif; overflow: hidden; }
 
-        /* [공통] 네비게이션 버튼 (이전/다음) */
+        /* [공통] 네비게이션 버튼 */
         .nav-arrow-btn {
             position: absolute; bottom: 30px; 
             padding: 12px 24px; background: rgba(0, 0, 0, 0.8); 
@@ -44,19 +44,11 @@
 
         /* [메인화면 뒤로가기 버튼] */
         #main-back-btn {
-            position: fixed; 
-            bottom: 120px; 
-            left: 20px; 
-            padding: 8px 16px; 
-            background: rgba(255, 255, 255, 0.15); 
-            border: 1px solid rgba(255,255,255,0.4); 
-            color: #fff; 
-            border-radius: 20px; 
-            font-size: 12px; 
-            z-index: 5000; 
-            cursor: pointer;
-            backdrop-filter: blur(5px);
-            transition: 0.3s;
+            position: fixed; bottom: 120px; left: 20px; 
+            padding: 8px 16px; background: rgba(255, 255, 255, 0.15); 
+            border: 1px solid rgba(255,255,255,0.4); color: #fff; 
+            border-radius: 20px; font-size: 12px; z-index: 5000; 
+            cursor: pointer; backdrop-filter: blur(5px); transition: 0.3s;
         }
 
         /* [SCREEN 1] 인트로 화면 */
@@ -80,7 +72,6 @@
             box-shadow: 0 5px 25px rgba(0,0,0,0.8); margin-bottom: 20px;
         }
         
-        /* 인트로 컨트롤 */
         .intro-controls {
             position: absolute; bottom: 100px;
             display: flex; flex-direction: column; gap: 12px; 
@@ -88,22 +79,9 @@
         }
         .intro-btn-row { display: flex; gap: 8px; }
 
-        #custom-intro-btn { 
-            padding: 10px 15px; background: rgba(0,0,0,0.7); 
-            border: 1px solid var(--hope-cyan); color: #fff; border-radius: 25px; 
-            cursor: pointer; font-size: 13px; font-weight: bold;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
-        #reset-intro-btn {
-            padding: 10px 15px; background: rgba(255, 59, 48, 0.8); 
-            border: 1px solid #ff3b30; color: #fff; border-radius: 25px; 
-            cursor: pointer; font-size: 13px; font-weight: bold;
-            box-shadow: 0 0 10px rgba(255, 59, 48, 0.5);
-        }
-        #skip-btn { 
-            padding: 8px 20px; background: transparent; border: 1px solid #aaa; 
-            color: #ccc; border-radius: 30px; cursor: pointer; font-size: 12px;
-        }
+        #custom-intro-btn { padding: 10px 15px; background: rgba(0,0,0,0.7); border: 1px solid var(--hope-cyan); color: #fff; border-radius: 25px; cursor: pointer; font-size: 13px; font-weight: bold; }
+        #reset-intro-btn { padding: 10px 15px; background: rgba(255, 59, 48, 0.8); border: 1px solid #ff3b30; color: #fff; border-radius: 25px; cursor: pointer; font-size: 13px; font-weight: bold; }
+        #skip-btn { padding: 8px 20px; background: transparent; border: 1px solid #aaa; color: #ccc; border-radius: 30px; cursor: pointer; font-size: 12px; }
 
         /* [SCREEN 2] 쇼핑 화면 */
         #shopping-overlay {
@@ -114,11 +92,7 @@
             transition: opacity 0.5s ease-in;
         }
         .shopping-title { font-size: 22px; font-weight: 900; color: var(--gold); margin-bottom: 25px; text-shadow: 0 0 10px var(--gold); letter-spacing: 1px; }
-        
-        #shopping-menu-grid {
-            display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 10px; width: 90%; max-width: 450px;
-        }
+        #shopping-menu-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; width: 90%; max-width: 450px; }
         @media (max-width: 600px) { #shopping-menu-grid { grid-template-columns: 1fr 1fr; gap: 12px; } }
 
         .theme-btn {
@@ -177,43 +151,45 @@
         .btn-neon { background: var(--daon-pink); color: #fff; }
         .card { background: var(--glass); padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid var(--border); }
 
-        /* 밀프랩 리스트 */
+        /* 밀프랩 & 엑셀 리스트 스타일 */
         .meal-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
         .meal-btn-group { display: flex; gap: 5px; }
         .btn-link { background: #333; color: #fff; border: 1px solid #555; border-radius: 5px; padding: 5px 8px; font-size: 11px; cursor: pointer; }
         .btn-del { background: #ff3b30; color: #fff; border: none; border-radius: 5px; padding: 5px 8px; font-size: 11px; cursor: pointer; }
-
-        /* 엑셀 리스트 */
         .excel-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 12px; }
         .excel-name { flex: 1; margin-left: 10px; }
         .send-btn-sm { padding: 5px 10px; background: var(--hope-cyan); color: #000; border-radius: 5px; border: none; cursor: pointer; font-size: 11px; font-weight: bold; }
 
-        /* 하단 컨트롤 (PC 기본) */
+        /* 하단 컨트롤 및 영상 미리보기 모달 */
         #ui-panel { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; z-index: 1000; }
         .input-box { display: flex; gap: 10px; margin-bottom: 10px; background: rgba(0,0,0,0.6); padding: 5px; border-radius: 15px; border: 1px solid var(--border); backdrop-filter: blur(10px); }
-        input { flex: 1; background: transparent; border: none; padding: 12px; color: #fff; font-size: 14px; outline: none; }
+        /* 수정: 자동완성 방지용 input 스타일 */
+        input { flex: 1; background: transparent; border: none; padding: 12px; color: #fff; font-size: 14px; outline: none; -webkit-appearance: none; }
         .btn-group { display: flex; gap: 10px; }
-        #launch-btn { flex: 2; padding: 16px; border-radius: 15px; border: none; background: var(--hope-cyan); color: #000; font-weight: 900; }
-        #video-btn { flex: 1; padding: 16px; border-radius: 15px; border: none; background: #333; color: #fff; font-weight: bold; border: 1px solid var(--border); }
+        #launch-btn { flex: 1; padding: 16px; border-radius: 15px; border: none; background: var(--hope-cyan); color: #000; font-weight: 900; box-shadow: 0 0 15px rgba(0,255,255,0.4); transition: 0.3s; }
+        #launch-btn:active { transform: scale(0.95); }
+        #launch-btn.recording { background: #ff3b30; color: white; animation: pulse-red 1s infinite; }
+        @keyframes pulse-red { 0% {box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7);} 70% {box-shadow: 0 0 0 10px rgba(255, 59, 48, 0);} 100% {box-shadow: 0 0 0 0 rgba(255, 59, 48, 0);} }
         
         #watermark { position: fixed; bottom: 10px; right: 15px; font-size: 10px; opacity: 0.5; z-index: 100; letter-spacing: 1px; font-family: monospace; }
         #intro-file-input, #bg-file-input, #excel-file-input, #local-video-input { display: none; }
 
+        /* 영상 미리보기 모달 */
+        #video-preview-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 9999;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+        }
+        #preview-video { max-width: 90%; max-height: 60%; border-radius: 10px; border: 1px solid #555; margin-bottom: 20px; }
+        .preview-actions { display: flex; gap: 10px; width: 90%; max-width: 400px; flex-wrap: wrap; justify-content: center; }
+        .preview-btn { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; min-width: 100px; }
+        .btn-save { background: var(--hope-cyan); color: #000; }
+        .btn-share { background: var(--new-yellow); color: #000; }
+        .btn-close { background: #333; color: #fff; }
+
         /* [모바일 최적화] */
         @media (max-width: 600px) {
-            #main-back-btn {
-                position: fixed;
-                bottom: 86px;
-                left: 5%;
-                width: 25%;
-                height: 46px; 
-                padding: 0;
-                display: flex; align-items: center; justify-content: center;
-                background: rgba(0,0,0,0.7);
-                border: 1px solid var(--hope-cyan);
-                font-weight: bold; font-size: 12px; z-index: 2000;
-                transform: none; 
-            }
+            #main-back-btn { bottom: 86px; left: 5%; width: 25%; height: 46px; padding: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border: 1px solid var(--hope-cyan); font-weight: bold; font-size: 12px; z-index: 2000; transform: none; }
             #ui-panel .input-box { margin-left: 28%; width: auto; }
         }
     </style>
@@ -225,14 +201,9 @@
             <video id="intro-video" autoplay loop playsinline></video>
             <img id="intro-img">
         </div>
-        
         <div id="default-intro-group">
-            <div class="intro-bubble">
-                안녕? 난 다온이야! 👋<br>
-                오늘도 힘차게 시작해볼까?
-            </div>
+            <div class="intro-bubble">안녕? 난 다온이야! 👋<br>오늘도 힘차게 시작해볼까?</div>
         </div>
-
         <div class="intro-controls">
             <div class="intro-btn-row">
                 <button id="custom-intro-btn" onclick="document.getElementById('intro-file-input').click()">📷 변경</button>
@@ -240,7 +211,6 @@
             </div>
             <button id="skip-btn" onclick="closeAllOverlays()">바로 메인으로 가기 >></button>
         </div>
-
         <button class="nav-arrow-btn next-btn" onclick="goShoppingScreen()">다음: 테마 선택 >></button>
         <input type="file" id="intro-file-input" accept="image/*,video/*" onchange="handleIntroMedia(this)">
     </div>
@@ -263,9 +233,8 @@
 
     <video id="bg-media-layer" autoplay muted loop playsinline></video>
     <canvas id="fireworksCanvas"></canvas>
-    
     <button id="stop-text-btn" onclick="stopTextFirework()">❌ 텍스트 닫기</button>
-    <div id="rec-indicator">● REC</div>
+    <div id="rec-indicator" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); background:red; color:white; padding:5px 15px; border-radius:20px; font-weight:bold; z-index:3000; animation:pulse 1s infinite;">● REC (6초)</div>
 
     <button id="main-back-btn" onclick="goShoppingScreen()">< 쇼핑화면</button>
 
@@ -290,9 +259,17 @@
 
     <div id="right-nav">
         <button class="nav-btn" onclick="openDrawer('music')" title="음악 & 비디오">🎵</button>
+        <button class="nav-btn" onclick="openDrawer('gallery')" title="비디오 보관함">📹</button>
         <button class="nav-btn" onclick="openDrawer('meal')" title="밀프랩">🥗</button>
         <button class="nav-btn" onclick="openDrawer('send')" title="단체 전송 (Excel)">📤</button>
         <button class="nav-btn sos" onclick="openDrawer('sos')" title="SOS">🚨</button>
+    </div>
+
+    <div id="gallery" class="drawer">
+        <div class="drawer-header">📹 RECORDED CLIPS</div>
+        <div style="font-size:12px; color:#aaa; margin-bottom:10px;">방금 녹화한 영상들이 여기에 임시 보관됩니다.<br>(새로고침하면 사라지니 꼭 기기에 저장하세요!)</div>
+        <div id="video-list"></div>
+        <button class="close-btn" onclick="closeDrawer()">닫기</button>
     </div>
 
     <div id="music" class="drawer">
@@ -317,7 +294,7 @@
         <div style="padding:10px; background:linear-gradient(45deg, #FF9900, #FFCC00); border-radius:8px; margin-bottom:5px; color:#000; font-weight:bold; text-align:center; cursor:pointer;" onclick="goCoupangHome()">🚀 쿠팡: 내일 바로 받는 식재료!</div>
         <div style="padding:10px; background:linear-gradient(45deg, #FF0000, #FF5500); border-radius:8px; margin-bottom:15px; color:#fff; font-weight:bold; text-align:center; cursor:pointer;" onclick="goAliHome()">🍱 알리: 밀프랩 용기/주방템 초특가!</div>
         <div class="card" style="position:sticky; top:0; z-index:10; background:rgba(0,0,0,0.8); backdrop-filter:blur(5px);">
-            <input type="text" id="meal-input" placeholder="메뉴 입력 (예: 닭가슴살)" style="width:100%; background:rgba(255,255,255,0.1); border:1px solid #555; padding:10px; color:#fff; border-radius:8px; margin-bottom:5px;">
+            <input type="text" id="meal-input" placeholder="메뉴 입력 (예: 닭가슴살)" style="width:100%; background:rgba(255,255,255,0.1); border:1px solid #555; padding:10px; color:#fff; border-radius:8px; margin-bottom:5px;" autocomplete="off">
             <button class="action-btn" style="background:var(--hope-cyan); color:#000; margin-top:0;" onclick="addMeal()">기록하기</button>
         </div>
         <button class="action-btn btn-neon" onclick="playMealShow()">✨ 내 식단 불꽃쇼 보기</button>
@@ -336,17 +313,6 @@
         <button class="close-btn" onclick="closeDrawer()">닫기</button>
     </div>
 
-    <div id="settings" class="drawer">
-        <div class="drawer-header">⚙️ BACKGROUND SETTING</div>
-        <div class="card">
-            <p style="font-size:12px;">PC/폰에 있는 미디어를 배경으로 설정하세요.</p>
-            <input type="file" id="bg-file-input" accept="image/*,video/*" onchange="handleBgMedia(this)">
-            <button class="action-btn" style="background:#555; color:#fff;" onclick="document.getElementById('bg-file-input').click()">📁 미디어 불러오기</button>
-            <button class="action-btn" style="background:var(--sos-red); color:#fff; margin-top:5px;" onclick="clearBgMedia()">배경 지우기</button>
-        </div>
-        <button class="close-btn" onclick="closeDrawer()">닫기</button>
-    </div>
-
     <div id="sos" class="drawer">
         <div class="drawer-header" style="color:var(--sos-red);">🚨 EMERGENCY</div>
         <button class="action-btn" style="background:var(--sos-red); color:#fff; font-size:18px;" onclick="location.href='tel:112'">📞 112 (경찰)</button>
@@ -356,15 +322,25 @@
 
     <div id="ui-panel">
         <div class="input-box">
-            <input type="text" id="user-msg" placeholder="밤하늘에 띄울 행복 메시지...">
+            <input type="text" id="user-msg" placeholder="밤하늘에 띄울 행복 메시지..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="search">
         </div>
         <div class="btn-group">
-            <button id="launch-btn" onclick="launchCustomRocket()">🚀 쏘아올리기</button>
-            <button id="video-btn" onclick="recordVideo()">🎬 영상 소장</button>
+            <button id="launch-btn" onclick="launchAndRecord()">🚀 쏘아올리기 (자동녹화)</button>
         </div>
     </div>
 
-    <div id="watermark">v.251230 FINAL_PWA_READY | © 2025 DAON OFFICIAL</div>
+    <div id="video-preview-modal">
+        <h3 style="color:white; margin-bottom:10px;">🎬 영상 확인</h3>
+        <video id="preview-video" controls playsinline loop></video>
+        <div class="preview-actions">
+            <button class="preview-btn btn-save" onclick="downloadCurrentVideo()">💾 내 폰에 저장</button>
+            <button class="preview-btn btn-share" onclick="shareCurrentVideoFile()">📤 파일 바로 공유</button>
+            <button class="preview-btn btn-share" style="background:#FAE100" onclick="shareKakaoLink()">💬 카톡 링크 공유</button>
+            <button class="preview-btn btn-close" onclick="closePreviewModal()">❌ 닫기</button>
+        </div>
+    </div>
+
+    <div id="watermark">v.251231 FINAL_REC_UPDATE | © 2025 DAON OFFICIAL</div>
 
     <script>
       if ('serviceWorker' in navigator) {
@@ -377,7 +353,6 @@
     <script>
         const COUPANG_HOME_LINK = "https://link.coupang.com/a/diSpS0"; 
         const ALI_HOME_LINK = "https://portals.aliexpress.com/"; 
-        
         const KAKAO_KEY = 'fa462b2b643a16d837c1890cc3dc4149'; 
         try { if (!Kakao.isInitialized()) Kakao.init(KAKAO_KEY); } catch(e) {}
 
@@ -385,10 +360,16 @@
         const ctx = canvas.getContext('2d');
         let particles = [];
         let rockets = [];
-        let introTimeout; 
         let activeTextRocket = null; 
         let isMainScreen = false;
+        
+        // 녹화 관련 변수
+        let mediaRecorder;
+        let recordedChunks = [];
+        let currentVideoBlob = null;
+        let savedVideos = []; // 임시 저장소
 
+        /* 화면 이동 관련 */
         function goShoppingScreen() {
             const intro = document.getElementById('intro-overlay');
             const shop = document.getElementById('shopping-overlay');
@@ -420,11 +401,11 @@
             }
         }
 
+        /* 테마 선택 */
         function selectTheme(theme) {
             const meals = JSON.parse(localStorage.getItem('daon_meals') || '[]');
             let newItems = [];
             let shopType = 'coupang'; 
-
             if (theme === 'diet') newItems = [{t: '곰곰 닭가슴살', d: '다온 추천'}, {t: '고구마 3kg', d: '다온 추천'}, {t: '제로 콜라', d: '다온 추천'}];
             else if (theme === 'ramen') newItems = [{t: '신라면 5개입', d: '다온 추천'}, {t: '햇반 210g', d: '다온 추천'}, {t: '비비고 김치', d: '다온 추천'}];
             else if (theme === 'night') newItems = [{t: '곰곰 반건조 오징어', d: '다온 추천'}, {t: '논알콜 맥주', d: '다온 추천'}, {t: '직화 튤립 닭발', d: '다온 추천'}];
@@ -436,24 +417,21 @@
                 else if (theme === 'cafe') newItems = [{t: '홈카페 유리잔', d: '다온 추천'}, {t: '실리콘 코스터', d: '다온 추천'}, {t: '디저트 접시', d: '다온 추천'}];
                 else if (theme === 'pet') newItems = [{t: '강아지 장난감', d: '다온 추천'}, {t: '고양이 낚시대', d: '다온 추천'}, {t: '반려동물 옷', d: '다온 추천'}];
             }
-
             if(newItems.length > 0) {
                 const updatedMeals = [...newItems, ...meals];
                 localStorage.setItem('daon_meals', JSON.stringify(updatedMeals));
                 localStorage.setItem('daon_shop_type', shopType);
-                
                 renderMeals();
                 closeAllOverlays(); 
                 setTimeout(() => openDrawer('meal'), 1000); 
             }
         }
 
+        /* 불꽃놀이 엔진 */
         function launchBigFirework() {
             const bigColor = `hsl(${Math.random()*360}, 100%, 50%)`;
-            // Text is null -> 글자 안 나옴
             const r = new Rocket(canvas.width/2, canvas.height, canvas.height/2, bigColor, null, true); 
-            r.explosionRadius = 150; 
-            r.particleCount = 150;
+            r.explosionRadius = 150; r.particleCount = 150;
             rockets.push(r);
         }
 
@@ -479,11 +457,7 @@
             constructor(x, y, color) {
                 this.x = x; this.y = y; this.color = color; const angle = Math.random() * Math.PI * 2; const speed = Math.random() * 5 + 2; this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed; this.alpha = 1; this.friction = 0.95; this.gravity = 0.15;
             }
-            update() { 
-                this.vx *= this.friction; this.vy *= this.friction; this.vy += this.gravity; 
-                this.x += this.vx; this.y += this.vy; 
-                this.alpha -= 0.005; 
-            }
+            update() { this.vx *= this.friction; this.vy *= this.friction; this.vy += this.gravity; this.x += this.vx; this.y += this.vy; this.alpha -= 0.005; }
             draw() { ctx.globalAlpha = this.alpha; ctx.beginPath(); ctx.arc(this.x, this.y, 2, 0, Math.PI*2); ctx.fillStyle = this.color; ctx.fill(); ctx.globalAlpha = 1; }
         }
         class TextParticle {
@@ -508,11 +482,13 @@
             document.getElementById('stop-text-btn').style.display = 'none';
         }
 
+        /* 유튜브 BGM */
         let player;
         function onYouTubeIframeAPIReady() { player = new YT.Player('player', { height: '0', width: '0', videoId: 'WPfyXfdrCqs', playerVars: { 'autoplay': 0, 'controls': 0, 'rel': 0 } }); }
         function playBGM() { if(player) player.playVideo(); }
         function stopBGM() { if(player) player.stopVideo(); }
 
+        /* 기타 기능 */
         const dailyQuotes = [ { text: "진심은 통한다 희망을 쏴라" }, { text: "진심은 통한다 행복을 쏴라" }, { text: "당신의 꿈을 응원합니다" }, { text: "사랑은 나눌수록 커집니다" } ];
         function setDailySlogan() { document.getElementById('daily-slogan').innerText = `"${dailyQuotes[new Date().getDate() % dailyQuotes.length].text}"`; }
 
@@ -542,26 +518,18 @@
             const savedType = localStorage.getItem('daon_intro_type');
             if(savedMedia && savedType) applyIntroMedia(savedMedia, savedType);
         }
-
         function resetIntroMedia() {
             if(!confirm("저장된 사진/영상을 삭제하고 기본 화면으로 돌아갈까요?")) return;
-            localStorage.removeItem('daon_intro_media');
-            localStorage.removeItem('daon_intro_type');
-            
-            document.getElementById('intro-video').style.display = 'none';
-            document.getElementById('intro-img').style.display = 'none';
-            document.getElementById('intro-video').src = "";
-            document.getElementById('intro-img').src = "";
-            
-            document.getElementById('default-intro-group').style.display = 'flex';
-            alert("초기화 완료!");
+            localStorage.removeItem('daon_intro_media'); localStorage.removeItem('daon_intro_type');
+            document.getElementById('intro-video').style.display = 'none'; document.getElementById('intro-img').style.display = 'none';
+            document.getElementById('intro-video').src = ""; document.getElementById('intro-img').src = "";
+            document.getElementById('default-intro-group').style.display = 'flex'; alert("초기화 완료!");
         }
 
         function playLocalVideo(input) { const file = input.files[0]; if(file) { const url = URL.createObjectURL(file); const vid = document.getElementById('local-video-display'); vid.src = url; vid.style.display = 'block'; vid.play(); } }
         function closeDrawerAndStopMedia() { closeDrawer(); stopBGM(); const vid = document.getElementById('local-video-display'); if(vid) { vid.pause(); vid.currentTime = 0; } }
-        function handleBgMedia(input) { const file = input.files[0]; if (!file) return; const url = URL.createObjectURL(file); const bg = document.getElementById('bg-media-layer'); bg.src = url; bg.style.display = 'block'; if (!file.type.startsWith('image/')) bg.play(); }
-        function clearBgMedia() { const bg = document.getElementById('bg-media-layer'); bg.src = ""; bg.style.display = 'none'; }
-
+        
+        /* 엑셀 */
         function readExcel(input) {
             const file = input.files[0]; if (!file) return;
             const reader = new FileReader();
@@ -574,21 +542,18 @@
             reader.readAsArrayBuffer(file);
         }
         function renderContactList(data) {
-            const listDiv = document.getElementById('contact-list'); listDiv.innerHTML = ""; let count = 0;
+            const listDiv = document.getElementById('contact-list'); listDiv.innerHTML = "";
             for (let i = 1; i < data.length; i++) {
                 const row = data[i];
                 if (row[0] && row[1]) {
-                    count++;
                     const rowDiv = document.createElement('div'); rowDiv.className = 'excel-row';
                     const msg = document.getElementById('user-msg').value || "행복을 쏴라!";
                     const link = `${window.location.origin}${window.location.pathname}?m=${encodeURIComponent(msg)}`;
-                    rowDiv.innerHTML = `<input type="checkbox" class="contact-chk"><span class="excel-name">${row[0]} (${row[1]})</span><button class="send-btn-sm" onclick="sendToPerson('${row[1]}', '${msg}', '${link}')">전송</button>`;
+                    rowDiv.innerHTML = `<span class="excel-name">${row[0]}</span><button class="send-btn-sm" onclick="sendToPerson('${row[1]}', '${msg}', '${link}')">전송</button>`;
                     listDiv.appendChild(rowDiv);
                 }
             }
-            document.getElementById('excel-controls').style.display = 'block'; document.getElementById('count-display').innerText = `${count}명 로드됨`;
         }
-        function toggleAll(source) { document.querySelectorAll('.contact-chk').forEach(chk => chk.checked = source.checked); }
         function sendToPerson(phone, msg, link) { window.open(`sms:${phone}?body=${encodeURIComponent(`[DAON] ${msg} ${link}`)}`, '_blank'); }
 
         function goCoupangHome() { window.open(COUPANG_HOME_LINK, '_blank'); }
@@ -619,34 +584,133 @@
             if(text.includes('샐러드') || text.includes('채소')) return '#2ecc71';
             return '#00ffff';
         }
-        function launchCustomRocket(message = null) {
+
+        /* [핵심 수정] 발사 및 자동 녹화 로직 */
+        async function launchAndRecord() {
             const input = document.getElementById('user-msg');
-            const msg = message || input.value || "DAON 2025";
+            const msg = input.value || "DAON 2025";
+            
+            // 1. 불꽃 발사
             const color = `hsl(${Math.random()*360}, 100%, 70%)`;
             const targetY = canvas.height / 2; 
             rockets.push(new Rocket(canvas.width/2, canvas.height, targetY, color, msg, true));
-            input.value = "";
-            if(!message) {
-                const btn = document.getElementById('launch-btn');
-                if(btn.innerText.includes("쏘아올리기")) { setTimeout(() => { btn.innerText = "카톡으로 자랑하기"; btn.style.background = "var(--daon-pink)"; btn.onclick = () => shareKakao(msg); }, 2000); }
+            input.value = ""; // 입력창 초기화
+            input.blur(); // 키보드 내리기
+
+            // 2. 녹화 시작
+            try {
+                const stream = canvas.captureStream(30);
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+                recordedChunks = [];
+                
+                const recIndicator = document.getElementById('rec-indicator');
+                const launchBtn = document.getElementById('launch-btn');
+                
+                recIndicator.style.display = 'block';
+                launchBtn.classList.add('recording');
+                launchBtn.innerText = "녹화중... (6초)";
+                launchBtn.disabled = true;
+
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) recordedChunks.push(e.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    currentVideoBlob = new Blob(recordedChunks, { type: 'video/webm' });
+                    
+                    // 미리보기 모달 열기
+                    const videoURL = URL.createObjectURL(currentVideoBlob);
+                    const previewVideo = document.getElementById('preview-video');
+                    previewVideo.src = videoURL;
+                    
+                    // 저장소에 추가
+                    addToGallery(videoURL);
+                    
+                    document.getElementById('video-preview-modal').style.display = 'flex';
+                    
+                    // UI 복구
+                    recIndicator.style.display = 'none';
+                    launchBtn.classList.remove('recording');
+                    launchBtn.innerText = "🚀 쏘아올리기 (자동녹화)";
+                    launchBtn.disabled = false;
+                };
+
+                mediaRecorder.start();
+                setTimeout(() => mediaRecorder.stop(), 6000); // 6초 후 자동 정지
+
+            } catch (err) {
+                console.error("녹화 실패:", err);
+                alert("이 브라우저에서는 녹화를 지원하지 않습니다.");
             }
         }
-        function shareKakao(msg) {
+
+        // 갤러리(임시 보관함) 기능
+        function addToGallery(url) {
+            const list = document.getElementById('video-list');
+            const date = new Date().toLocaleTimeString();
+            const item = document.createElement('div');
+            item.className = 'card';
+            item.innerHTML = `
+                <div style="font-size:12px; margin-bottom:5px;">📅 ${date}</div>
+                <video src="${url}" controls style="width:100%; border-radius:5px;"></video>
+                <div style="margin-top:5px; text-align:right;">
+                    <button class="send-btn-sm" onclick="downloadVideoFromUrl('${url}')">💾 저장</button>
+                </div>
+            `;
+            list.prepend(item);
+        }
+
+        function downloadCurrentVideo() {
+            if(!currentVideoBlob) return;
+            const url = URL.createObjectURL(currentVideoBlob);
+            downloadVideoFromUrl(url);
+        }
+
+        function downloadVideoFromUrl(url) {
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `DAON_FIREWORK_${Date.now()}.webm`;
+            a.click();
+            alert("파일이 다운로드 폴더(갤러리)에 저장되었습니다.");
+        }
+
+        // 파일 직접 공유 (Navigator Share API)
+        async function shareCurrentVideoFile() {
+            if(!currentVideoBlob) return;
+            
+            // Web Share API Level 2 (파일 공유) 지원 확인
+            if (navigator.canShare && navigator.canShare({ files: [new File([currentVideoBlob], 'video.webm', { type: 'video/webm' })] })) {
+                try {
+                    const file = new File([currentVideoBlob], `DAON_FIREWORK_${Date.now()}.webm`, { type: 'video/webm' });
+                    await navigator.share({
+                        files: [file],
+                        title: 'DAON 불꽃놀이',
+                        text: '내가 만든 불꽃놀이 영상이야! 확인해봐 ✨'
+                    });
+                } catch (err) {
+                    console.log('공유 취소됨', err);
+                }
+            } else {
+                alert("이 기기에서는 파일 직접 공유를 지원하지 않습니다.\n[내 폰에 저장] 후 카톡에서 직접 파일을 보내주세요!");
+            }
+        }
+
+        function shareKakaoLink() {
+            const input = document.getElementById('user-msg'); 
+            // 현재 입력값이 없으면 기본 메시지
+            const msg = input.value || "행복한 불꽃놀이!";
             const shareUrl = `${window.location.origin}${window.location.pathname}?m=${encodeURIComponent(msg)}`;
-            Kakao.Share.sendDefault({ objectType: 'text', text: `[DAON] 메시지 도착: "${msg}"\n불꽃놀이를 확인하세요!`, link: { mobileWebUrl: shareUrl, webUrl: shareUrl } });
+            Kakao.Share.sendDefault({ objectType: 'text', text: `[DAON] ${msg}\n멋진 불꽃놀이 메시지를 확인하세요!`, link: { mobileWebUrl: shareUrl, webUrl: shareUrl } });
         }
-        async function recordVideo() {
-            if(!confirm("6초간 녹화합니다.")) return;
-            const stream = canvas.captureStream(30); const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' }); const chunks = [];
-            document.getElementById('rec-indicator').style.display = 'block';
-            recorder.ondataavailable = e => { if(e.data.size > 0) chunks.push(e.data); };
-            recorder.onstop = () => { const blob = new Blob(chunks, { type: 'video/webm' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'DAON_VIDEO.webm'; a.click(); document.getElementById('rec-indicator').style.display = 'none'; };
-            recorder.start(); setTimeout(() => recorder.stop(), 6000);
+
+        function closePreviewModal() {
+            document.getElementById('video-preview-modal').style.display = 'none';
+            document.getElementById('preview-video').pause();
         }
+
         function openDrawer(id) { document.querySelectorAll('.drawer').forEach(d => d.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id==='meal') renderMeals(); }
         function closeDrawer() { document.querySelectorAll('.drawer').forEach(d => d.classList.remove('active')); }
 
-        // [9] 실행
         window.onload = () => {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
             setDailySlogan();
@@ -658,10 +722,14 @@
             const receivedMsg = urlParams.get('m');
             const setMenu = urlParams.get('set'); 
 
-            if (setMenu) selectTheme(setMenu); // URL 테마 자동 실행
+            if (setMenu) selectTheme(setMenu); 
             else if (receivedMsg) {
                 closeAllOverlays();
-                setTimeout(() => launchCustomRocket(receivedMsg), 1000);
+                // 링크 타고 온 사람은 자동 녹화 대신 그냥 발사만
+                setTimeout(() => {
+                    const color = `hsl(${Math.random()*360}, 100%, 70%)`;
+                    rockets.push(new Rocket(canvas.width/2, canvas.height, canvas.height/2, color, receivedMsg, true));
+                }, 1000);
             }
         };
         window.onresize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
