@@ -7,7 +7,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
+    
     <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" type="image/png" href="icon.png">
     
     <title>🎆 DAON 2025: ULTIMATE PLATFORM 🎆</title>
     
@@ -109,11 +111,11 @@
         #bg-media-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; object-fit: cover; opacity: 0.5; display: none; }
         #fireworksCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
         
-        /* 텍스트 닫기 버튼 수정 (우측 하단) */
+        /* 텍스트 닫기 버튼: 우측 하단 배치 */
         #stop-text-btn {
             display: none; 
             position: fixed; 
-            bottom: 100px; /* 입력창과 겹치지 않게 */
+            bottom: 100px; /* 입력창보다 약간 위 */
             right: 20px; 
             padding: 8px 16px; 
             background: rgba(255, 59, 48, 0.8); 
@@ -367,7 +369,7 @@
         </div>
     </div>
 
-    <div id="watermark">v.260101 FINAL_BG_UPDATE | © 2025 DAON OFFICIAL</div>
+    <div id="watermark">Copyright © 2026 DAON. All rights reserved.</div>
 
     <script>
       if ('serviceWorker' in navigator) {
@@ -457,10 +459,6 @@
             bg.src = src;
             bg.style.display = 'block';
             if (type && type.startsWith('image/')) {
-                // 이미지는 비디오 태그 대신 poster로 처리하거나 css로 해야하지만, 
-                // 간단히 video 태그의 poster 속성을 활용하거나 img 태그로 교체하는 로직 필요.
-                // 편의상 video 태그 하나로 처리하되 이미지는 재생이 안되므로 멈춰있는 상태로 보임.
-                // 더 정확한 처리를 위해 dataUrl을 poster로 넣습니다.
                 bg.autoplay = false;
                 bg.loop = false;
                 bg.poster = src; 
@@ -486,10 +484,7 @@
 
         /* 12초 자동 복귀 로직 */
         function startInactivityTimer() {
-            // 기존 타이머 취소
             if(inactivityTimer) clearTimeout(inactivityTimer);
-            
-            // 12초 후 실행
             inactivityTimer = setTimeout(() => {
                 if(isMainScreen) {
                     goShoppingScreen(); // 자동으로 쇼핑화면(테마선택)으로 이동
@@ -497,10 +492,9 @@
             }, 12000);
         }
         function resetInactivityTimer() {
-            // 사용자가 화면을 터치하거나 클릭하면 타이머 리셋
             if(inactivityTimer) {
                 clearTimeout(inactivityTimer);
-                inactivityTimer = null; // 다시 문자 사라질 때까지 대기
+                inactivityTimer = null; 
             }
         }
         // 화면 터치시 복귀 타이머 취소
