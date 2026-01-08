@@ -71,9 +71,11 @@
         
         #default-intro-group { display: flex; flex-direction: column; align-items: center; z-index: 5; }
         
-        /* [UPDATED] 인트로 로고 스타일 (더 크게) */
+        /* [수정 1] 인트로 로고 크기 확대 및 효과 */
         .intro-logo {
-            width: 180px; height: 180px; border-radius: 30px; margin-bottom: 25px; /* 크기 확대 */
+            width: 180px; /* 기존 120px -> 180px 확대 */
+            height: 180px; 
+            border-radius: 30px; margin-bottom: 25px;
             box-shadow: 0 0 40px rgba(255, 153, 0, 0.8); /* 발광 효과 강화 */
             animation: float 3s ease-in-out infinite;
         }
@@ -131,7 +133,7 @@
             box-shadow: 0 0 10px rgba(255,59,48,0.5); animation: pulse 2s infinite;
         }
         
-        /* [NEW] 채굴 알림 */
+        /* 채굴 알림 */
         #mining-alert {
             display:none; position:fixed; top:80px; left:50%; transform:translateX(-50%);
             background:rgba(255,215,0,0.95); color:black; padding:10px 25px; 
@@ -145,14 +147,14 @@
         #top-bar { display: flex; justify-content: space-between; padding: 15px; align-items: center; }
         
         .header-brand { display: flex; align-items: center; gap: 10px; }
-        /* [UPDATED] 헤더 로고 크기 확대 */
-        .header-logo { width: 50px; height: 50px; border-radius: 10px; box-shadow: 0 0 15px var(--gold); border: 1px solid rgba(255,255,255,0.5); }
+        
+        /* [수정 1] 헤더 로고 크기 확대 */
+        .header-logo { width: 55px; height: 55px; border-radius: 12px; box-shadow: 0 0 15px var(--gold); border: 1px solid rgba(255,255,255,0.5); }
         
         #project-info { display: flex; flex-direction: column; }
         .slogan-text { font-size: 12px; color: var(--gold); font-weight: bold; letter-spacing: -0.5px; animation: glow 2s infinite alternate; }
         .title-text { font-size: 15px; font-weight: 800; color: var(--hope-cyan); }
         
-        /* 지갑 스타일 */
         #wallet-box {
             display: flex; align-items: center; gap: 5px;
             background: rgba(0, 0, 0, 0.6); padding: 5px 12px;
@@ -485,7 +487,7 @@
             }
         }
 
-        /* [UPDATED] 쇼핑 테마 선택 기능: 즉시 '밀프랩' 서랍을 열고 아이템을 추가 */
+        /* [수정 3] 쇼핑 테마 선택 기능: 즉시 '밀프랩' 서랍을 열고 아이템을 추가 */
         function selectTheme(theme) {
             const meals = JSON.parse(localStorage.getItem('daon_meals') || '[]');
             let newItems = [];
@@ -514,7 +516,7 @@
             }
         }
 
-        /* [UPDATED] 불꽃놀이 크기 및 글자 크기 대폭 확대 */
+        /* [수정 2] 불꽃놀이 크기 및 글자 크기 대폭 확대 & 입자 최적화 */
         class Rocket {
             constructor(x, y, targetY, color, text = null, special = false) {
                 this.x = x; this.y = y; this.targetY = targetY; this.color = color; 
@@ -610,7 +612,7 @@
         window.addEventListener('click', resetInactivityTimer);
         window.addEventListener('touchstart', resetInactivityTimer);
 
-        /* [UPDATED] 녹화 로직 최적화 (멈춤 방지) */
+        /* [수정 2] 녹화 로직 최적화 (멈춤 방지) */
         async function launchAndRecord() {
             const input = document.getElementById('user-msg');
             const msg = input.value || "진심은 통한다";
